@@ -1,7 +1,15 @@
 package data
 
 import (
-    "fmt"
+	"fmt"
+)
+
+type SourceVisiblity string
+
+const (
+	Public       SourceVisiblity = "public"
+	GroupPrivate SourceVisiblity = "group_private"
+	Private      SourceVisiblity = "private"
 )
 
 type User struct {
@@ -12,13 +20,13 @@ type User struct {
 }
 
 type Source struct {
-	SourceId    string `json:"sourceId"`
-	Name        string `json:"sourceName"`
-	Owner       string `json:"owner"`
-    OwnerGroup  string `json:"group"`
-	Description string `json:"description"`
-	Location    string `json:"location"`
-    Access      string `json:"access"`
+	SourceId    string          `json:"sourceId"`
+	Name        string          `json:"sourceName"`
+	Owner       string          `json:"owner"`
+	OwnerGroup  string          `json:"group"`
+	Description string          `json:"description"`
+	Location    string          `json:"location"`
+	Visibility  SourceVisiblity `json:"access"`
 }
 
 type Variable struct {
@@ -27,11 +35,12 @@ type Variable struct {
 	SourceId    string `json:"sourceId"`
 	Description string `json:"description"`
 	Unit        string `json:"unit"`
-    Type        string `json:"type"`
+	Type        string `json:"type"`
 }
 
 type Parameter struct {
-    Variable    
+	Variable
+	Permission string `json:"permission"`
 }
 
 type UserGroup struct {
@@ -49,13 +58,12 @@ func (source *Source) String() string {
 }
 
 func (variable *Variable) String() string {
-	return "Variable: " + 
-        variable.Name + 
-        "[" + 
-        variable.SourceId + 
-        " : " + 
-        variable.VariableId + 
-        "]"
+	return "Variable: " +
+		variable.Name +
+		"[" +
+		variable.SourceId +
+		" : " +
+		variable.VariableId + "]"
 }
 
 func (userGroup *UserGroup) String() string {
