@@ -7,11 +7,18 @@ import (
 type SourceVisiblity string
 
 const (
-	Public       SourceVisiblity = "public"
+	//Public - the source and its properties are visible to everybody
+	Public SourceVisiblity = "public"
+
+	//GroupPrivate - the source and its properties are visible only to
+	// owner's groups
 	GroupPrivate SourceVisiblity = "group_private"
-	Private      SourceVisiblity = "private"
+
+	//Private - the source and its properties are visible only to owner
+	Private SourceVisiblity = "private"
 )
 
+//User - struct representing the user of the service
 type User struct {
 	Name       string `json:"name"`
 	FirstName  string `json:"firstName"`
@@ -19,8 +26,9 @@ type User struct {
 	Email      string `json:"email"`
 }
 
+//Source - represents the a data source that exposes variables and parameters
 type Source struct {
-	SourceId    string          `json:"sourceId"`
+	SourceID    string          `json:"sourceID"`
 	Name        string          `json:"sourceName"`
 	Owner       string          `json:"owner"`
 	OwnerGroup  string          `json:"group"`
@@ -29,20 +37,29 @@ type Source struct {
 	Visibility  SourceVisiblity `json:"access"`
 }
 
+//Variable - is an entity associated with a source that varies with time
 type Variable struct {
-	VariableId  string `json:"variableId"`
+	VariableID  string `json:"variableID"`
 	Name        string `json:"variableName"`
-	SourceId    string `json:"sourceId"`
+	SourceID    string `json:"sourceID"`
 	Description string `json:"description"`
 	Unit        string `json:"unit"`
 	Type        string `json:"type"`
 }
 
+//Parameter - is an entity associated with a source that can be changed to
+//change its behaviour
 type Parameter struct {
-	Variable
-	Permission string `json:"permission"`
+	ParameterID string `json:"parameterID"`
+	Name        string `json:"variableName"`
+	SourceID    string `json:"sourceID"`
+	Description string `json:"description"`
+	Unit        string `json:"unit"`
+	Type        string `json:"type"`
+	Permission  string `json:"permission"`
 }
 
+//UserGroup - is a set of users, who can share permissions
 type UserGroup struct {
 	Name        string `json:"userGroupName"`
 	Owner       string `json:"userGroupOwner"`
@@ -54,16 +71,16 @@ func (user *User) String() string {
 }
 
 func (source *Source) String() string {
-	return "Source: " + source.Name + "[" + source.SourceId + "]"
+	return "Source: " + source.Name + "[" + source.SourceID + "]"
 }
 
 func (variable *Variable) String() string {
 	return "Variable: " +
 		variable.Name +
 		"[" +
-		variable.SourceId +
+		variable.SourceID +
 		" : " +
-		variable.VariableId + "]"
+		variable.VariableID + "]"
 }
 
 func (userGroup *UserGroup) String() string {
