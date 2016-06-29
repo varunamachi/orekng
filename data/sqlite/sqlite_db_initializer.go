@@ -1,7 +1,12 @@
 package sqlite
 
+import (
+	"database/sql"
+	"log"
+)
+
 const exists = `SELECT COUNT (*) FROM sqlite_master 
-        WHERE type='table' AND name= ? ;`
+        WHERE type = 'table' AND name = orek_user;`
 
 var queries = [...]string{
 
@@ -91,88 +96,72 @@ var queries = [...]string{
     );`,
 
 	`CREATE INDEX idx_orek_var_value ON orek_variable_value( variable_id );`,
-
-	//	`CREATE TABLE orel_session(
-	//		session_id		CHAR( 36 ) NOT NULL,
-	//		user_name		VARCHAR( 256 ) NOT NULL,
-	//		start_time		TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	//		data			TEXT
-	//	);`,
 }
 
-type SqliteOptions struct {
+//DataStore - represents the orek datastore
+type DataStore struct {
+	*sql.DB
+}
+
+//Options - options for connecting to sqlite database
+type Options struct {
+
+	//Path - path of the sqlite database file
 	Path string
 }
 
-// func SqliteInit(options *SqliteOptions) (*sql.DB, error) {
-// 	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/",
-// 		options.UserName,
-// 		options.Password,
-// 		options.Host,
-// 		options.Port)
-// 	db, err := sql.Open("mysql", connStr)
-// 	var mdb *MysqlDb
-// 	if err == nil {
-// 		defer db.Close()
-// 		if err = db.Ping(); err == nil {
-// 			row := db.QueryRow(EXISTS, options.DbName)
-// 			var count int
-// 			err = row.Scan(&count)
-// 			if err == nil {
-// 				if count == 0 {
-// 					mdb, err = mysqlCreate(options, db)
-// 				} else {
-// 					mdb, err = mysqlConnect(options)
-// 				}
-// 			}
-// 		}
-// 	}
-// 	if err != nil {
-// 		log.Print("Could not connect to mysql database", err)
-// 	}
-// 	return mdb, err
-// }
+//Init - initializes the orek datastore
+func Init(options *Options) (*DataStore, error) {
+	db, err := sql.Open("sqlite3", options.Path)
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+	defer db.Close()
+	var sqliteDB *DataStore
+	if err = db.Ping(); err == nil {
+		row := db.QueryRow(exists)
+		var count int
+		err = row.Scan(&count)
+		if err == nil {
+			if count == 0 {
+				sqliteDB, err = create(options, db)
+			} else {
+				sqliteDB, err = connect(options)
+			}
+		} else {
+			log.Print(err)
+			return nil, err
+		}
+	}
+	return sqliteDB, err
+}
 
-// func mysqlConnect(options *MysqlOptions) (*MysqlDb, error) {
-// 	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-// 		options.UserName,
-// 		options.Password,
-// 		options.Host,
-// 		options.Port,
-// 		options.DbName)
-// 	mdb, err := sql.Open("mysql", connStr)
-// 	if err != nil {
-// 		log.Print("Could not connect to mysql database")
-// 	} else if err = mdb.Ping(); err != nil {
-// 		log.Print("Could not connect to mysql database")
-// 	} else {
-// 		log.Print("Database opened successfuly")
-// 	}
-// 	return &MysqlDb{mdb}, err
-// }
+//connect - connects to a sqlite database file
+func connect(options *Options) (*DataStore, error) {
+	mdb, err := sql.Open("sqlite3", options.Path)
+	if err != nil {
+		log.Print(err)
+	} else if err = mdb.Ping(); err != nil {
+		log.Printf("Could not connect to mysql database: %s", err)
+	} else {
+		log.Print("Database opened successfuly")
+	}
+	return &DataStore{mdb}, err
+}
 
-// func mysqlCreate(options *MysqlOptions, db *sql.DB) (*MysqlDb, error) {
-// 	query := fmt.Sprintf("CREATE DATABASE %s;", options.DbName)
-// 	//	_, err := db.Exec(`CREATE DATABASE ?;`, options.DbName)
-// 	_, err := db.Exec(query)
-// 	var mdb *MysqlDb
-// 	if err == nil {
-// 		mdb, err = mysqlConnect(options)
-// 		if err == nil {
-// 			for index, query := range queries {
-// 				_, err = mdb.Exec(query)
-// 				if err != nil {
-// 					log.Printf(`Failed to create database: query %d failed`,
-// 						index)
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}
-// 	if err == nil {
-// 		log.Printf(`Database %s created successfully`, options.DbName)
-// 	} else {
-// 		log.Printf(`Could not create database %s: %v`, options.DbName, err)
-// 	}
-// 	return mdb, err
-// }
+//create - connects to a sqlite database file and creates Orek schema
+func create(options *Options, db *sql.DB) (*DataStore, error) {
+	mdb, err := connect(options)
+	if err == nil {
+		for index, query := range queries {
+			_, err = mdb.Exec(query)
+			if err != nil {
+				log.Printf(`Failed to create database, query %d failed: %s`,
+					index, err)
+				break
+			}
+		}
+	}
+	return mdb, err
+}

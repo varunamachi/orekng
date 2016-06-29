@@ -4,45 +4,49 @@ import (
 	"log"
 )
 
-var db OrekDb = nil
+var db OrekDataStore
 
-func SetDataSource(dbInst OrekDb) error {
+//SetDataStore sets the application wIDe data store to be used
+func SetDataStore(dbInst OrekDataStore) error {
 	db = dbInst
 	return nil
 }
 
-func DataSource() OrekDb {
+//GetDataStore - give the application data store
+func GetDataStore() OrekDataStore {
 	if db == nil {
-		log.Fatal("DataSource is Nil!!!")
+		log.Fatal("DataStore is Nil!!!")
 	}
 	return db
 }
 
-type OrekDb interface {
+//OrekDataStore - interface declares the operation that will be exposed by a
+//application data store
+type OrekDataStore interface {
 	GetAllUsers() ([]*User, error)
 	GetUser(userName string) (*User, error)
 	GetUserWithEmail(email string) (*User, error)
 	CreateUser(user *User) error
-    UpdateUser(user *User) error
+	UpdateUser(user *User) error
 	DeleteUser(userName string) error
 
 	GetAllSources() ([]*Source, error)
-	GetSource(sourceId string) (*Source, error)
+	GetSource(sourceID string) (*Source, error)
 	CreateSource(source *Source) error
-    UpdateSource(source *Source) error
-	DeleteSource(sourceId string) error
+	UpdateSource(source *Source) error
+	DeleteSource(sourceID string) error
 
 	GetAllVariables() ([]*Variable, error)
-    GetVariablesForSource(sourceId string) ([]*Variable, error)
-	GetVariable(variableId string) (*Variable, error)
+	GetVariablesForSource(sourceID string) ([]*Variable, error)
+	GetVariable(variableID string) (*Variable, error)
 	CreateVariable(variable *Variable) error
-    UpdateVariable(variable *Variable) error
-	DeleteVariable(variableId string) error
+	UpdateVariable(variable *Variable) error
+	DeleteVariable(variableID string) error
 
 	GetAllUserGroups() ([]*UserGroup, error)
 	GetUserGroup(userGroupName string) (*UserGroup, error)
 	CreateUserGroup(userGroup *UserGroup) error
-    UpdateUserGroup(userGroup *UserGroup) error
+	UpdateUserGroup(userGroup *UserGroup) error
 	DeleteUserGroup(userGroupName string) error
 
 	AddUserToGroup(userName, groupName string) error
@@ -50,7 +54,7 @@ type OrekDb interface {
 	GetUsersInGroup(groupName string) ([]*User, error)
 	GetGroupsForUser(userName string) ([]*UserGroup, error)
 
-	AddVariableValue(variableId, value string) error
-	ClearValuesForVariable(variableId string) error
-	GetValuesForVariable(variableId string) ([]*string, error)
+	AddVariableValue(variableID, value string) error
+	ClearValuesForVariable(variableID string) error
+	GetValuesForVariable(variableID string) ([]*string, error)
 }
