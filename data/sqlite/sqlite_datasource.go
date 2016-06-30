@@ -1,22 +1,26 @@
 package sqlite
 
-func (sqlite *DataStore) GetAllUsers() ([]*User, error) {
+import (
+	"github.com/varunamachi/orekng/data"
+)
+
+func (sqlite *DataStore) GetAllUsers() ([]*data.User, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetUser(userName string) (*User, error) {
+func (sqlite *DataStore) GetUser(userName string) (*data.User, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetUserWithEmail(email string) (*User, error) {
+func (sqlite *DataStore) GetUserWithEmail(email string) (*data.User, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) CreateUser(user *User) error {
+func (sqlite *DataStore) CreateUser(user *data.User) error {
 	return nil
 }
 
-func (sqlite *DataStore) UpdateUser(user *User) error {
+func (sqlite *DataStore) UpdateUser(user *data.User) error {
 	return nil
 }
 
@@ -24,19 +28,19 @@ func (sqlite *DataStore) DeleteUser(userName string) error {
 	return nil
 }
 
-func (sqlite *DataStore) GetAllSources() ([]*Source, error) {
+func (sqlite *DataStore) GetAllSources() ([]*data.Source, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetSource(sourceID string) (*Source, error) {
+func (sqlite *DataStore) GetSource(sourceID string) (*data.Source, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) CreateSource(source *Source) error {
+func (sqlite *DataStore) CreateSource(source *data.Source) error {
 	return nil
 }
 
-func (sqlite *DataStore) UpdateSource(source *Source) error {
+func (sqlite *DataStore) UpdateSource(source *data.Source) error {
 	return nil
 }
 
@@ -44,23 +48,23 @@ func (sqlite *DataStore) DeleteSource(sourceID string) error {
 	return nil
 }
 
-func (sqlite *DataStore) GetAllVariables() ([]*Variable, error) {
+func (sqlite *DataStore) GetAllVariables() ([]*data.Variable, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetVariablesForSource(sourceID string) ([]*Variable, error) {
+func (sqlite *DataStore) GetVariablesForSource(sourceID string) ([]*data.Variable, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetVariable(variableID string) (*Variable, error) {
+func (sqlite *DataStore) GetVariable(variableID string) (*data.Variable, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) CreateVariable(variable *Variable) error {
-	return nil, nil
+func (sqlite *DataStore) CreateVariable(variable *data.Variable) error {
+	return nil
 }
 
-func (sqlite *DataStore) UpdateVariable(variable *Variable) error {
+func (sqlite *DataStore) UpdateVariable(variable *data.Variable) error {
 	return nil
 }
 
@@ -68,19 +72,19 @@ func (sqlite *DataStore) DeleteVariable(variableID string) error {
 	return nil
 }
 
-func (sqlite *DataStore) GetAllUserGroups() ([]*UserGroup, error) {
+func (sqlite *DataStore) GetAllUserGroups() ([]*data.UserGroup, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetUserGroup(userGroupName string) (*UserGroup, error) {
+func (sqlite *DataStore) GetUserGroup(userGroupName string) (*data.UserGroup, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) CreateUserGroup(userGroup *UserGroup) error {
+func (sqlite *DataStore) CreateUserGroup(userGroup *data.UserGroup) error {
 	return nil
 }
 
-func (sqlite *DataStore) UpdateUserGroup(userGroup *UserGroup) error {
+func (sqlite *DataStore) UpdateUserGroup(userGroup *data.UserGroup) error {
 	return nil
 }
 
@@ -96,11 +100,11 @@ func (sqlite *DataStore) RemoveUserFromGroup(userName, groupName string) error {
 	return nil
 }
 
-func (sqlite *DataStore) GetUsersInGroup(groupName string) ([]*User, error) {
+func (sqlite *DataStore) GetUsersInGroup(groupName string) ([]*data.User, error) {
 	return nil, nil
 }
 
-func (sqlite *DataStore) GetGroupsForUser(userName string) ([]*UserGroup, error) {
+func (sqlite *DataStore) GetGroupsForUser(userName string) ([]*data.UserGroup, error) {
 	return nil, nil
 }
 

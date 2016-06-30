@@ -3,6 +3,8 @@ package sqlite
 import (
 	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 const exists = `SELECT COUNT (*) FROM sqlite_master 
@@ -100,7 +102,7 @@ var queries = [...]string{
 
 //DataStore - represents the orek datastore
 type DataStore struct {
-	*sql.DB
+	*sqlx.DB
 }
 
 //Options - options for connecting to sqlite database
@@ -139,7 +141,7 @@ func Init(options *Options) (*DataStore, error) {
 
 //connect - connects to a sqlite database file
 func connect(options *Options) (*DataStore, error) {
-	mdb, err := sql.Open("sqlite3", options.Path)
+	mdb, err := sqlx.Open("sqlite3", options.Path)
 	if err != nil {
 		log.Print(err)
 	} else if err = mdb.Ping(); err != nil {
