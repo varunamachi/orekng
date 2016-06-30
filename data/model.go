@@ -20,50 +20,51 @@ const (
 
 //User - struct representing the user of the service
 type User struct {
-	Name       string `json:"name"`
-	FirstName  string `json:"firstName"`
-	SecondName string `json:"secondName"`
-	Email      string `json:"email"`
+	Name       string `json:"name" db:"user_name"`
+	FirstName  string `json:"firstName" db:"first_name"`
+	SecondName string `json:"secondName" db:"second_name"`
+	Email      string `json:"email" db:"email"`
+}
+
+//UserGroup - is a set of users, who can share permissions
+type UserGroup struct {
+	GroupID     string `json:"userGroupID" db:"id"`
+	Name        string `json:"userGroupName" db:"name"`
+	Owner       string `json:"userGroupOwner" db:"owner"`
+	Description string `json:"userGroupDesc" db:"description"`
 }
 
 //Source - represents the a data source that exposes variables and parameters
 type Source struct {
-	SourceID    string          `json:"sourceID"`
-	Name        string          `json:"sourceName"`
-	Owner       string          `json:"owner"`
-	OwnerGroup  string          `json:"group"`
-	Description string          `json:"description"`
-	Location    string          `json:"location"`
-	Visibility  SourceVisiblity `json:"access"`
+	SourceID    string          `json:"sourceID" db:"source_id"`
+	Name        string          `json:"sourceName" db:"name"`
+	Owner       string          `json:"owner" db:"owner"`
+	OwnerGroup  string          `json:"group" db:"owner_group"`
+	Description string          `json:"description" db:"description"`
+	Location    string          `json:"location" db:"location"`
+	Visibility  SourceVisiblity `json:"visibility" db:"visibility"`
 }
 
 //Variable - is an entity associated with a source that varies with time
 type Variable struct {
-	VariableID  string `json:"variableID"`
-	Name        string `json:"variableName"`
-	SourceID    string `json:"sourceID"`
-	Description string `json:"description"`
-	Unit        string `json:"unit"`
-	Type        string `json:"type"`
+	VariableID  string `json:"variableID" db:"variable_id"`
+	Name        string `json:"variableName" db:"name"`
+	SourceID    string `json:"sourceID" db:"source_id"`
+	Description string `json:"description" db:"description"`
+	Unit        string `json:"unit" db:"unit"`
+	Type        string `json:"type" db:"type"`
 }
 
 //Parameter - is an entity associated with a source that can be changed to
 //change its behaviour
 type Parameter struct {
-	ParameterID string `json:"parameterID"`
-	Name        string `json:"variableName"`
-	SourceID    string `json:"sourceID"`
-	Description string `json:"description"`
-	Unit        string `json:"unit"`
-	Type        string `json:"type"`
-	Permission  string `json:"permission"`
-}
-
-//UserGroup - is a set of users, who can share permissions
-type UserGroup struct {
-	Name        string `json:"userGroupName"`
-	Owner       string `json:"userGroupOwner"`
-	Description string `json:"userGroupDesc"`
+	ParameterID string `json:"parameterID" db:"parameter_id"`
+	Name        string `json:"parameterName" db:"name"`
+	SourceID    string `json:"sourceID" db:"source_id"`
+	Description string `json:"description" db:"description"`
+	Unit        string `json:"unit" db:"unit"`
+	Type        string `json:"type" db:"type"`
+	Permission  string `json:"permission" db:"permission"`
 }
 
 func (user *User) String() string {
