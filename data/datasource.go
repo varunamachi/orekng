@@ -30,14 +30,14 @@ type OrekDataStore interface {
 	UpdateUser(user *User) error
 	DeleteUser(userName string) error
 
-	GetAllSources() ([]*Source, error)
-	GetSource(sourceID string) (*Source, error)
-	CreateSource(source *Source) error
-	UpdateSource(source *Source) error
-	DeleteSource(sourceID string) error
+	GetAllEndpoints() ([]*Endpoint, error)
+	GetEndpoint(endpointID string) (*Endpoint, error)
+	CreateEndpoint(endpoint *Endpoint) error
+	UpdateEndpoint(endpoint *Endpoint) error
+	DeleteEndpoint(endpointID string) error
 
 	GetAllVariables() ([]*Variable, error)
-	GetVariablesForSource(sourceID string) ([]*Variable, error)
+	GetVariablesForEndpoint(endpointID string) ([]*Variable, error)
 	GetVariable(variableID string) (*Variable, error)
 	CreateVariable(variable *Variable) error
 	UpdateVariable(variable *Variable) error

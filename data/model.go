@@ -4,18 +4,18 @@ import (
 	"fmt"
 )
 
-type SourceVisiblity string
+type EndpointVisiblity string
 
 const (
-	//Public - the source and its properties are visible to everybody
-	Public SourceVisiblity = "public"
+	//Public - the endpoint and its properties are visible to everybody
+	Public EndpointVisiblity = "public"
 
-	//GroupPrivate - the source and its properties are visible only to
+	//GroupPrivate - the endpoint and its properties are visible only to
 	// owner's groups
-	GroupPrivate SourceVisiblity = "group_private"
+	GroupPrivate EndpointVisiblity = "group_private"
 
-	//Private - the source and its properties are visible only to owner
-	Private SourceVisiblity = "private"
+	//Private - the endpoint and its properties are visible only to owner
+	Private EndpointVisiblity = "private"
 )
 
 //User - struct representing the user of the service
@@ -34,33 +34,34 @@ type UserGroup struct {
 	Description string `json:"userGroupDesc" db:"description"`
 }
 
-//Source - represents the a data source that exposes variables and parameters
-type Source struct {
-	SourceID    string          `json:"sourceID" db:"source_id"`
-	Name        string          `json:"sourceName" db:"name"`
-	Owner       string          `json:"owner" db:"owner"`
-	OwnerGroup  string          `json:"group" db:"owner_group"`
-	Description string          `json:"description" db:"description"`
-	Location    string          `json:"location" db:"location"`
-	Visibility  SourceVisiblity `json:"visibility" db:"visibility"`
+//Endpoint - represents the a data endpoint that exposes variables and
+//parameters
+type Endpoint struct {
+	EndpointID  string            `json:"endpointID" db:"endpoint_id"`
+	Name        string            `json:"endpointName" db:"name"`
+	Owner       string            `json:"owner" db:"owner"`
+	OwnerGroup  string            `json:"group" db:"owner_group"`
+	Description string            `json:"description" db:"description"`
+	Location    string            `json:"location" db:"location"`
+	Visibility  EndpointVisiblity `json:"visibility" db:"visibility"`
 }
 
-//Variable - is an entity associated with a source that varies with time
+//Variable - is an entity associated with a endpoint that varies with time
 type Variable struct {
 	VariableID  string `json:"variableID" db:"variable_id"`
 	Name        string `json:"variableName" db:"name"`
-	SourceID    string `json:"sourceID" db:"source_id"`
+	EndpointID  string `json:"endpointID" db:"endpoint_id"`
 	Description string `json:"description" db:"description"`
 	Unit        string `json:"unit" db:"unit"`
 	Type        string `json:"type" db:"type"`
 }
 
-//Parameter - is an entity associated with a source that can be changed to
+//Parameter - is an entity associated with a endpoint that can be changed to
 //change its behaviour
 type Parameter struct {
 	ParameterID string `json:"parameterID" db:"parameter_id"`
 	Name        string `json:"parameterName" db:"name"`
-	SourceID    string `json:"sourceID" db:"source_id"`
+	EndpointID  string `json:"endpointID" db:"endpoint_id"`
 	Description string `json:"description" db:"description"`
 	Unit        string `json:"unit" db:"unit"`
 	Type        string `json:"type" db:"type"`
@@ -71,15 +72,15 @@ func (user *User) String() string {
 	return "User: " + user.Name + "[" + user.Email + "]"
 }
 
-func (source *Source) String() string {
-	return "Source: " + source.Name + "[" + source.SourceID + "]"
+func (endpoint *Endpoint) String() string {
+	return "Endpoint: " + endpoint.Name + "[" + endpoint.EndpointID + "]"
 }
 
 func (variable *Variable) String() string {
 	return "Variable: " +
 		variable.Name +
 		"[" +
-		variable.SourceID +
+		variable.EndpointID +
 		" : " +
 		variable.VariableID + "]"
 }

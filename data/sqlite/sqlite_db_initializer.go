@@ -52,15 +52,15 @@ var queries = [...]string{
 			ON DELETE CASCADE
     );`,
 
-	`CREATE TABLE orek_source(
-    	source_id     CHAR( 36 )     NOT NULL,
+	`CREATE TABLE orek_endpoint(
+    	endpoint_id     CHAR( 36 )     NOT NULL,
     	name          VARCHAR( 255 ) NOT NULL,
     	owner         VARCHAR( 255 ) NOT NULL,
 		owner_group	  VARCHAR( 255 ) NOT NULL
     	description   TEXT,
     	location      VARCHAR( 255 ) NOT NULL,
     	visibility    CHAR( 20 )     NOT NULL,
-    	PRIMARY KEY( source_id ),
+    	PRIMARY KEY( endpoint_id ),
     	UNIQUE(name, owner),
     	FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
 			ON DELETE CASCADE
@@ -71,27 +71,27 @@ var queries = [...]string{
 	`CREATE TABLE orek_variable(
     	variable_id  CHAR( 36 )     NOT NULL,
     	name         VARCHAR( 255 ) NOT NULL,
-    	source_id    CHAR( 36 )     NOT NULL,
+    	endpoint_id    CHAR( 36 )     NOT NULL,
     	description  TEXT           NOT NULL,
     	unit         CHAR( 30 )     NOT NULL,
 		type		 CHAR( 30 )		NOT NULL,
     	PRIMARY KEY( variable_id ),
-    	UNIQUE(source_id, name),
-    	FOREIGN KEY( source_id ) REFERENCES orek_source( source_id )
+    	UNIQUE(endpoint_id, name),
+    	FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
 			ON DELETE CASCADE
     );`,
 
 	`CREATE TABLE orek_parameter(
     	parameter_id  CHAR( 36 )     NOT NULL,
     	name         VARCHAR( 255 ) NOT NULL,
-    	source_id    CHAR( 36 )     NOT NULL,
+    	endpoint_id    CHAR( 36 )     NOT NULL,
     	description  TEXT           NOT NULL,
     	unit         CHAR( 30 )     NOT NULL,
 		type		 CHAR( 30 )		NOT NULL,
 		permission   CHAR( 20 )		NOT NULL,
     	PRIMARY KEY( parameter_id ),
-    	UNIQUE(source_id, name),
-    	FOREIGN KEY( source_id ) REFERENCES orek_source( source_id )
+    	UNIQUE(endpoint_id, name),
+    	FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
 			ON DELETE CASCADE
     );`,
 

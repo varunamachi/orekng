@@ -36,25 +36,25 @@ func (sqlite *DataStore) DeleteUser(userName string) error {
 }
 
 //GetAllSources - Gives all the data sources which have entries in database
-func (sqlite *DataStore) GetAllSources() ([]*data.Source, error) {
+func (sqlite *DataStore) GetAllSources() ([]*data.Endpoint, error) {
 	return nil, nil
 }
 
 //GetSource - Gives data source object correspoing to the database entry with
 // given name
-func (sqlite *DataStore) GetSource(sourceID string) (*data.Source, error) {
+func (sqlite *DataStore) GetSource(sourceID string) (*data.Endpoint, error) {
 	return nil, nil
 }
 
 //CreateSource - Creates a source entry in database according to the source
 //object
-func (sqlite *DataStore) CreateSource(source *data.Source) error {
+func (sqlite *DataStore) CreateSource(source *data.Endpoint) error {
 	return nil
 }
 
 //UpdateSource - Updates the source entry in database with information provided
 //in the source object
-func (sqlite *DataStore) UpdateSource(source *data.Source) error {
+func (sqlite *DataStore) UpdateSource(source *data.Endpoint) error {
 	return nil
 }
 
