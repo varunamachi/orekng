@@ -67,7 +67,7 @@ func (sqlite *DataStore) UpdateUser(user *data.User) error {
 
 //DeleteUser - deletes the user entry with given user name
 func (sqlite *DataStore) DeleteUser(userName string) error {
-	query := `DELETE FROM orek_user WHERE user_id = $1`
+	query := `DELETE FROM orek_user WHERE user_id = ?`
 	_, err := sqlite.Exec(query, userName)
 	if err != nil {
 		log.Printf("Error:DB: %v", err)
@@ -87,7 +87,7 @@ func (sqlite *DataStore) GetAllEndpoints() ([]*data.Endpoint, error) {
 // given name
 func (sqlite *DataStore) GetEndpoint(endpointID string) (*data.Endpoint, error) {
 	endpoint := &data.Endpoint{}
-	query := `SELECT * FROM orek_endpoint WHERE endpoint_id = $1`
+	query := `SELECT * FROM orek_endpoint WHERE endpoint_id = ?`
 	err := sqlite.Select(endpoint, query)
 	return endpoint, err
 }
@@ -113,6 +113,9 @@ func (sqlite *DataStore) CreateEndpoint(endpoint *data.Endpoint) error {
 		:visibility
 	)`
 	_, err := sqlite.NamedExec(query, endpoint)
+	if err != nil {
+		log.Printf("Error:DB: %v", err)
+	}
 	return err
 }
 
@@ -120,24 +123,46 @@ func (sqlite *DataStore) CreateEndpoint(endpoint *data.Endpoint) error {
 //in the endpoint object
 func (sqlite *DataStore) UpdateEndpoint(endpoint *data.Endpoint) error {
 	query := `UPDATE orek_endpoint SET
-		endpoint_id,
-		name ,
-		owner,
-		owner_group,
-		description,
-		location,
-		visibility,`
+			name = :name,
+			owner = :owner,
+			owner_group = :owner_group,
+			description = :description,
+			location = :location,
+			visibility = :visibility
+		WHERE endpoint_id = :endpoint_id`
+	_, err := sqlite.NamedExec(query, endpoint)
+	if err != nil {
+		log.Printf("Error:DB: %v", err)
+	}
+	return err
 }
 
+//DeleteEndpoint - deletes an endpoint
 func (sqlite *DataStore) DeleteEndpoint(endpointID string) error {
-	return nil
+	query := `DELETE FROM orek_endpoit WHERE endpoint_id = ?`
+	_, err := sqlite.Exec(query, endpointID)
+	if err != nil {
+		log.Printf("Error:DB: %v", err)
+	}
+	return err
 }
 
+//GetAllVariables - Gives list of all variables
 func (sqlite *DataStore) GetAllVariables() ([]*data.Variable, error) {
-	return nil, nil
+	query := `SELECT * FROM orek_variable ORDER BY variable_id`
+	variables := make([]*data.Variable, 0, 100)
+	err := sqlite.Select(&variables, query)
+	if err != nil {
+		log.Printf("Error:DB: %v", err)
+	}
+	return variables, err
 }
 
-func (sqlite *DataStore) GetVariablesForEndpoint(endpointID string) ([]*data.Variable, error) {
+//GetVariablesForEndpoint - Gives all the variables exported by an endpoint
+func (sqlite *DataStore) GetVariablesForEndpoint(
+	endpointID string) ([]*data.Variable, error) {
+	// query := `SELECT * FROM orek_variable WHERE endpoint_id = ?`
+
 	return nil, nil
 }
 
