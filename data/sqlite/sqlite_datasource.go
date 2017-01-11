@@ -1,7 +1,10 @@
 package sqlite
 
-import "github.com/varunamachi/orekng/data"
-import "log"
+import (
+	"log"
+
+	"github.com/varunamachi/orekng/data"
+)
 
 //GetAllUsers - Gives all user entries in the database
 func (sqlite *DataStore) GetAllUsers() ([]*data.User, error) {
@@ -16,7 +19,7 @@ func (sqlite *DataStore) GetAllUsers() ([]*data.User, error) {
 //GetUser - Gives the user with given userName from database
 func (sqlite *DataStore) GetUser(userName string) (*data.User, error) {
 	user := &data.User{}
-	query := `SELECT * FROM orek_user WHERE user_name = $1`
+	query := `SELECT * FROM orek_user WHERE user_name = ?`
 	err := sqlite.Select(user, query, userName)
 	return user, err
 }
@@ -24,7 +27,7 @@ func (sqlite *DataStore) GetUser(userName string) (*data.User, error) {
 // GetUserWithEmail - Gives the user entry with given EMail id
 func (sqlite *DataStore) GetUserWithEmail(email string) (*data.User, error) {
 	user := &data.User{}
-	query := `SELECT * FROM orek_user WHERE email = $1`
+	query := `SELECT * FROM orek_user WHERE email = ?`
 	err := sqlite.Select(user, query, email)
 	return user, err
 }
@@ -161,13 +164,25 @@ func (sqlite *DataStore) GetAllVariables() ([]*data.Variable, error) {
 //GetVariablesForEndpoint - Gives all the variables exported by an endpoint
 func (sqlite *DataStore) GetVariablesForEndpoint(
 	endpointID string) ([]*data.Variable, error) {
-	// query := `SELECT * FROM orek_variable WHERE endpoint_id = ?`
-
-	return nil, nil
+	query := `SELECT * FROM orek_variable WHERE endpoint_id = ?
+		ORDER BY variable_id`
+	variables := make([]*data.Variable, 0, 100)
+	err := sqlite.Select(&variables, query, endpointID)
+	if err != nil {
+		log.Printf("Error:DB: %v", err)
+	}
+	return variables, err
 }
 
+//GetVariable - Gives the variable with the given ID
 func (sqlite *DataStore) GetVariable(variableID string) (*data.Variable, error) {
-	return nil, nil
+	query := `SELECT * FROM orek_variable WHERE variable_id = ?`
+	variable := &data.Variable{}
+	err := sqlite.Select(variable, query, variableID)
+	if err != nil {
+		log.Printf("Error:DB %v", err)
+	}
+	return err, variable
 }
 
 func (sqlite *DataStore) CreateVariable(variable *data.Variable) error {
