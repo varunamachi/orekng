@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"database/sql"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -118,7 +117,7 @@ type Options struct {
 
 //Init - initializes the orek datastore
 func Init(options *Options) (*DataStore, error) {
-	db, err := sql.Open("sqlite3", options.Path)
+	db, err := sqlx.Connect("sqlite3", options.Path)
 	if err != nil {
 		log.Print(err)
 		return nil, err
@@ -157,7 +156,7 @@ func connect(options *Options) (*DataStore, error) {
 }
 
 //create - connects to a sqlite database file and creates Orek schema
-func create(options *Options, db *sql.DB) (*DataStore, error) {
+func create(options *Options, db *sqlx.DB) (*DataStore, error) {
 	mdb, err := connect(options)
 	if err == nil {
 		for index, query := range queries {
