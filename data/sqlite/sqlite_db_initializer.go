@@ -33,37 +33,37 @@ var queries = [...]string{
     );`,
 
 	`CREATE TABLE orek_user_group(
-		id			VARCHAR( 256 ) NOT NULL
+		group_id	VARCHAR( 256 ) NOT NULL
     	name        VARCHAR( 256 ) NOT NULL,
     	owner       VARCHAR( 256 ) NOT NULL,
     	description TEXT NOT NULL,
-    	PRIMARY KEY( id ),
+    	PRIMARY KEY( group_id ),
     	FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
     );`,
 
 	`CREATE TABLE orek_user_to_group(
-    	group_name  VARCHAR( 256 ) NOT NULL,
+    	group_id    VARCHAR( 256 ) NOT NULL,
     	user_name   VARCHAR( 256 ) NOT NULL,
-    	FOREIGN KEY( group_name ) REFERENCES orek_user_group( id )
+    	FOREIGN KEY( group_id ) REFERENCES orek_user_group( group_id )
 			ON DELETE CASCADE,
     	FOREIGN KEY( user_name ) REFERENCES orek_user( user_name ),
-    	PRIMARY KEY( group_name, user_name )
+    	PRIMARY KEY( group_id, user_name )
 			ON DELETE CASCADE
     );`,
 
 	`CREATE TABLE orek_endpoint(
-    	endpoint_id     CHAR( 36 )     NOT NULL,
-    	name          VARCHAR( 255 ) NOT NULL,
-    	owner         VARCHAR( 255 ) NOT NULL,
-		owner_group	  VARCHAR( 255 ) NOT NULL
-    	description   TEXT,
-    	location      VARCHAR( 255 ) NOT NULL,
-    	visibility    CHAR( 20 )     NOT NULL,
+    	endpoint_id		CHAR( 36 )     NOT NULL,
+    	name       		VARCHAR( 255 ) NOT NULL,
+    	owner      		VARCHAR( 255 ) NOT NULL,
+		owner_group		VARCHAR( 255 ) NOT NULL
+    	description		TEXT,
+    	location   		VARCHAR( 255 ) NOT NULL,
+    	visibility 		CHAR( 20 )     NOT NULL,
     	PRIMARY KEY( endpoint_id ),
     	UNIQUE(name, owner),
     	FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
 			ON DELETE CASCADE
-		FOREIGN KEY( owner_group ) REFERENCES orek_user_group( id )
+		FOREIGN KEY( owner_group ) REFERENCES orek_user_group( group_id )
 			ON DELETE CASCADE
     );`,
 

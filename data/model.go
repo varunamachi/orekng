@@ -28,7 +28,7 @@ type User struct {
 
 //UserGroup - is a set of users, who can share permissions
 type UserGroup struct {
-	GroupID     string `json:"userGroupID" db:"id"`
+	GroupID     string `json:"userGroupID" db:"group_id"`
 	Name        string `json:"userGroupName" db:"name"`
 	Owner       string `json:"userGroupOwner" db:"owner"`
 	Description string `json:"userGroupDesc" db:"description"`

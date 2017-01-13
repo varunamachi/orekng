@@ -43,6 +43,13 @@ type OrekDataStore interface {
 	UpdateVariable(variable *Variable) error
 	DeleteVariable(variableID string) error
 
+	GetAllParameters() ([]*Parameter, error)
+	GetParametersForEndpoint(endpointID string) ([]*Parameter, error)
+	GetParameter(parameterID string) (*Parameter, error)
+	CreateParameter(parameter *Parameter) error
+	UpdateParameter(parameter *Parameter) error
+	DeleteParameter(parameterID string) error
+
 	GetAllUserGroups() ([]*UserGroup, error)
 	GetUserGroup(userGroupName string) (*UserGroup, error)
 	CreateUserGroup(userGroup *UserGroup) error
