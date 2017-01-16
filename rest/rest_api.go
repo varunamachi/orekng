@@ -1,4 +1,4 @@
-package webrest
+package rest
 
 import (
 	"net/http"

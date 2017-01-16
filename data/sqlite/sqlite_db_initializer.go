@@ -100,7 +100,12 @@ var queries = [...]string{
     time                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`,
 
-	`CREATE INDEX idx_orek_var_value ON orek_variable_value( variable_id );`,
+	`CREATE TABLE orek_session(
+    session_id          CHAR( 36 ) NOT NULL,
+    user_id				VARCHAR( 256 ) NOT NULL,
+    time                TIMESTAMP NOT NULL
+    );`,
+	`CREATE INDEX idx_orek_session ON orek_session( session_id );`,
 }
 
 //DataStore - represents the orek datastore

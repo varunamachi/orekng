@@ -3,7 +3,10 @@ package sqlite
 import (
 	"log"
 
+	"time"
+
 	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/rest"
 )
 
 func logIfError(err error) {
@@ -430,4 +433,26 @@ func (sqlite *DataStore) GetValuesForVariable(
 	err = sqlite.Select(values, queryStr, variableID)
 	logIfError(err)
 	return values, err
+}
+
+//CreateUserSession - creates a orek user session
+func (sqlite *DataStore) CreateUserSession(session *rest.Session) (err error) {
+	return err
+}
+
+//GetUserSession - gives a session with given session ID
+func (sqlite *DataStore) GetUserSession(
+	sessionID string) (session *rest.Session, err error) {
+	return session, err
+}
+
+//RemoveUserSession - removes a user session with given ID
+func (sqlite *DataStore) RemoveUserSession(sessionID string) (err error) {
+	return err
+}
+
+//ClearExpiredSessions - clears sessions that have exceeded expiry time i.e.
+//sessionStartSize - currentSize > givenExperyTime
+func (sqlite *DataStore) ClearExpiredSessions(expiryTime time.Time) (err error) {
+	return err
 }
