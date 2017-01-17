@@ -3,8 +3,6 @@ package data
 import (
 	"log"
 	"time"
-
-	"github.com/varunamachi/orekng/rest"
 )
 
 var db OrekDataStore
@@ -68,8 +66,8 @@ type OrekDataStore interface {
 	ClearValuesForVariable(variableID string) error
 	GetValuesForVariable(variableID string) ([]*string, error)
 
-	CreateUserSession(session *rest.Session) error
-	GetUserSession(sessionID string) (rest.Session, error)
+	CreateUserSession(session *Session) error
+	GetUserSession(sessionID string) (*Session, error)
 	RemoveUserSession(sessionID string) error
 	ClearExpiredSessions(expiryTime time.Time) error
 }

@@ -70,7 +70,7 @@ var queries = [...]string{
 	`CREATE TABLE orek_variable(
     	variable_id  CHAR( 36 )     NOT NULL,
     	name         VARCHAR( 255 ) NOT NULL,
-    	endpoint_id    CHAR( 36 )     NOT NULL,
+    	endpoint_id  CHAR( 36 )     NOT NULL,
     	description  TEXT           NOT NULL,
     	unit         CHAR( 30 )     NOT NULL,
 		type		 CHAR( 30 )		NOT NULL,
@@ -81,13 +81,13 @@ var queries = [...]string{
     );`,
 
 	`CREATE TABLE orek_parameter(
-    	parameter_id  CHAR( 36 )     NOT NULL,
-    	name         VARCHAR( 255 ) NOT NULL,
-    	endpoint_id    CHAR( 36 )     NOT NULL,
-    	description  TEXT           NOT NULL,
-    	unit         CHAR( 30 )     NOT NULL,
-		type		 CHAR( 30 )		NOT NULL,
-		permission   CHAR( 20 )		NOT NULL,
+    	parameter_id  	CHAR( 36 )     	NOT NULL,
+    	name         	VARCHAR( 255 ) 	NOT NULL,
+    	endpoint_id    	CHAR( 36 )     	NOT NULL,
+    	description  	TEXT           	NOT NULL,
+    	unit         	CHAR( 30 )     	NOT NULL,
+		type		 	CHAR( 30 )		NOT NULL,
+		permission   	CHAR( 20 )		NOT NULL,
     	PRIMARY KEY( parameter_id ),
     	UNIQUE(endpoint_id, name),
     	FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
@@ -95,17 +95,20 @@ var queries = [...]string{
     );`,
 
 	`CREATE TABLE orek_variable_value(
-    variable_id         CHAR( 36 ) NOT NULL,
-    value               VARCHAR( 256 ) NOT NULL,
-    time                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    	variable_id         CHAR( 36 ) NOT NULL,
+    	value               VARCHAR( 256 ) NOT NULL,
+    	time                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`,
 
-	`CREATE TABLE orek_session(
-    session_id          CHAR( 36 ) NOT NULL,
-    user_id				VARCHAR( 256 ) NOT NULL,
-    time                TIMESTAMP NOT NULL
+	`CREATE TABLE orek_user_session(
+    	session_id          CHAR( 36 ) NOT NULL,
+    	user_name			VARCHAR( 256 ) NOT NULL,
+    	time                TIMESTAMP NOT NULL,
+		PRIMARY KEY( session_id ),
+		UNIQUE( user_name ),
+		FOREIGN KEY( user_name ) REFERENCES orek_user( user_name )
+			ON DELETE CASCADE
     );`,
-	`CREATE INDEX idx_orek_session ON orek_session( session_id );`,
 }
 
 //DataStore - represents the orek datastore

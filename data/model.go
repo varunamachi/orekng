@@ -2,8 +2,10 @@ package data
 
 import (
 	"fmt"
+	"time"
 )
 
+//EndpointVisiblity - determines the visibility of a variable or parameter
 type EndpointVisiblity string
 
 const (
@@ -66,6 +68,14 @@ type Parameter struct {
 	Unit        string `json:"unit" db:"unit"`
 	Type        string `json:"type" db:"type"`
 	Permission  string `json:"permission" db:"permission"`
+}
+
+//Session - represents a session object
+type Session struct {
+	SessionID string            `json:"sessionId" db:"session_id"`
+	UserID    string            `json:"userId" db:"user"`
+	StartTime time.Time         `json:"startTime" db:"start_time"`
+	Props     map[string]string `json:"properties"`
 }
 
 func (user *User) String() string {
