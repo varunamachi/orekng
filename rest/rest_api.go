@@ -5,9 +5,15 @@ import (
 
 	"log"
 
+	"fmt"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	irisjwt "github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris"
 	"github.com/varunamachi/orekng/data"
 )
+
+const ky = "orek_2232redsfaj3234edsa"
 
 func logIfError(err error) {
 	if err != nil {
@@ -643,4 +649,39 @@ func clearValuesForVariable(ctx *iris.Context) {
 				Message:   "Cleared values of a variable",
 				Error:     err})
 	}
+}
+
+func login(ctx *iris.Context) {
+
+}
+
+func defaultHandler(ctx *iris.Context) {
+	ctx.Write([]byte("Hello from Orek!!"))
+}
+
+func fromCookie(ctx *iris.Context) (token string, err error) {
+	token = ""
+	return token, err
+}
+
+func errorHandler(ctx *iris.Context, errString string) {
+	ctx.JSON(http.StatusUnauthorized, Result{
+		Operation: "Authorization",
+		Message:   fmt.Sprintf("JWT Authorization failed! %s", errString),
+		Error:     nil,
+	})
+}
+
+//Map - maps a route to handler function
+func Map() {
+	extractor := irisjwt.FromFirst(irisjwt.FromAuthHeader, fromCookie)
+	jwtMiddleWare := irisjwt.New(irisjwt.Config{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return []byte(ky), nil
+		},
+		SigningMethod: jwt.SigningMethodHS256,
+		Extractor:     extractor,
+		ErrorHandler:  errorHandler,
+	})
+	iris.Get("/", jwtMiddleWare.Serve, defaultHandler)
 }
