@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/varunamachi/orekng/data"
+	"gopkg.in/hlandau/passlib.v1"
 )
 
 const ky = "orek_2232redsfaj3234edsa"
@@ -657,33 +658,55 @@ func clearValuesForVariable(ctx echo.Context) (err error) {
 				Message:   "Cleared values of a variable",
 				Error:     err})
 	}
+	logIfError(err)
+	return err
+}
+
+func varifyPassword(userName, password string) (err error) {
+	var hash string
+	hash, err = data.GetDataStore().GetPasswordHash(userName)
+	if err == nil {
+		var newHash string
+		newHash, err = passlib.Verify(password, hash)
+		if err == nil && newHash != "" {
+			err = data.GetDataStore().SetPasswordHash(userName, newHash)
+		}
+	}
+	logIfError(err)
 	return err
 }
 
 func login(ctx echo.Context) (err error) {
-	username := ctx.FormValue("username")
+	/*
+		TODO:
+		If there is no password
+			If the user record exists
+				Then its a newly created user
+				- Ask the user to create password
+			else user not present - error
+	*/
+	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")
-
-	if username == "jon" && password == "shhh!" {
+	if err = varifyPassword(userName, password); err == nil {
 		// Create token
 		token := jwt.New(jwt.SigningMethodHS256)
 
 		// Set claims
 		claims := token.Claims.(jwt.MapClaims)
-		claims["name"] = "Jon Snow"
+		claims["name"] = userName
 		claims["admin"] = true
 		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("secret"))
+		t, err := token.SignedString([]byte(ky))
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, map[string]string{
+		return ctx.JSON(http.StatusOK, map[string]string{
 			"token": t,
 		})
 	}
-
+	logIfError(err)
 	return echo.ErrUnauthorized
 }
 
@@ -694,14 +717,5 @@ func defaultHandler(ctx echo.Context) (err error) {
 
 //Map - maps a route to handler function
 func Map() {
-	// extractor := irisjwt.FromFirst(irisjwt.FromAuthHeader, fromCookie)
-	// jwtMiddleWare := irisjwt.New(irisjwt.Config{
-	// 	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-	// 		return []byte(ky), nil
-	// 	},
-	// 	SigningMethod: jwt.SigningMethodHS256,
-	// 	Extractor:     extractor,
-	// 	ErrorHandler:  errorHandler,
-	// })
-	// iris.Get("/", jwtMiddleWare.Serve, defaultHandler)
+
 }

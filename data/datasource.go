@@ -24,53 +24,53 @@ func GetDataStore() OrekDataStore {
 //OrekDataStore - interface declares the operation that will be exposed by a
 //application data store
 type OrekDataStore interface {
-	GetAllUsers() ([]*User, error)
-	GetUser(userName string) (*User, error)
-	GetUserWithEmail(email string) (*User, error)
-	CreateUser(user *User) error
-	UpdateUser(user *User) error
-	DeleteUser(userName string) error
+	GetAllUsers() (users []*User, err error)
+	GetUser(userName string) (users *User, err error)
+	GetUserWithEmail(email string) (user *User, err error)
+	CreateUser(user *User) (err error)
+	UpdateUser(user *User) (err error)
+	DeleteUser(userName string) (err error)
 
-	GetAllEndpoints() ([]*Endpoint, error)
-	GetEndpoint(endpointID string) (*Endpoint, error)
-	CreateEndpoint(endpoint *Endpoint) error
-	UpdateEndpoint(endpoint *Endpoint) error
-	DeleteEndpoint(endpointID string) error
+	GetAllEndpoints() (endpoints []*Endpoint, err error)
+	GetEndpoint(endpointID string) (endpoint *Endpoint, err error)
+	CreateEndpoint(endpoint *Endpoint) (err error)
+	UpdateEndpoint(endpoint *Endpoint) (err error)
+	DeleteEndpoint(endpointID string) (err error)
 
-	GetAllVariables() ([]*Variable, error)
-	GetVariablesForEndpoint(endpointID string) ([]*Variable, error)
-	GetVariable(variableID string) (*Variable, error)
-	CreateVariable(variable *Variable) error
-	UpdateVariable(variable *Variable) error
-	DeleteVariable(variableID string) error
+	GetAllVariables() (variables []*Variable, err error)
+	GetVariablesForEndpoint(endpointID string) (variables []*Variable, err error)
+	GetVariable(variableID string) (variable *Variable, err error)
+	CreateVariable(variable *Variable) (err error)
+	UpdateVariable(variable *Variable) (err error)
+	DeleteVariable(variableID string) (err error)
 
-	GetAllParameters() ([]*Parameter, error)
-	GetParametersForEndpoint(endpointID string) ([]*Parameter, error)
-	GetParameter(parameterID string) (*Parameter, error)
-	CreateParameter(parameter *Parameter) error
-	UpdateParameter(parameter *Parameter) error
-	DeleteParameter(parameterID string) error
+	GetAllParameters() (parameters []*Parameter, err error)
+	GetParametersForEndpoint(endpointID string) (parameters []*Parameter, err error)
+	GetParameter(parameterID string) (parameter *Parameter, err error)
+	CreateParameter(parameter *Parameter) (err error)
+	UpdateParameter(parameter *Parameter) (err error)
+	DeleteParameter(parameterID string) (err error)
 
-	GetAllUserGroups() ([]*UserGroup, error)
-	GetUserGroup(userGroupName string) (*UserGroup, error)
-	CreateUserGroup(userGroup *UserGroup) error
-	UpdateUserGroup(userGroup *UserGroup) error
-	DeleteUserGroup(userGroupName string) error
+	GetAllUserGroups() (groups []*UserGroup, err error)
+	GetUserGroup(userGroupName string) (group *UserGroup, err error)
+	CreateUserGroup(userGroup *UserGroup) (err error)
+	UpdateUserGroup(userGroup *UserGroup) (err error)
+	DeleteUserGroup(userGroupName string) (err error)
 
-	AddUserToGroup(userName, groupName string) error
-	RemoveUserFromGroup(userName, groupName string) error
-	GetUsersInGroup(groupName string) ([]*User, error)
-	GetGroupsForUser(userName string) ([]*UserGroup, error)
+	AddUserToGroup(userName, groupName string) (err error)
+	RemoveUserFromGroup(userName, groupName string) (err error)
+	GetUsersInGroup(groupName string) (userInGroup []*User, err error)
+	GetGroupsForUser(userName string) (groupsForUser []*UserGroup, err error)
 
-	AddVariableValue(variableID, value string) error
-	ClearValuesForVariable(variableID string) error
-	GetValuesForVariable(variableID string) ([]*string, error)
+	AddVariableValue(variableID, value string) (err error)
+	ClearValuesForVariable(variableID string) (err error)
+	GetValuesForVariable(variableID string) (values []*string, err error)
 
-	CreateUserSession(session *Session) error
-	GetUserSession(sessionID string) (*Session, error)
-	RemoveUserSession(sessionID string) error
-	ClearExpiredSessions(expiryTime time.Time) error
+	CreateUserSession(session *Session) (err error)
+	GetUserSession(sessionID string) (session *Session, err error)
+	RemoveUserSession(sessionID string) (err error)
+	ClearExpiredSessions(expiryTime time.Time) (err error)
 
-	CreateUserPassword(userID, password string) error
-	ValidatePassword(userID, password string) error
+	SetPasswordHash(userName, passwordHash string) (err error)
+	GetPasswordHash(userName string) (hash string, err error)
 }

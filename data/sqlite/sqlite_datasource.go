@@ -498,3 +498,15 @@ func (sqlite *DataStore) ClearExpiredSessions(expiryTimeMillis int64) (err error
 	logIfError(err)
 	return err
 }
+
+//SetPasswordHash - stores password hash for an user in the database
+func SetPasswordHash(userName, passwordHash string) (err error) {
+
+	return err
+}
+
+//GetPasswordHash - Retrieves password hash for an user from the database
+func GetPasswordHash(userName string) (hash string, err error) {
+
+	return hash, err
+}
