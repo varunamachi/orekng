@@ -70,4 +70,7 @@ type OrekDataStore interface {
 	GetUserSession(sessionID string) (*Session, error)
 	RemoveUserSession(sessionID string) error
 	ClearExpiredSessions(expiryTime time.Time) error
+
+	CreateUserPassword(userID, password string) error
+	ValidatePassword(userID, password string) error
 }

@@ -2,26 +2,25 @@ package rest
 
 import (
 	"net/http"
+	"time"
 
 	"log"
 
-	"fmt"
-
-	jwt "github.com/dgrijalva/jwt-go"
-	irisjwt "github.com/iris-contrib/middleware/jwt"
-	"github.com/kataras/iris"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
 	"github.com/varunamachi/orekng/data"
 )
 
 const ky = "orek_2232redsfaj3234edsa"
 
-func logIfError(err error) {
+func logIfError(err error) (errOut error) {
 	if err != nil {
 		log.Printf("Error:REST: %v", err)
 	}
+	return
 }
 
-func getAllUsers(ctx *iris.Context) {
+func getAllUsers(ctx echo.Context) (err error) {
 	users, err := data.GetDataStore().GetAllUsers()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -31,11 +30,12 @@ func getAllUsers(ctx *iris.Context) {
 				Error:     err})
 
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, users))
+		err = logIfError(ctx.JSON(http.StatusOK, users))
 	}
+	return err
 }
 
-func getUser(ctx *iris.Context) {
+func getUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	user, err := data.GetDataStore().GetUser(userName)
 	if err != nil {
@@ -46,11 +46,12 @@ func getUser(ctx *iris.Context) {
 				Error:     err})
 
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, user))
+		err = logIfError(ctx.JSON(http.StatusOK, user))
 	}
+	return err
 }
 
-func getUserWithEmail(ctx *iris.Context) {
+func getUserWithEmail(ctx echo.Context) (err error) {
 	email := ctx.Param("email")
 	user, err := data.GetDataStore().GetUserWithEmail(email)
 	if err != nil {
@@ -60,14 +61,14 @@ func getUserWithEmail(ctx *iris.Context) {
 				Message:   "Failed to fetch user details",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, user))
+		err = logIfError(ctx.JSON(http.StatusOK, user))
 	}
-
+	return err
 }
 
-func createUser(ctx *iris.Context) {
+func createUser(ctx echo.Context) (err error) {
 	var user data.User
-	err := ctx.ReadJSON(&user)
+	err = ctx.Bind(&user)
 	if err != nil {
 		err = data.GetDataStore().CreateUser(&user)
 	}
@@ -84,12 +85,12 @@ func createUser(ctx *iris.Context) {
 				Message:   "User creation successful",
 				Error:     nil})
 	}
-
+	return err
 }
 
-func updateUser(ctx *iris.Context) {
+func updateUser(ctx echo.Context) (err error) {
 	var user data.User
-	err := ctx.ReadJSON(&user)
+	err = ctx.Bind(&user)
 	if err != nil {
 		err = data.GetDataStore().UpdateUser(&user)
 	}
@@ -106,11 +107,12 @@ func updateUser(ctx *iris.Context) {
 				Message:   "User update successful",
 				Error:     nil})
 	}
+	return err
 }
 
-func deleteUser(ctx *iris.Context) {
+func deleteUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
-	err := data.GetDataStore().DeleteUser(userName)
+	err = data.GetDataStore().DeleteUser(userName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -124,9 +126,10 @@ func deleteUser(ctx *iris.Context) {
 				Message:   "User deletion successful",
 				Error:     nil})
 	}
+	return err
 }
 
-func getAllEndpoints(ctx *iris.Context) {
+func getAllEndpoints(ctx echo.Context) (err error) {
 	endpoints, err := data.GetDataStore().GetAllEndpoints()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -135,11 +138,12 @@ func getAllEndpoints(ctx *iris.Context) {
 				Message:   "Listing endpoint failed",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, endpoints))
+		err = logIfError(ctx.JSON(http.StatusOK, endpoints))
 	}
+	return err
 }
 
-func getEndpoint(ctx *iris.Context) {
+func getEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
 	endpoint, err := data.GetDataStore().GetEndpoint(endpointID)
 	if err != nil {
@@ -150,13 +154,14 @@ func getEndpoint(ctx *iris.Context) {
 				Error:     err})
 
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, endpoint))
+		err = logIfError(ctx.JSON(http.StatusOK, endpoint))
 	}
+	return err
 }
 
-func createEndpoint(ctx *iris.Context) {
+func createEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
-	err := ctx.ReadJSON(&endpoint)
+	err = ctx.Bind(&endpoint)
 	if err != nil {
 		err = data.GetDataStore().CreateEndpoint(&endpoint)
 	}
@@ -173,11 +178,12 @@ func createEndpoint(ctx *iris.Context) {
 				Message:   "Endpoint created succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func updateEndpoint(ctx *iris.Context) {
+func updateEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
-	err := ctx.ReadJSON(&endpoint)
+	err = ctx.Bind(&endpoint)
 	if err != nil {
 		err = data.GetDataStore().UpdateEndpoint(&endpoint)
 	}
@@ -194,11 +200,12 @@ func updateEndpoint(ctx *iris.Context) {
 				Message:   "Endpoint updated succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func deleteEndpoint(ctx *iris.Context) {
+func deleteEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
-	err := data.GetDataStore().DeleteEndpoint(endpointID)
+	err = data.GetDataStore().DeleteEndpoint(endpointID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -212,9 +219,10 @@ func deleteEndpoint(ctx *iris.Context) {
 				Message:   "Endpoint delete succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func getAllVariables(ctx *iris.Context) {
+func getAllVariables(ctx echo.Context) (err error) {
 	variables, err := data.GetDataStore().GetAllVariables()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -223,11 +231,12 @@ func getAllVariables(ctx *iris.Context) {
 				Message:   "Failed to list all variables",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, variables))
+		err = logIfError(ctx.JSON(http.StatusOK, variables))
 	}
+	return err
 }
 
-func getVariablesForEndpoint(ctx *iris.Context) {
+func getVariablesForEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
 	variables, err := data.GetDataStore().GetVariablesForEndpoint(endpointID)
 	if err != nil {
@@ -237,11 +246,12 @@ func getVariablesForEndpoint(ctx *iris.Context) {
 				Message:   "Failed to list all variables associated with an endpoint",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, variables))
+		err = logIfError(ctx.JSON(http.StatusOK, variables))
 	}
+	return err
 }
 
-func getVariable(ctx *iris.Context) {
+func getVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
 	variable, err := data.GetDataStore().GetVariable(variableID)
 	if err != nil {
@@ -251,14 +261,14 @@ func getVariable(ctx *iris.Context) {
 				Message:   "Failed to fetch information about a variable",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, variable))
+		err = logIfError(ctx.JSON(http.StatusOK, variable))
 	}
-
+	return err
 }
 
-func createVariable(ctx *iris.Context) {
+func createVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
-	err := ctx.ReadJSON(&variable)
+	err = ctx.Bind(&variable)
 	if err != nil {
 		err = data.GetDataStore().CreateVariable(&variable)
 	}
@@ -275,11 +285,12 @@ func createVariable(ctx *iris.Context) {
 				Message:   "Variable created succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func updateVariable(ctx *iris.Context) {
+func updateVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
-	err := ctx.ReadJSON(&variable)
+	err = ctx.Bind(&variable)
 	if err != nil {
 		err = data.GetDataStore().UpdateVariable(&variable)
 	}
@@ -296,11 +307,12 @@ func updateVariable(ctx *iris.Context) {
 				Message:   "Variable updated succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func deleteVariable(ctx *iris.Context) {
+func deleteVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	err := data.GetDataStore().DeleteVariable(variableID)
+	err = data.GetDataStore().DeleteVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -314,9 +326,10 @@ func deleteVariable(ctx *iris.Context) {
 				Message:   "Variable delete succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func getAllParameters(ctx *iris.Context) {
+func getAllParameters(ctx echo.Context) (err error) {
 	parameters, err := data.GetDataStore().GetAllParameters()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -325,11 +338,12 @@ func getAllParameters(ctx *iris.Context) {
 				Message:   "Failed to list all parameters",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, parameters))
+		err = logIfError(ctx.JSON(http.StatusOK, parameters))
 	}
+	return err
 }
 
-func getParametersForEndpoint(ctx *iris.Context) {
+func getParametersForEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
 	parameters, err := data.GetDataStore().GetParametersForEndpoint(endpointID)
 	if err != nil {
@@ -339,11 +353,12 @@ func getParametersForEndpoint(ctx *iris.Context) {
 				Message:   "Failed to list all parameters associated with an endpoint",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, parameters))
+		err = logIfError(ctx.JSON(http.StatusOK, parameters))
 	}
+	return err
 }
 
-func getParameter(ctx *iris.Context) {
+func getParameter(ctx echo.Context) (err error) {
 	parameterID := ctx.Param("parameterID")
 	parameter, err := data.GetDataStore().GetParameter(parameterID)
 	if err != nil {
@@ -353,14 +368,14 @@ func getParameter(ctx *iris.Context) {
 				Message:   "Failed to fetch information about a parameter",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, parameter))
+		err = logIfError(ctx.JSON(http.StatusOK, parameter))
 	}
-
+	return err
 }
 
-func createParameter(ctx *iris.Context) {
+func createParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
-	err := ctx.ReadJSON(&parameter)
+	err = ctx.Bind(&parameter)
 	if err != nil {
 		err = data.GetDataStore().CreateParameter(&parameter)
 	}
@@ -377,11 +392,12 @@ func createParameter(ctx *iris.Context) {
 				Message:   "Parameter created succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func updateParameter(ctx *iris.Context) {
+func updateParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
-	err := ctx.ReadJSON(&parameter)
+	err = ctx.Bind(&parameter)
 	if err != nil {
 		err = data.GetDataStore().UpdateParameter(&parameter)
 	}
@@ -398,11 +414,12 @@ func updateParameter(ctx *iris.Context) {
 				Message:   "Parameter updated succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-func deleteParameter(ctx *iris.Context) {
+func deleteParameter(ctx echo.Context) (err error) {
 	parameterID := ctx.Param("parameterID")
-	err := data.GetDataStore().DeleteParameter(parameterID)
+	err = data.GetDataStore().DeleteParameter(parameterID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -416,29 +433,10 @@ func deleteParameter(ctx *iris.Context) {
 				Message:   "Parameter delete succesffully",
 				Error:     err})
 	}
+	return err
 }
 
-// func getAllUserGroups(ctx *iris.Context) {
-
-// }
-
-// func getUserGroup(ctx *iris.Context) {
-
-// }
-
-// func createUserGroup(ctx *iris.Context) {
-
-// }
-
-// func updateUserGroup(ctx *iris.Context) {
-
-// }
-
-// func deleteUserGroup(ctx *iris.Context) {
-
-// }
-
-func getAllUserGroups(ctx *iris.Context) {
+func getAllUserGroups(ctx echo.Context) (err error) {
 	userGroups, err := data.GetDataStore().GetAllUserGroups()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -448,11 +446,12 @@ func getAllUserGroups(ctx *iris.Context) {
 				Error:     err})
 
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, userGroups))
+		err = logIfError(ctx.JSON(http.StatusOK, userGroups))
 	}
+	return err
 }
 
-func getUserGroup(ctx *iris.Context) {
+func getUserGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
 	userGroup, err := data.GetDataStore().GetUserGroup(groupID)
 	if err != nil {
@@ -463,13 +462,14 @@ func getUserGroup(ctx *iris.Context) {
 				Error:     err})
 
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, userGroup))
+		err = logIfError(ctx.JSON(http.StatusOK, userGroup))
 	}
+	return err
 }
 
-func createUserGroup(ctx *iris.Context) {
+func createUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
-	err := ctx.ReadJSON(&userGroup)
+	err = ctx.Bind(&userGroup)
 	if err != nil {
 		err = data.GetDataStore().CreateUserGroup(&userGroup)
 	}
@@ -486,12 +486,12 @@ func createUserGroup(ctx *iris.Context) {
 				Message:   "UserGroup creation successful",
 				Error:     nil})
 	}
-
+	return err
 }
 
-func updateUserGroup(ctx *iris.Context) {
+func updateUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
-	err := ctx.ReadJSON(&userGroup)
+	err = ctx.Bind(&userGroup)
 	if err != nil {
 		err = data.GetDataStore().UpdateUserGroup(&userGroup)
 	}
@@ -508,11 +508,12 @@ func updateUserGroup(ctx *iris.Context) {
 				Message:   "UserGroup update successful",
 				Error:     nil})
 	}
+	return err
 }
 
-func deleteUserGroup(ctx *iris.Context) {
+func deleteUserGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
-	err := data.GetDataStore().DeleteUserGroup(groupID)
+	err = data.GetDataStore().DeleteUserGroup(groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -526,12 +527,13 @@ func deleteUserGroup(ctx *iris.Context) {
 				Message:   "UserGroup deletion successful",
 				Error:     nil})
 	}
+	return err
 }
 
-func addUserToGroup(ctx *iris.Context) {
+func addUserToGroup(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	groupID := ctx.Param("groupID")
-	err := data.GetDataStore().AddUserToGroup(userName, groupID)
+	err = data.GetDataStore().AddUserToGroup(userName, groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -545,12 +547,13 @@ func addUserToGroup(ctx *iris.Context) {
 				Message:   "User associated with a group successfully",
 				Error:     nil})
 	}
+	return err
 }
 
-func removeUserFromGroup(ctx *iris.Context) {
+func removeUserFromGroup(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	groupID := ctx.Param("groupID")
-	err := data.GetDataStore().RemoveUserFromGroup(userName, groupID)
+	err = data.GetDataStore().RemoveUserFromGroup(userName, groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -564,9 +567,10 @@ func removeUserFromGroup(ctx *iris.Context) {
 				Message:   "User associated with a group successfully",
 				Error:     nil})
 	}
+	return err
 }
 
-func getUsersInGroup(ctx *iris.Context) {
+func getUsersInGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
 	users, err := data.GetDataStore().GetUsersInGroup(groupID)
 	if err != nil {
@@ -576,11 +580,12 @@ func getUsersInGroup(ctx *iris.Context) {
 				Message:   "Failed to fetch users associated with a group",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, users))
+		err = logIfError(ctx.JSON(http.StatusOK, users))
 	}
+	return err
 }
 
-func getGroupsForUser(ctx *iris.Context) {
+func getGroupsForUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	groups, err := data.GetDataStore().GetGroupsForUser(userName)
 	if err != nil {
@@ -590,16 +595,17 @@ func getGroupsForUser(ctx *iris.Context) {
 				Message:   "Failed to fetch groups to which a user is  associated",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, groups))
+		err = logIfError(ctx.JSON(http.StatusOK, groups))
 	}
+	return err
 }
 
-func addVariableValue(ctx *iris.Context) {
+func addVariableValue(ctx echo.Context) (err error) {
 	varValue := struct {
 		VariableID string `json:"variableID"`
 		Value      string `json:"value"`
 	}{}
-	err := ctx.ReadJSON(&varValue)
+	err = ctx.Bind(&varValue)
 	if err != nil {
 		err = data.GetDataStore().AddVariableValue(varValue.VariableID,
 			varValue.Value)
@@ -617,9 +623,10 @@ func addVariableValue(ctx *iris.Context) {
 				Message:   "Value for a variable added",
 				Error:     err})
 	}
+	return err
 }
 
-func getValuesForVariable(ctx *iris.Context) {
+func getValuesForVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
 	values, err := data.GetDataStore().GetValuesForVariable(variableID)
 	if err != nil {
@@ -629,13 +636,14 @@ func getValuesForVariable(ctx *iris.Context) {
 				Message:   "Failed fetch values of a variable",
 				Error:     err})
 	} else {
-		logIfError(ctx.JSON(http.StatusOK, values))
+		err = logIfError(ctx.JSON(http.StatusOK, values))
 	}
+	return err
 }
 
-func clearValuesForVariable(ctx *iris.Context) {
+func clearValuesForVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	err := data.GetDataStore().ClearValuesForVariable(variableID)
+	err = data.GetDataStore().ClearValuesForVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -649,39 +657,51 @@ func clearValuesForVariable(ctx *iris.Context) {
 				Message:   "Cleared values of a variable",
 				Error:     err})
 	}
+	return err
 }
 
-func login(ctx *iris.Context) {
+func login(ctx echo.Context) (err error) {
+	username := ctx.FormValue("username")
+	password := ctx.FormValue("password")
 
+	if username == "jon" && password == "shhh!" {
+		// Create token
+		token := jwt.New(jwt.SigningMethodHS256)
+
+		// Set claims
+		claims := token.Claims.(jwt.MapClaims)
+		claims["name"] = "Jon Snow"
+		claims["admin"] = true
+		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+		// Generate encoded token and send it as response.
+		t, err := token.SignedString([]byte("secret"))
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, map[string]string{
+			"token": t,
+		})
+	}
+
+	return echo.ErrUnauthorized
 }
 
-func defaultHandler(ctx *iris.Context) {
-	ctx.Write([]byte("Hello from Orek!!"))
-}
-
-func fromCookie(ctx *iris.Context) (token string, err error) {
-	token = ""
-	return token, err
-}
-
-func errorHandler(ctx *iris.Context, errString string) {
-	ctx.JSON(http.StatusUnauthorized, Result{
-		Operation: "Authorization",
-		Message:   fmt.Sprintf("JWT Authorization failed! %s", errString),
-		Error:     nil,
-	})
+func defaultHandler(ctx echo.Context) (err error) {
+	err = ctx.HTML(http.StatusOK, "<b> Hello from Orek </b>")
+	return err
 }
 
 //Map - maps a route to handler function
 func Map() {
-	extractor := irisjwt.FromFirst(irisjwt.FromAuthHeader, fromCookie)
-	jwtMiddleWare := irisjwt.New(irisjwt.Config{
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(ky), nil
-		},
-		SigningMethod: jwt.SigningMethodHS256,
-		Extractor:     extractor,
-		ErrorHandler:  errorHandler,
-	})
-	iris.Get("/", jwtMiddleWare.Serve, defaultHandler)
+	// extractor := irisjwt.FromFirst(irisjwt.FromAuthHeader, fromCookie)
+	// jwtMiddleWare := irisjwt.New(irisjwt.Config{
+	// 	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+	// 		return []byte(ky), nil
+	// 	},
+	// 	SigningMethod: jwt.SigningMethodHS256,
+	// 	Extractor:     extractor,
+	// 	ErrorHandler:  errorHandler,
+	// })
+	// iris.Get("/", jwtMiddleWare.Serve, defaultHandler)
 }
