@@ -683,7 +683,7 @@ func login(ctx echo.Context) (err error) {
 			If the user record exists
 				Then its a newly created user
 				- Ask the user to create password
-			else user not present - error
+			else user not present -
 	*/
 	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")

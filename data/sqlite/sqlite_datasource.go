@@ -1,9 +1,12 @@
 package sqlite
 
 import (
+	"fmt"
 	"log"
 
 	"time"
+
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/varunamachi/orekng/data"
@@ -500,13 +503,106 @@ func (sqlite *DataStore) ClearExpiredSessions(expiryTimeMillis int64) (err error
 }
 
 //SetPasswordHash - stores password hash for an user in the database
-func SetPasswordHash(userName, passwordHash string) (err error) {
-
+func (sqlite *DataStore) SetPasswordHash(userName, passwordHash string) (err error) {
+	queryStr := `INSERT INTO orek_user_password(
+		user_name,
+		hash
+	) VALUES (
+		?,
+		?
+	)`
+	_, err = sqlite.Exec(queryStr, userName, passwordHash)
+	logIfError(err)
 	return err
 }
 
 //GetPasswordHash - Retrieves password hash for an user from the database
-func GetPasswordHash(userName string) (hash string, err error) {
-
+func (sqlite *DataStore) GetPasswordHash(userName string) (hash string, err error) {
+	queryStr := `SELECT hash FROM orek_user_password WHERE user_name = ?`
+	err = sqlite.Select(&hash, queryStr, userName)
+	logIfError(err)
 	return hash, err
+}
+
+//UpdatePasswordHash - updates password hash for a user in the database
+func (sqlite *DataStore) UpdatePasswordHash(userName, passwordHash string) (err error) {
+	queryStr := `UPDATE orek_user_password SET hash = ? WHERE user_name = ?`
+	_, err = sqlite.Exec(queryStr, passwordHash, userName)
+	logIfError(err)
+	return err
+}
+
+//checkExists - checks if a row is selected by the given query
+func (sqlite *DataStore) checkExists(
+	query string, args ...interface{}) (exists bool, err error) {
+	query = fmt.Sprintf("SELECT exists (%s)", query)
+	rows := sqlite.QueryRowx(query, args)
+	if rows.Err() == nil {
+		exists = true
+	} else if rows.Err() == sql.ErrNoRows {
+		exists = false
+	} else {
+		exists = false
+		err = rows.Err()
+	}
+	return exists, err
+}
+
+//UserExists - Checks if an user record exists for given user bane
+func (sqlite *DataStore) UserExists(userName string) (exists bool, err error) {
+
+	return exists, err
+}
+
+//UserExistsWithEmail - checks if an user record exists with given email
+func (sqlite *DataStore) UserExistsWithEmail(email string) (exists bool, err error) {
+	return exists, err
+}
+
+//EndpointExists - checks if an endpoint exists with given ID
+func (sqlite *DataStore) EndpointExists(endpointID string) (exists bool, err error) {
+	return exists, err
+}
+
+//VariableExists - checks if a variable exists with given variable ID
+func (sqlite *DataStore) VariableExists(variableID string) (exists bool, err error) {
+	return exists, err
+}
+
+//VariableExistsInEndpoint - checks if a variable with given variableID in an
+//endpoint given by the endpointID
+func (sqlite *DataStore) VariableExistsInEndpoint(
+	variableID, endpointID string) (exists bool, err error) {
+	return exists, err
+}
+
+//ParameterExists - checks if a parameter exists with given parameter ID
+func (sqlite *DataStore) ParameterExists(parameterID string) (exists bool, err error) {
+	return exists, err
+}
+
+//ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
+//endpoint given by the endpointID
+func (sqlite *DataStore) ParameterExistsInEndpoint(
+	variableID, endpointID string) (exists bool, err error) {
+	return exists, err
+}
+
+//UserGroupExists - checks if an User group exists with given ID
+func (sqlite *DataStore) UserGroupExists(userGroupID string) (exists bool, err error) {
+	return exists, err
+}
+
+//UserExistsInGroup - checks if user with given user ID is associated with the
+//group with given groupID
+func (sqlite *DataStore) UserExistsInGroup(
+	userName, groupID string) (exists bool, err error) {
+	return exists, err
+}
+
+//GroupHasUser - checks if group with given ID has a user with given userName
+//associated with it
+func (sqlite *DataStore) GroupHasUser(
+	groupID, userName string) (has bool, err error) {
+	return has, err
 }
