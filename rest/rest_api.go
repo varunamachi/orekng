@@ -6,6 +6,8 @@ import (
 
 	"log"
 
+	"errors"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/varunamachi/orekng/data"
@@ -687,7 +689,21 @@ func login(ctx echo.Context) (err error) {
 	*/
 	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")
-	if err = varifyPassword(userName, password); err == nil {
+	if err = varifyPassword(userName, password); err != nil {
+		userExists, checkError := data.GetDataStore().UserExists(userName)
+		if checkError == nil && !userExists {
+			ctx.JSON(http.StatusUnauthorized,
+				Result{
+					Operation: "login",
+					Message:   "Create password",
+					Error:     errors.New("NoPasswordFound"),
+				})
+			err = nil
+		} else {
+			err = echo.ErrUnauthorized
+		}
+
+	} else {
 		// Create token
 		token := jwt.New(jwt.SigningMethodHS256)
 
@@ -707,7 +723,7 @@ func login(ctx echo.Context) (err error) {
 		})
 	}
 	logIfError(err)
-	return echo.ErrUnauthorized
+	return err
 }
 
 func defaultHandler(ctx echo.Context) (err error) {

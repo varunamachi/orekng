@@ -550,22 +550,29 @@ func (sqlite *DataStore) checkExists(
 
 //UserExists - Checks if an user record exists for given user bane
 func (sqlite *DataStore) UserExists(userName string) (exists bool, err error) {
-
+	query := `SELECT 1 FROM orek_user WHERE user_name = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, userName)
 	return exists, err
 }
 
 //UserExistsWithEmail - checks if an user record exists with given email
 func (sqlite *DataStore) UserExistsWithEmail(email string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_user WHERE email = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, email)
 	return exists, err
 }
 
 //EndpointExists - checks if an endpoint exists with given ID
 func (sqlite *DataStore) EndpointExists(endpointID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_endpoint WHERE endpoint_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, endpointID)
 	return exists, err
 }
 
 //VariableExists - checks if a variable exists with given variable ID
 func (sqlite *DataStore) VariableExists(variableID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_variable WHERE variable_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, variableID)
 	return exists, err
 }
 
@@ -573,23 +580,36 @@ func (sqlite *DataStore) VariableExists(variableID string) (exists bool, err err
 //endpoint given by the endpointID
 func (sqlite *DataStore) VariableExistsInEndpoint(
 	variableID, endpointID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_variable WHERE 
+		variable_id = ? AND
+		endpoint_id = ?  LIMIT 1`
+	exists, err = sqlite.checkExists(query, variableID, endpointID)
 	return exists, err
 }
 
 //ParameterExists - checks if a parameter exists with given parameter ID
 func (sqlite *DataStore) ParameterExists(parameterID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_parameter WHERE parameter_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, parameterID)
 	return exists, err
 }
 
 //ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
 //endpoint given by the endpointID
 func (sqlite *DataStore) ParameterExistsInEndpoint(
-	variableID, endpointID string) (exists bool, err error) {
+	parameterID, endpointID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_parameter WHERE 
+		parameter_id  = ? AND 
+		endpoint_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, parameterID, endpointID)
 	return exists, err
 }
 
 //UserGroupExists - checks if an User group exists with given ID
-func (sqlite *DataStore) UserGroupExists(userGroupID string) (exists bool, err error) {
+func (sqlite *DataStore) UserGroupExists(
+	userGroupID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_user_group WHERE group_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, userGroupID)
 	return exists, err
 }
 
@@ -597,6 +617,10 @@ func (sqlite *DataStore) UserGroupExists(userGroupID string) (exists bool, err e
 //group with given groupID
 func (sqlite *DataStore) UserExistsInGroup(
 	userName, groupID string) (exists bool, err error) {
+	query := `SELECT 1 FROM orek_user_to_group WHERE 
+		user_name = ? AND
+		group_id = ? LIMIT 1`
+	exists, err = sqlite.checkExists(query, userName, groupID)
 	return exists, err
 }
 
@@ -604,5 +628,9 @@ func (sqlite *DataStore) UserExistsInGroup(
 //associated with it
 func (sqlite *DataStore) GroupHasUser(
 	groupID, userName string) (has bool, err error) {
+	query := `SELECT 1 FROM orek_user_to_group WHERE 
+		group_id = ? AND
+		user_name = ? LIMIT 1`
+	has, err = sqlite.checkExists(query, groupID, userName)
 	return has, err
 }
