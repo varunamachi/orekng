@@ -10,6 +10,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/varunamachi/orekng/data"
 	"gopkg.in/hlandau/passlib.v1"
 )
@@ -654,13 +655,73 @@ func clearValuesForVariable(ctx echo.Context) (err error) {
 				Message:   "Failed clear the values of a variable",
 				Error:     err})
 	} else {
-		ctx.JSON(http.StatusInternalServerError,
+		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Clear Variable Values",
 				Message:   "Cleared values of a variable",
 				Error:     err})
 	}
 	logIfError(err)
+	return err
+}
+
+func setPassword(ctx echo.Context) (err error) {
+	//This needs to run only if the current logged in user is an admin
+	//OR email user the link to set the password
+	userName := ctx.FormValue("userName")
+	password := ctx.FormValue("password")
+	var hash string
+	hash, err = passlib.Hash(password)
+	if err == nil {
+		err = data.GetDataStore().SetPasswordHash(userName, hash)
+		if err == nil {
+			ctx.JSON(http.StatusOK,
+				Result{
+					Operation: "SetPassword",
+					Message:   "Password set successfully",
+					Error:     err})
+		}
+	} else {
+		ctx.JSON(http.StatusOK,
+			Result{
+				Operation: "SetPassword",
+				Message:   "Error occured while setting password",
+				Error:     err})
+	}
+	return err
+}
+
+func updatePassword(ctx echo.Context) (err error) {
+	userName := ctx.FormValue("userName")
+	oldPassword := ctx.FormValue("oldPassword")
+	password := ctx.FormValue("password")
+	err = varifyPassword(userName, oldPassword)
+	if err == nil {
+		var hash string
+		hash, err = passlib.Hash(password)
+		if err == nil {
+			err = data.GetDataStore().SetPasswordHash(userName, hash)
+			if err == nil {
+				ctx.JSON(http.StatusOK,
+					Result{
+						Operation: "UpdatePassword",
+						Message:   "Password updated successfully",
+						Error:     err})
+			}
+		} else {
+			ctx.JSON(http.StatusOK,
+				Result{
+					Operation: "UpdatePassword",
+					Message:   "Error occured while updating password",
+					Error:     err})
+		}
+	} else {
+		ctx.JSON(http.StatusOK,
+			Result{
+				Operation: "UpdatePassword",
+				Message:   "Error occured while updating password",
+				Error:     err})
+	}
 	return err
 }
 
@@ -679,14 +740,6 @@ func varifyPassword(userName, password string) (err error) {
 }
 
 func login(ctx echo.Context) (err error) {
-	/*
-		TODO:
-		If there is no password
-			If the user record exists
-				Then its a newly created user
-				- Ask the user to create password
-			else user not present -
-	*/
 	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")
 	if err = varifyPassword(userName, password); err != nil {
@@ -733,5 +786,14 @@ func defaultHandler(ctx echo.Context) (err error) {
 
 //Map - maps a route to handler function
 func Map() {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	v0 := e.Group("/v0")
 
+	v0.POST("/login", login)
+	in0 := v0.Group("/in")
+	in0.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(ky),
+	}))
 }
