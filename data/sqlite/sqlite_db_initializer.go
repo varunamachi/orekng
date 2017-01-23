@@ -20,18 +20,6 @@ var queries = [...]string{
 		UNIQUE(email)
     );`,
 
-	// `CREATE TABLE orek_user_identity(
-	// 	user_name   VARCHAR( 255 ) NOT NULL,
-	// 	email       VARCHAR( 255 ) NOT NULL,
-	// 	hash        VARCHAR( 255 ) NOT NULL,
-	// 	PRIMARY KEY( user_name ),
-	// 	UNIQUE(email),
-	// 	FOREIGN KEY( user_name ) REFERENCES orek_user( user_name )
-	// 		ON DELETE CASCADE,
-	// 	FOREIGN KEY( email ) REFERENCES orek_user( email )
-	// 		ON DELETE CASCADE
-	// );`,
-
 	`CREATE TABLE orek_user_password(
     	user_name   VARCHAR( 255 ) NOT NULL,
     	hash        VARCHAR( 255 ) NOT NULL,
