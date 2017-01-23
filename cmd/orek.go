@@ -1,12 +1,10 @@
 package cmd
 
-import (
-	"gopkg.in/urfave/cli.v1"
-)
+import cli "gopkg.in/urfave/cli.v1"
 
 //CliCommandProvider - gives commands supported by the application
 type CliCommandProvider interface {
-	GetCommands() []cli.Command
+	GetCommands() cli.Command
 }
 
 //OrekApp - contains command providers and runs the app
@@ -34,7 +32,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 	}
 	app.Commands = make([]cli.Command, 0, 30)
 	for _, cmdp := range orek.CommandProviders {
-		app.Commands = append(app.Commands, cmdp.GetCommands()...)
+		app.Commands = append(app.Commands, cmdp.GetCommands())
 	}
 	err = app.Run(args)
 	return err
