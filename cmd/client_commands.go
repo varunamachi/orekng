@@ -48,11 +48,11 @@ func createUserSubCommand() cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) (err error) {
-			userName := ctx.String("user-name")
-			email := ctx.String("email")
+			userName := AskString(ctx, "user-name")
+			email := AskString(ctx, "email")
+			firstName := AskString(ctx, "first-name")
+			secondName := AskString(ctx, "second-name")
 			if userName != "" && email != "" {
-				firstName := ctx.String("first-name")
-				secondName := ctx.String("second-name")
 
 				//Below should only run if it is local mode otherwise should use
 				//the not yet implemented REST client mode

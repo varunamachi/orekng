@@ -1,6 +1,7 @@
 package cmd
 
 import cli "gopkg.in/urfave/cli.v1"
+import "fmt"
 
 //CliCommandProvider - gives commands supported by the application
 type CliCommandProvider interface {
@@ -36,4 +37,18 @@ func (orek *OrekApp) Run(args []string) (err error) {
 	}
 	err = app.Run(args)
 	return err
+}
+
+//AskString - gets string flag for key. If the context doesnt have it, it asks
+//the user to enter it into console
+func AskString(ctx *cli.Context, key string) (val string) {
+	val = ctx.String(key)
+	if len(val) == 0 {
+		fmt.Print(key + ": ")
+		_, err := fmt.Scanln(&val)
+		if err != nil {
+			val = ""
+		}
+	}
+	return val
 }
