@@ -1,8 +1,11 @@
 package cmd
 
-import cli "gopkg.in/urfave/cli.v1"
+import (
+	"fmt"
 
-import "fmt"
+	"github.com/varunamachi/orekng/rest"
+	cli "gopkg.in/urfave/cli.v1"
+)
 
 //CliCommandProvider - gives commands supported by the application
 type CliCommandProvider interface {
@@ -11,6 +14,7 @@ type CliCommandProvider interface {
 
 //OrekApp - contains command providers and runs the app
 type OrekApp struct {
+	RestClient       rest.Client
 	CommandProviders []CliCommandProvider
 }
 
