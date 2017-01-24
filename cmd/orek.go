@@ -1,6 +1,7 @@
 package cmd
 
 import cli "gopkg.in/urfave/cli.v1"
+
 import "fmt"
 
 //CliCommandProvider - gives commands supported by the application
@@ -39,15 +40,44 @@ func (orek *OrekApp) Run(args []string) (err error) {
 	return err
 }
 
-//AskString - gets string flag for key. If the context doesnt have it, it asks
-//the user to enter it into console
-func AskString(ctx *cli.Context, key string) (val string) {
-	val = ctx.String(key)
+//ArgGetter - this struct and its method are helpers to combine getting args
+//from commandline arguments or from reading from console. Also handles errors
+//when required arguments are not provided
+type ArgGetter struct {
+	Ctx *cli.Context
+	Err error
+}
+
+//GetString - gives a string argument either from commandline or from blocking
+//user input, this method doesnt complain even if the arg-value is empty
+func (retriever *ArgGetter) GetString(key string) (val string) {
+	if retriever.Err != nil {
+		return val
+	}
+	val = retriever.Ctx.String(key)
 	if len(val) == 0 {
 		fmt.Print(key + ": ")
 		_, err := fmt.Scanln(&val)
 		if err != nil {
 			val = ""
+		}
+	}
+	return val
+}
+
+//GetRequiredString - gives a string argument either from commandline or from
+//blocking user input, this method sets the error if required arg-val is empty
+func (retriever *ArgGetter) GetRequiredString(key string) (val string) {
+	if retriever.Err != nil {
+		return val
+	}
+	val = retriever.Ctx.String(key)
+	if len(val) == 0 {
+		fmt.Print(key + ": ")
+		_, err := fmt.Scanln(&val)
+		if err != nil || len(val) == 0 {
+			val = ""
+			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
 		}
 	}
 	return val

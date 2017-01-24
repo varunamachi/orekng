@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/varunamachi/orekng/data"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -10,10 +8,54 @@ import (
 //ClientCommandProvider - Providers commands for running Orek app as client
 type ClientCommandProvider struct{}
 
+func 
+
 //GetCommands - gives commands for running Orek app as client to Orek Service
 func (ccp *ClientCommandProvider) GetCommands() cli.Command {
 	subcmds := []cli.Command{
-		createUserSubCommand(),
+		listUsersCommand(),
+		showUserCommand(),
+		showUserWithEmailCommand(),
+		createUserCommand(),
+		updateUserCommand(),
+		deleteUserCommand(),
+
+		listEndpointsCommand(),
+		showEndpointCommand(),
+		createEndpointCommand(),
+		updateEndpointCommand(),
+		deleteEndpointCommand(),
+
+		listVariablesCommand(),
+		listVariablesForEndpointCommand(),
+		showVariableCommand(),
+		createVariableCommand(),
+		updateVariableCommand(),
+		deleteVariableCommand(),
+
+		listParametersCommand(),
+		listParametersForEndpointCommand(),
+		showParameterCommand(),
+		createParameterCommand(),
+		updateParameterCommand(),
+		deleteParameterCommand(),
+
+		listUserGroupsCommand(),
+		showUserGroupCommand(),
+		createUserGroupCommand(),
+		updateUserGroupCommand(),
+		deleteUserGroupCommand(),
+
+		addUserToGroupCommand(),
+		removeUserFromGroupCommand(),
+		getUsersInGroupCommand(),
+		getGroupsForUserCommand(),
+
+		clearValuesForVariableCommand(),
+		getValuesForVariableCommand(),
+
+		setPasswordCommand(),
+		updatePasswordCommand(),
 	}
 	return cli.Command{
 		Name:        "client",
@@ -22,8 +64,47 @@ func (ccp *ClientCommandProvider) GetCommands() cli.Command {
 	}
 }
 
-func createUserSubCommand() cli.Command {
-	return cli.Command{
+func listUsersCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "list-users",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showUserCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name: "show-user",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "user-name",
+				Value: "",
+				Usage: "The unique user_name for the user",
+			},
+		},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showUserWithEmailCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func createUserCommand() (cmd cli.Command) {
+	cmd = cli.Command{
 		Name: "create-user",
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -48,12 +129,12 @@ func createUserSubCommand() cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) (err error) {
-			userName := AskString(ctx, "user-name")
-			email := AskString(ctx, "email")
-			firstName := AskString(ctx, "first-name")
-			secondName := AskString(ctx, "second-name")
-			if userName != "" && email != "" {
-
+			argetr := ArgGetter{Ctx: ctx}
+			userName := argetr.GetRequiredString("user-name")
+			email := argetr.GetRequiredString("email")
+			firstName := argetr.GetString("first-name")
+			secondName := argetr.GetString("second-name")
+			if argetr.Err == nil {
 				//Below should only run if it is local mode otherwise should use
 				//the not yet implemented REST client mode
 				err = data.GetDataStore().CreateUser(&data.User{
@@ -63,14 +144,361 @@ func createUserSubCommand() cli.Command {
 					Email:      email,
 				})
 
-			} else {
-				pbm := "user name"
-				if userName != "" {
-					pbm = "email"
-				}
-				err = fmt.Errorf("Create User: %s not provided", pbm)
 			}
 			return err
 		},
 	}
+	return cmd
+}
+
+func updateUserCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func deleteUserCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listEndpointsCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func createEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func updateEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func deleteEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listVariablesCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listVariablesForEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func createVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func updateVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func deleteVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listParametersCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listParametersForEndpointCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showParameterCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func createParameterCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func updateParameterCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func deleteParameterCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func listUserGroupsCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func showUserGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func createUserGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func updateUserGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func deleteUserGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func addUserToGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func removeUserFromGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func getUsersInGroupCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func getGroupsForUserCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func clearValuesForVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func getValuesForVariableCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func setPasswordCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
+}
+
+func updatePasswordCommand() (cmd cli.Command) {
+	cmd = cli.Command{
+		Name:  "",
+		Flags: []cli.Flag{},
+		Action: func(ctx *cli.Context) (err error) {
+			return err
+		},
+	}
+	return cmd
 }

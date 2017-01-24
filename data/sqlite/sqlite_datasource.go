@@ -144,9 +144,9 @@ func (sqlite *DataStore) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
 }
 
 //DeleteEndpoint - deletes an endpoint
-func (sqlite *DataStore) DeleteEndpoint(endpointID string) error {
+func (sqlite *DataStore) DeleteEndpoint(endpointID string) (err error) {
 	queryStr := `DELETE FROM orek_endpoit WHERE endpoint_id = ?`
-	_, err := sqlite.Exec(queryStr, endpointID)
+	_, err = sqlite.Exec(queryStr, endpointID)
 	logIfError(err)
 	return err
 }
