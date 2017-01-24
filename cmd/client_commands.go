@@ -8,8 +8,6 @@ import (
 //ClientCommandProvider - Providers commands for running Orek app as client
 type ClientCommandProvider struct{}
 
-func 
-
 //GetCommands - gives commands for running Orek app as client to Orek Service
 func (ccp *ClientCommandProvider) GetCommands() cli.Command {
 	subcmds := []cli.Command{
