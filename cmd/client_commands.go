@@ -31,12 +31,12 @@ func (ccp *ClientCommandProvider) GetCommands(orek *OrekApp) cli.Command {
 		createVariableCommand(orek),
 		updateVariableCommand(orek),
 		deleteVariableCommand(orek),
-		// listParametersCommand(orek),
-		// listParametersForEndpointCommand(orek),
-		// showParameterCommand(orek),
-		// createParameterCommand(orek),
-		// updateParameterCommand(orek),
-		// deleteParameterCommand(orek),
+		listParametersCommand(orek),
+		listParametersForEndpointCommand(orek),
+		showParameterCommand(orek),
+		createParameterCommand(orek),
+		updateParameterCommand(orek),
+		deleteParameterCommand(orek),
 		listUserGroupsCommand(orek),
 		showUserGroupCommand(orek),
 		createUserGroupCommand(orek),
@@ -90,9 +90,8 @@ func showUserCommand(orek *OrekApp) (cmd cli.Command) {
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			userName := argetr.GetRequiredString("user-name")
-			err = argetr.Err
 			var user *data.User
-			if err == nil {
+			if err = argetr.Err; err == nil {
 				user, err = orek.Client.GetUser(userName)
 				if err == nil {
 					fmt.Println(user)
