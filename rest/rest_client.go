@@ -256,19 +256,14 @@ func (client *Client) GetValuesForVariable(
 }
 
 //SetPasswordHash - stores password hash for an user in the server
-func (client *Client) SetPasswordHash(userName, passwordHash string) (err error) {
+func (client *Client) SetPassword(userName, password string) (err error) {
 	logIfError(err)
 	return err
 }
 
-//GetPasswordHash - Retrieves password hash for an user from the server
-func (client *Client) GetPasswordHash(userName string) (hash string, err error) {
-	logIfError(err)
-	return hash, err
-}
-
 //UpdatePasswordHash - updates password hash for a user in the server
-func (client *Client) UpdatePasswordHash(userName, passwordHash string) (err error) {
+func (client *Client) UpdatePassword(userName,
+	currentPassword, newPassword string) (err error) {
 	logIfError(err)
 	return err
 }

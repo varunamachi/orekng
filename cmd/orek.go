@@ -3,9 +3,67 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/varunamachi/orekng/rest"
+	"github.com/varunamachi/orekng/data"
 	cli "gopkg.in/urfave/cli.v1"
 )
+
+//OrekClient - Defines a client impl used to execute commands from cli
+type OrekClient interface {
+	GetAllUsers() (users []*data.User, err error)
+	GetUser(userName string) (users *data.User, err error)
+	GetUserWithEmail(email string) (user *data.User, err error)
+	CreateUser(user *data.User) (err error)
+	UpdateUser(user *data.User) (err error)
+	DeleteUser(userName string) (err error)
+	GetAllEndpoints() (endpoints []*data.Endpoint, err error)
+	GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error)
+	CreateEndpoint(endpoint *data.Endpoint) (err error)
+	UpdateEndpoint(endpoint *data.Endpoint) (err error)
+	DeleteEndpoint(endpointID string) (err error)
+	GetAllVariables() (variables []*data.Variable, err error)
+	GetVariablesForEndpoint(endpointID string) (variables []*data.Variable, err error)
+	GetVariable(variableID string) (variable *data.Variable, err error)
+	CreateVariable(variable *data.Variable) (err error)
+	UpdateVariable(variable *data.Variable) (err error)
+	DeleteVariable(variableID string) (err error)
+	GetAllParameters() (parameters []*data.Parameter, err error)
+	GetParametersForEndpoint(endpointID string) (parameters []*data.Parameter, err error)
+	GetParameter(parameterID string) (parameter *data.Parameter, err error)
+	CreateParameter(parameter *data.Parameter) (err error)
+	UpdateParameter(parameter *data.Parameter) (err error)
+	DeleteParameter(parameterID string) (err error)
+	GetAllUserGroups() (groups []*data.UserGroup, err error)
+	GetUserGroup(userGroupID string) (group *data.UserGroup, err error)
+	CreateUserGroup(userGroup *data.UserGroup) (err error)
+	UpdateUserGroup(userGroup *data.UserGroup) (err error)
+	DeleteUserGroup(usergroupID string) (err error)
+	AddUserToGroup(userName, groupID string) (err error)
+	RemoveUserFromGroup(userName, groupID string) (err error)
+	GetUsersInGroup(groupID string) (userInGroup []*data.User, err error)
+	GetGroupsForUser(userName string) (groupsForUser []*data.UserGroup, err error)
+	AddVariableValue(variableID, value string) (err error)
+	ClearValuesForVariable(variableID string) (err error)
+	GetValuesForVariable(variableID string) (values []*string, err error)
+	SetPassword(userName, password string) (err error)
+	UpdatePassword(userName, currentPassword, newPassword string) (err error)
+}
+
+//LocalClient - This is local client which executes the command in the current
+//process, also uses data source directly
+type LocalClient struct {
+	data.OrekDataStore
+}
+
+//SetPassword - sets the password for the user
+func (ds *LocalClient) SetPassword(userName, password string) (err error) {
+	return err
+}
+
+//UpdatePassword - updates the password for the user
+func (ds *LocalClient) UpdatePassword(userName,
+	currentPassword, newPassword string) (err error) {
+	return err
+}
 
 //CliCommandProvider - gives commands supported by the application
 type CliCommandProvider interface {
@@ -14,7 +72,7 @@ type CliCommandProvider interface {
 
 //OrekApp - contains command providers and runs the app
 type OrekApp struct {
-	RestClient       rest.Client
+	Client           OrekClient
 	CommandProviders []CliCommandProvider
 }
 
