@@ -95,6 +95,16 @@ func (variable *Variable) String() string {
 		variable.VariableID + "]"
 }
 
+func (parameter *Parameter) String() string {
+	return "Variable: " +
+		parameter.Name +
+		"[" +
+		parameter.EndpointID +
+		" : " +
+		parameter.ParameterID + "]"
+}
+
 func (userGroup *UserGroup) String() string {
-	return fmt.Sprintf("UserGroup: %s [Owner: %s]", userGroup.Name, userGroup.Owner)
+	return fmt.Sprintf("UserGroup: %s [Owner: %s]",
+		userGroup.Name, userGroup.Owner)
 }
