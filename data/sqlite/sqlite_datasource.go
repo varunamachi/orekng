@@ -19,14 +19,14 @@ func logIfError(err error) {
 }
 
 //GetAllUsers - Gives all user entries in the database
-func (sqlite *DataStore) GetAllUsers() (users []*data.User, err error) {
+func (sqlite *Store) GetAllUsers() (users []*data.User, err error) {
 	users = make([]*data.User, 0, 20)
 	err = sqlite.Select(&users, "SELECT * FROM orek_user ORDER BY user_name")
 	return users, err
 }
 
 //GetUser - Gives the user with given userName from database
-func (sqlite *DataStore) GetUser(userName string) (user *data.User, err error) {
+func (sqlite *Store) GetUser(userName string) (user *data.User, err error) {
 	user = &data.User{}
 	queryStr := `SELECT * FROM orek_user WHERE user_name = ?`
 	err = sqlite.Select(user, queryStr, userName)
@@ -34,7 +34,7 @@ func (sqlite *DataStore) GetUser(userName string) (user *data.User, err error) {
 }
 
 // GetUserWithEmail - Gives the user entry with given EMail id
-func (sqlite *DataStore) GetUserWithEmail(
+func (sqlite *Store) GetUserWithEmail(
 	email string) (user *data.User, err error) {
 	user = &data.User{}
 	queryStr := `SELECT * FROM orek_user WHERE email = ?`
@@ -44,7 +44,7 @@ func (sqlite *DataStore) GetUserWithEmail(
 }
 
 //CreateUser - creates a user entry in the database with given User object
-func (sqlite *DataStore) CreateUser(user *data.User) (err error) {
+func (sqlite *Store) CreateUser(user *data.User) (err error) {
 	queryStr := `INSERT INTO orek_user( 
 		user_name,  
 		first_name, 
@@ -63,7 +63,7 @@ func (sqlite *DataStore) CreateUser(user *data.User) (err error) {
 
 //UpdateUser - Upadates the user entry in the database with the information
 //in the given user object
-func (sqlite *DataStore) UpdateUser(user *data.User) (err error) {
+func (sqlite *Store) UpdateUser(user *data.User) (err error) {
 	queryStr := `UPDATE orek_user SET
 		first_name = :first_name,
 		second_name = :second_name,
@@ -76,7 +76,7 @@ func (sqlite *DataStore) UpdateUser(user *data.User) (err error) {
 }
 
 //DeleteUser - deletes the user entry with given user name
-func (sqlite *DataStore) DeleteUser(userName string) (err error) {
+func (sqlite *Store) DeleteUser(userName string) (err error) {
 	queryStr := `DELETE FROM orek_user WHERE user_id = ?`
 	_, err = sqlite.Exec(queryStr, userName)
 	logIfError(err)
@@ -84,7 +84,7 @@ func (sqlite *DataStore) DeleteUser(userName string) (err error) {
 }
 
 //GetAllEndpoints - Gives all the data endpoints which have entries in database
-func (sqlite *DataStore) GetAllEndpoints() (endpoints []*data.Endpoint, err error) {
+func (sqlite *Store) GetAllEndpoints() (endpoints []*data.Endpoint, err error) {
 	queryStr := `SELECT * FROM orek_endpoint ORDER BY endpoint_id`
 	endpoints = make([]*data.Endpoint, 0, 100)
 	err = sqlite.Select(&endpoints, queryStr)
@@ -94,7 +94,7 @@ func (sqlite *DataStore) GetAllEndpoints() (endpoints []*data.Endpoint, err erro
 
 //GetEndpoint - Gives data endpoint object correspoing to the database entry with
 // given name
-func (sqlite *DataStore) GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error) {
+func (sqlite *Store) GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error) {
 	endpoint = &data.Endpoint{}
 	queryStr := `SELECT * FROM orek_endpoint WHERE endpoint_id = ?`
 	err = sqlite.Select(endpoint, queryStr, endpointID)
@@ -104,7 +104,7 @@ func (sqlite *DataStore) GetEndpoint(endpointID string) (endpoint *data.Endpoint
 
 //CreateEndpoint - Creates a endpoint entry in database according to the endpoint
 //object
-func (sqlite *DataStore) CreateEndpoint(endpoint *data.Endpoint) (err error) {
+func (sqlite *Store) CreateEndpoint(endpoint *data.Endpoint) (err error) {
 	queryStr := `INSERT INTO orek_endpoints(
 		endpoint_id,
 		name ,
@@ -129,7 +129,7 @@ func (sqlite *DataStore) CreateEndpoint(endpoint *data.Endpoint) (err error) {
 
 //UpdateEndpoint - Updates the endpoint entry in database with information provided
 //in the endpoint object
-func (sqlite *DataStore) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
+func (sqlite *Store) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
 	queryStr := `UPDATE orek_endpoint SET
 			name = :name,
 			owner = :owner,
@@ -144,7 +144,7 @@ func (sqlite *DataStore) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
 }
 
 //DeleteEndpoint - deletes an endpoint
-func (sqlite *DataStore) DeleteEndpoint(endpointID string) (err error) {
+func (sqlite *Store) DeleteEndpoint(endpointID string) (err error) {
 	queryStr := `DELETE FROM orek_endpoit WHERE endpoint_id = ?`
 	_, err = sqlite.Exec(queryStr, endpointID)
 	logIfError(err)
@@ -152,7 +152,7 @@ func (sqlite *DataStore) DeleteEndpoint(endpointID string) (err error) {
 }
 
 //GetAllVariables - Gives list of all variables
-func (sqlite *DataStore) GetAllVariables() (variables []*data.Variable, err error) {
+func (sqlite *Store) GetAllVariables() (variables []*data.Variable, err error) {
 	queryStr := `SELECT * FROM orek_variable ORDER BY variable_id`
 	variables = make([]*data.Variable, 0, 100)
 	err = sqlite.Select(&variables, queryStr)
@@ -161,7 +161,7 @@ func (sqlite *DataStore) GetAllVariables() (variables []*data.Variable, err erro
 }
 
 //GetVariablesForEndpoint - Gives all the variables exported by an endpoint
-func (sqlite *DataStore) GetVariablesForEndpoint(
+func (sqlite *Store) GetVariablesForEndpoint(
 	endpointID string) (variables []*data.Variable, err error) {
 	queryStr := `SELECT * FROM orek_variable WHERE endpoint_id = ?
 		ORDER BY variable_id`
@@ -172,7 +172,7 @@ func (sqlite *DataStore) GetVariablesForEndpoint(
 }
 
 //GetVariable - Gives the variable with the given ID
-func (sqlite *DataStore) GetVariable(variableID string) (variable *data.Variable, err error) {
+func (sqlite *Store) GetVariable(variableID string) (variable *data.Variable, err error) {
 	queryStr := `SELECT * FROM orek_variable WHERE variable_id = ?`
 	variable = &data.Variable{}
 	err = sqlite.Select(variable, queryStr, variableID)
@@ -181,7 +181,7 @@ func (sqlite *DataStore) GetVariable(variableID string) (variable *data.Variable
 }
 
 //CreateVariable - creates a variable in the datasource
-func (sqlite *DataStore) CreateVariable(variable *data.Variable) (err error) {
+func (sqlite *Store) CreateVariable(variable *data.Variable) (err error) {
 	queryStr := `INSERT INTO orek_variable(
 		variable_id,
     	name,
@@ -203,7 +203,7 @@ func (sqlite *DataStore) CreateVariable(variable *data.Variable) (err error) {
 }
 
 //UpdateVariable - updates a variable in the datasource
-func (sqlite *DataStore) UpdateVariable(variable *data.Variable) (err error) {
+func (sqlite *Store) UpdateVariable(variable *data.Variable) (err error) {
 	queryStr := `UPDATE orek_variable SET
     		name = :name,
     		endpoint_id = :endpoint_id,
@@ -218,7 +218,7 @@ func (sqlite *DataStore) UpdateVariable(variable *data.Variable) (err error) {
 }
 
 //DeleteVariable - delete a variable from the datasource
-func (sqlite *DataStore) DeleteVariable(variableID string) (err error) {
+func (sqlite *Store) DeleteVariable(variableID string) (err error) {
 	queryStr := `DELETE FROM orek_variable WHERE variable_id = ?`
 	_, err = sqlite.Exec(queryStr, variableID)
 	logIfError(err)
@@ -226,7 +226,7 @@ func (sqlite *DataStore) DeleteVariable(variableID string) (err error) {
 }
 
 //GetAllParameters - Gives list of all parameters
-func (sqlite *DataStore) GetAllParameters() (parameters []*data.Parameter, err error) {
+func (sqlite *Store) GetAllParameters() (parameters []*data.Parameter, err error) {
 	queryStr := `SELECT * FROM orek_parameter ORDER BY parameter_id`
 	parameters = make([]*data.Parameter, 0, 100)
 	err = sqlite.Select(&parameters, queryStr)
@@ -235,7 +235,7 @@ func (sqlite *DataStore) GetAllParameters() (parameters []*data.Parameter, err e
 }
 
 //GetParametersForEndpoint - Gives all the parameters exported by an endpoint
-func (sqlite *DataStore) GetParametersForEndpoint(
+func (sqlite *Store) GetParametersForEndpoint(
 	endpointID string) (parameters []*data.Parameter, err error) {
 	queryStr := `SELECT * FROM orek_parameter WHERE endpoint_id = ?
 		ORDER BY parameter_id`
@@ -246,7 +246,7 @@ func (sqlite *DataStore) GetParametersForEndpoint(
 }
 
 //GetParameter - Gives the parameter with the given ID
-func (sqlite *DataStore) GetParameter(parameterID string) (parameter *data.Parameter, err error) {
+func (sqlite *Store) GetParameter(parameterID string) (parameter *data.Parameter, err error) {
 	queryStr := `SELECT * FROM orek_parameter WHERE parameter_id = ?`
 	parameter = &data.Parameter{}
 	err = sqlite.Select(parameter, queryStr, parameterID)
@@ -255,7 +255,7 @@ func (sqlite *DataStore) GetParameter(parameterID string) (parameter *data.Param
 }
 
 //CreateParameter - creates a parameter in the datasource
-func (sqlite *DataStore) CreateParameter(parameter *data.Parameter) (err error) {
+func (sqlite *Store) CreateParameter(parameter *data.Parameter) (err error) {
 	queryStr := `INSERT INTO orek_parameter(
 		parameter_id,
     	name,
@@ -277,7 +277,7 @@ func (sqlite *DataStore) CreateParameter(parameter *data.Parameter) (err error) 
 }
 
 //UpdateParameter - updates a parameter in the datasource
-func (sqlite *DataStore) UpdateParameter(parameter *data.Parameter) (err error) {
+func (sqlite *Store) UpdateParameter(parameter *data.Parameter) (err error) {
 	queryStr := `UPDATE orek_parameter SET
     		name = :name,
     		endpoint_id = :endpoint_id,
@@ -292,7 +292,7 @@ func (sqlite *DataStore) UpdateParameter(parameter *data.Parameter) (err error) 
 }
 
 //DeleteParameter - delete a parameter from the datasource
-func (sqlite *DataStore) DeleteParameter(parameterID string) (err error) {
+func (sqlite *Store) DeleteParameter(parameterID string) (err error) {
 	queryStr := `DELETE FROM orek_parameter WHERE parameter_id = ?`
 	_, err = sqlite.Exec(queryStr, parameterID)
 	logIfError(err)
@@ -300,7 +300,7 @@ func (sqlite *DataStore) DeleteParameter(parameterID string) (err error) {
 }
 
 //GetAllUserGroups - gets the list of user group from the database
-func (sqlite *DataStore) GetAllUserGroups() (userGroups []*data.UserGroup, err error) {
+func (sqlite *Store) GetAllUserGroups() (userGroups []*data.UserGroup, err error) {
 	queryStr := `SELECT * FROM orek_user_group ORDER BY group_id`
 	userGroups = make([]*data.UserGroup, 0, 100)
 	err = sqlite.Select(&userGroups, queryStr)
@@ -309,7 +309,7 @@ func (sqlite *DataStore) GetAllUserGroups() (userGroups []*data.UserGroup, err e
 }
 
 //GetUserGroup - get an instance of user group for give group name
-func (sqlite *DataStore) GetUserGroup(
+func (sqlite *Store) GetUserGroup(
 	userGroupName string) (userGroup *data.UserGroup, err error) {
 	queryStr := `SELECT * FROM orek_user_group WHERE group_id = ?`
 	userGroup = &data.UserGroup{}
@@ -319,7 +319,7 @@ func (sqlite *DataStore) GetUserGroup(
 }
 
 //CreateUserGroup - creates an user group with give details
-func (sqlite *DataStore) CreateUserGroup(userGroup *data.UserGroup) (err error) {
+func (sqlite *Store) CreateUserGroup(userGroup *data.UserGroup) (err error) {
 	queryStr := `INSERT INTO orek_user_group(
 		group_id,
 		name,
@@ -338,7 +338,7 @@ func (sqlite *DataStore) CreateUserGroup(userGroup *data.UserGroup) (err error) 
 
 //UpdateUserGroup - Updates an existing user group with details from the
 //given object
-func (sqlite *DataStore) UpdateUserGroup(userGroup *data.UserGroup) (err error) {
+func (sqlite *Store) UpdateUserGroup(userGroup *data.UserGroup) (err error) {
 	queryStr := `UPDATE orek_user_group SET
 			name = :name,
 			owner = :owner,
@@ -350,7 +350,7 @@ func (sqlite *DataStore) UpdateUserGroup(userGroup *data.UserGroup) (err error) 
 }
 
 //DeleteUserGroup - deletes an user group with the given group name
-func (sqlite *DataStore) DeleteUserGroup(userGroupName string) (err error) {
+func (sqlite *Store) DeleteUserGroup(userGroupName string) (err error) {
 	queryStr := `DELETE FROM orek_user_group WHERE group_id = ?`
 	_, err = sqlite.Exec(queryStr, userGroupName)
 	logIfError(err)
@@ -359,7 +359,7 @@ func (sqlite *DataStore) DeleteUserGroup(userGroupName string) (err error) {
 
 //AddUserToGroup - adds user with given user name to a group with given group
 //name
-func (sqlite *DataStore) AddUserToGroup(userName, groupID string) (err error) {
+func (sqlite *Store) AddUserToGroup(userName, groupID string) (err error) {
 	queryStr := `INSERT INTO orek_user_to_group( 
 		group_id,
 		user_name
@@ -374,7 +374,7 @@ func (sqlite *DataStore) AddUserToGroup(userName, groupID string) (err error) {
 
 //RemoveUserFromGroup - disassociates user with given user name from group with
 //given group name
-func (sqlite *DataStore) RemoveUserFromGroup(userName, groupID string) (err error) {
+func (sqlite *Store) RemoveUserFromGroup(userName, groupID string) (err error) {
 	queryStr := `DELETE FROM orek_user_to_group 
 		WHERE group_id = ? AND user_name = ?`
 	_, err = sqlite.Exec(queryStr, groupID, userName)
@@ -384,7 +384,7 @@ func (sqlite *DataStore) RemoveUserFromGroup(userName, groupID string) (err erro
 
 //GetUsersInGroup - gives a list of users who are associated with the group
 //with given group name
-func (sqlite *DataStore) GetUsersInGroup(
+func (sqlite *Store) GetUsersInGroup(
 	groupID string) (users []*data.User, err error) {
 	queryStr := `SELECT * FROM orek_user WHERE user_name IN(
 		SELECT user_name FROM orek_user_to_group WHERE group_id = ?
@@ -397,7 +397,7 @@ func (sqlite *DataStore) GetUsersInGroup(
 
 //GetGroupsForUser - Gives a list of groups with which the user with given user
 //name is associated
-func (sqlite *DataStore) GetGroupsForUser(
+func (sqlite *Store) GetGroupsForUser(
 	userName string) (groups []*data.UserGroup, err error) {
 	queryStr := `SELECT * FROM orek_user_group WHERE group_id IN (
 		SELECT group_id FROM orek_user_to_group WHERE user_name = ?
@@ -409,7 +409,7 @@ func (sqlite *DataStore) GetGroupsForUser(
 }
 
 //AddVariableValue - Adds value to list of values of a variable
-func (sqlite *DataStore) AddVariableValue(variableID, value string) (err error) {
+func (sqlite *Store) AddVariableValue(variableID, value string) (err error) {
 	queryStr := `INSERT INTO orek_variable_value(
 		variable_id,
 		value      
@@ -424,7 +424,7 @@ func (sqlite *DataStore) AddVariableValue(variableID, value string) (err error) 
 
 //ClearValuesForVariable - clears values from the list of values associated with
 //the variable with given variable id
-func (sqlite *DataStore) ClearValuesForVariable(variableID string) (err error) {
+func (sqlite *Store) ClearValuesForVariable(variableID string) (err error) {
 	queryStr := `DELETE * FROM orek_variable_value`
 	_, err = sqlite.Exec(queryStr)
 	logIfError(err)
@@ -433,7 +433,7 @@ func (sqlite *DataStore) ClearValuesForVariable(variableID string) (err error) {
 
 //GetValuesForVariable - Gives list of values associated with a variable with
 //given variable id
-func (sqlite *DataStore) GetValuesForVariable(
+func (sqlite *Store) GetValuesForVariable(
 	variableID string) (values []*string, err error) {
 	queryStr := `SELECT value FROM orek_variable_value WHERE variable_id = ?`
 	values = make([]*string, 0, 100)
@@ -443,7 +443,7 @@ func (sqlite *DataStore) GetValuesForVariable(
 }
 
 //CreateUserSession - creates a orek user session
-func (sqlite *DataStore) CreateUserSession(session *data.Session) (err error) {
+func (sqlite *Store) CreateUserSession(session *data.Session) (err error) {
 	queryStr := `INSERT INTO orek_user_session(
 		session_id,
 		user_name,
@@ -459,7 +459,7 @@ func (sqlite *DataStore) CreateUserSession(session *data.Session) (err error) {
 }
 
 //GetUserSession - gives a session with given session ID
-func (sqlite *DataStore) GetUserSession(
+func (sqlite *Store) GetUserSession(
 	sessionID string) (session *data.Session, err error) {
 	queryStr := `SELECT * FROM orek_user_session WHERE session_id = ?`
 	session = &data.Session{}
@@ -469,7 +469,7 @@ func (sqlite *DataStore) GetUserSession(
 }
 
 //RemoveUserSession - removes a user session with given ID
-func (sqlite *DataStore) RemoveUserSession(sessionID string) (err error) {
+func (sqlite *Store) RemoveUserSession(sessionID string) (err error) {
 	queryStr := `DELETE FROM orek_user_session WHERE session_id = ?`
 	_, err = sqlite.Exec(queryStr, sessionID)
 	logIfError(err)
@@ -478,7 +478,7 @@ func (sqlite *DataStore) RemoveUserSession(sessionID string) (err error) {
 
 //ClearExpiredSessions - clears sessions that have exceeded expiry time i.e.
 //sessionStartSize - currentSize > givenExperyTime
-func (sqlite *DataStore) ClearExpiredSessions(expiryTimeMillis int64) (err error) {
+func (sqlite *Store) ClearExpiredSessions(expiryTimeMillis int64) (err error) {
 	queryStrOne := `SELECT * FROM orek_user_session`
 	sessions := make([]*data.Session, 0, 100)
 	expired := make([]string, 0, 100)
@@ -503,7 +503,7 @@ func (sqlite *DataStore) ClearExpiredSessions(expiryTimeMillis int64) (err error
 }
 
 //SetPasswordHash - stores password hash for an user in the database
-func (sqlite *DataStore) SetPasswordHash(userName, passwordHash string) (err error) {
+func (sqlite *Store) SetPasswordHash(userName, passwordHash string) (err error) {
 	queryStr := `INSERT INTO orek_user_password(
 		user_name,
 		hash
@@ -517,7 +517,7 @@ func (sqlite *DataStore) SetPasswordHash(userName, passwordHash string) (err err
 }
 
 //GetPasswordHash - Retrieves password hash for an user from the database
-func (sqlite *DataStore) GetPasswordHash(userName string) (hash string, err error) {
+func (sqlite *Store) GetPasswordHash(userName string) (hash string, err error) {
 	queryStr := `SELECT hash FROM orek_user_password WHERE user_name = ?`
 	err = sqlite.Select(&hash, queryStr, userName)
 	logIfError(err)
@@ -525,7 +525,7 @@ func (sqlite *DataStore) GetPasswordHash(userName string) (hash string, err erro
 }
 
 //UpdatePasswordHash - updates password hash for a user in the database
-func (sqlite *DataStore) UpdatePasswordHash(userName, passwordHash string) (err error) {
+func (sqlite *Store) UpdatePasswordHash(userName, passwordHash string) (err error) {
 	queryStr := `UPDATE orek_user_password SET hash = ? WHERE user_name = ?`
 	_, err = sqlite.Exec(queryStr, passwordHash, userName)
 	logIfError(err)
@@ -533,7 +533,7 @@ func (sqlite *DataStore) UpdatePasswordHash(userName, passwordHash string) (err 
 }
 
 //checkExists - checks if a row is selected by the given query
-func (sqlite *DataStore) checkExists(
+func (sqlite *Store) checkExists(
 	query string, args ...interface{}) (exists bool, err error) {
 	query = fmt.Sprintf("SELECT exists (%s)", query)
 	rows := sqlite.QueryRowx(query, args)
@@ -549,28 +549,28 @@ func (sqlite *DataStore) checkExists(
 }
 
 //UserExists - Checks if an user record exists for given user bane
-func (sqlite *DataStore) UserExists(userName string) (exists bool, err error) {
+func (sqlite *Store) UserExists(userName string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_user WHERE user_name = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, userName)
 	return exists, err
 }
 
 //UserExistsWithEmail - checks if an user record exists with given email
-func (sqlite *DataStore) UserExistsWithEmail(email string) (exists bool, err error) {
+func (sqlite *Store) UserExistsWithEmail(email string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_user WHERE email = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, email)
 	return exists, err
 }
 
 //EndpointExists - checks if an endpoint exists with given ID
-func (sqlite *DataStore) EndpointExists(endpointID string) (exists bool, err error) {
+func (sqlite *Store) EndpointExists(endpointID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_endpoint WHERE endpoint_id = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, endpointID)
 	return exists, err
 }
 
 //VariableExists - checks if a variable exists with given variable ID
-func (sqlite *DataStore) VariableExists(variableID string) (exists bool, err error) {
+func (sqlite *Store) VariableExists(variableID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_variable WHERE variable_id = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, variableID)
 	return exists, err
@@ -578,7 +578,7 @@ func (sqlite *DataStore) VariableExists(variableID string) (exists bool, err err
 
 //VariableExistsInEndpoint - checks if a variable with given variableID in an
 //endpoint given by the endpointID
-func (sqlite *DataStore) VariableExistsInEndpoint(
+func (sqlite *Store) VariableExistsInEndpoint(
 	variableID, endpointID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_variable WHERE 
 		variable_id = ? AND
@@ -588,7 +588,7 @@ func (sqlite *DataStore) VariableExistsInEndpoint(
 }
 
 //ParameterExists - checks if a parameter exists with given parameter ID
-func (sqlite *DataStore) ParameterExists(parameterID string) (exists bool, err error) {
+func (sqlite *Store) ParameterExists(parameterID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_parameter WHERE parameter_id = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, parameterID)
 	return exists, err
@@ -596,7 +596,7 @@ func (sqlite *DataStore) ParameterExists(parameterID string) (exists bool, err e
 
 //ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
 //endpoint given by the endpointID
-func (sqlite *DataStore) ParameterExistsInEndpoint(
+func (sqlite *Store) ParameterExistsInEndpoint(
 	parameterID, endpointID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_parameter WHERE 
 		parameter_id  = ? AND 
@@ -606,7 +606,7 @@ func (sqlite *DataStore) ParameterExistsInEndpoint(
 }
 
 //UserGroupExists - checks if an User group exists with given ID
-func (sqlite *DataStore) UserGroupExists(
+func (sqlite *Store) UserGroupExists(
 	userGroupID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_user_group WHERE group_id = ? LIMIT 1`
 	exists, err = sqlite.checkExists(query, userGroupID)
@@ -615,7 +615,7 @@ func (sqlite *DataStore) UserGroupExists(
 
 //UserExistsInGroup - checks if user with given user ID is associated with the
 //group with given groupID
-func (sqlite *DataStore) UserExistsInGroup(
+func (sqlite *Store) UserExistsInGroup(
 	userName, groupID string) (exists bool, err error) {
 	query := `SELECT 1 FROM orek_user_to_group WHERE 
 		user_name = ? AND
@@ -626,7 +626,7 @@ func (sqlite *DataStore) UserExistsInGroup(
 
 //GroupHasUser - checks if group with given ID has a user with given userName
 //associated with it
-func (sqlite *DataStore) GroupHasUser(
+func (sqlite *Store) GroupHasUser(
 	groupID, userName string) (has bool, err error) {
 	query := `SELECT 1 FROM orek_user_to_group WHERE 
 		group_id = ? AND

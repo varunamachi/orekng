@@ -1,114 +1,140 @@
 package sqlite
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
 )
 
-const exists = `SELECT COUNT (*) FROM sqlite_master 
-        WHERE type = 'table' AND name = orek_user;`
-
-var queries = [...]string{
-
-	`CREATE TABLE orek_user(
-		user_name     VARCHAR( 255 ) NOT NULL,
-		first_name    VARCHAR( 255 ),
-		second_name   VARCHAR( 255 ),
-		email         VARCHAR( 255 ) NOT NULL,
-		PRIMARY KEY( user_name ),
-		UNIQUE(email)
-    );`,
-
-	`CREATE TABLE orek_user_password(
-    	user_name   VARCHAR( 255 ) NOT NULL,
-    	hash        VARCHAR( 255 ) NOT NULL,
-    	PRIMARY KEY( user_name ),
-    	FOREIGN KEY( user_name ) REFERENCES orek_user( user_name ) 
-			ON DELETE CASCADE,
-    );`,
-
-	`CREATE TABLE orek_user_group(
-		group_id	VARCHAR( 256 ) NOT NULL
-    	name        VARCHAR( 256 ) NOT NULL,
-    	owner       VARCHAR( 256 ) NOT NULL,
-    	description TEXT NOT NULL,
-    	PRIMARY KEY( group_id ),
-    	FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
-    );`,
-
-	`CREATE TABLE orek_user_to_group(
-    	group_id    VARCHAR( 256 ) NOT NULL,
-    	user_name   VARCHAR( 256 ) NOT NULL,
-    	FOREIGN KEY( group_id ) REFERENCES orek_user_group( group_id )
-			ON DELETE CASCADE,
-    	FOREIGN KEY( user_name ) REFERENCES orek_user( user_name ),
-    	PRIMARY KEY( group_id, user_name )
-			ON DELETE CASCADE
-    );`,
-
-	`CREATE TABLE orek_endpoint(
-    	endpoint_id		CHAR( 36 )     NOT NULL,
-    	name       		VARCHAR( 255 ) NOT NULL,
-    	owner      		VARCHAR( 255 ) NOT NULL,
-		owner_group		VARCHAR( 255 ) NOT NULL
-    	description		TEXT,
-    	location   		VARCHAR( 255 ) NOT NULL,
-    	visibility 		CHAR( 20 )     NOT NULL,
-    	PRIMARY KEY( endpoint_id ),
-    	UNIQUE(name, owner),
-    	FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
-			ON DELETE CASCADE
-		FOREIGN KEY( owner_group ) REFERENCES orek_user_group( group_id )
-			ON DELETE CASCADE
-    );`,
-
-	`CREATE TABLE orek_variable(
-    	variable_id  CHAR( 36 )     NOT NULL,
-    	name         VARCHAR( 255 ) NOT NULL,
-    	endpoint_id  CHAR( 36 )     NOT NULL,
-    	description  TEXT           NOT NULL,
-    	unit         CHAR( 30 )     NOT NULL,
-		type		 CHAR( 30 )		NOT NULL,
-    	PRIMARY KEY( variable_id ),
-    	UNIQUE(endpoint_id, name),
-    	FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
-			ON DELETE CASCADE
-    );`,
-
-	`CREATE TABLE orek_parameter(
-    	parameter_id  	CHAR( 36 )     	NOT NULL,
-    	name         	VARCHAR( 255 ) 	NOT NULL,
-    	endpoint_id    	CHAR( 36 )     	NOT NULL,
-    	description  	TEXT           	NOT NULL,
-    	unit         	CHAR( 30 )     	NOT NULL,
-		type		 	CHAR( 30 )		NOT NULL,
-		permission   	CHAR( 20 )		NOT NULL,
-    	PRIMARY KEY( parameter_id ),
-    	UNIQUE(endpoint_id, name),
-    	FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
-			ON DELETE CASCADE
-    );`,
-
-	`CREATE TABLE orek_variable_value(
-    	variable_id         CHAR( 36 ) NOT NULL,
-    	value               VARCHAR( 256 ) NOT NULL,
-    	time                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );`,
-
-	`CREATE TABLE orek_user_session(
-    	session_id          CHAR( 36 ) NOT NULL,
-    	user_name			VARCHAR( 256 ) NOT NULL,
-    	time                TIMESTAMP NOT NULL,
-		PRIMARY KEY( session_id ),
-		UNIQUE( user_name ),
-		FOREIGN KEY( user_name ) REFERENCES orek_user( user_name )
-			ON DELETE CASCADE
-    );`,
+//CreateQuery - query for creating table with table name
+type CreateQuery struct {
+	TableName   string
+	QueryString string
 }
 
-//DataStore - represents the orek datastore
-type DataStore struct {
+const exists = `SELECT COUNT (*) FROM sqlite_master 
+        WHERE type = 'table' AND name = %s;`
+
+var queries = [...]CreateQuery{
+	CreateQuery{
+		TableName: "orek_user",
+		QueryString: `CREATE TABLE orek_user(
+			user_name     VARCHAR( 255 ) NOT NULL,
+			first_name    VARCHAR( 255 ),
+			second_name   VARCHAR( 255 ),
+			email         VARCHAR( 255 ) NOT NULL,
+			PRIMARY KEY( user_name ),
+			UNIQUE(email)
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_user_password",
+		QueryString: `CREATE TABLE orek_user_password(
+    		user_name   VARCHAR( 255 ) NOT NULL,
+    		hash        VARCHAR( 255 ) NOT NULL,
+    		PRIMARY KEY( user_name ),
+    		FOREIGN KEY( user_name ) REFERENCES orek_user( user_name ) 
+				ON DELETE CASCADE,
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_user_group",
+		QueryString: `CREATE TABLE orek_user_group(
+			group_id	VARCHAR( 256 ) NOT NULL
+    		name        VARCHAR( 256 ) NOT NULL,
+    		owner       VARCHAR( 256 ) NOT NULL,
+    		description TEXT NOT NULL,
+    		PRIMARY KEY( group_id ),
+    		FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_user_to_group",
+		QueryString: `CREATE TABLE orek_user_to_group(
+    		group_id    VARCHAR( 256 ) NOT NULL,
+    		user_name   VARCHAR( 256 ) NOT NULL,
+    		FOREIGN KEY( group_id ) REFERENCES orek_user_group( group_id )
+				ON DELETE CASCADE,
+    		FOREIGN KEY( user_name ) REFERENCES orek_user( user_name ),
+    		PRIMARY KEY( group_id, user_name )
+				ON DELETE CASCADE
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_endpoint",
+		QueryString: `CREATE TABLE orek_endpoint(
+    		endpoint_id		CHAR( 36 )     NOT NULL,
+    		name       		VARCHAR( 255 ) NOT NULL,
+    		owner      		VARCHAR( 255 ) NOT NULL,
+			owner_group		VARCHAR( 255 ) NOT NULL
+    		description		TEXT,
+    		location   		VARCHAR( 255 ) NOT NULL,
+    		visibility 		CHAR( 20 )     NOT NULL,
+    		PRIMARY KEY( endpoint_id ),
+    		UNIQUE(name, owner),
+    		FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
+				ON DELETE CASCADE
+			FOREIGN KEY( owner_group ) REFERENCES orek_user_group( group_id )
+				ON DELETE CASCADE
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_variable",
+		QueryString: `CREATE TABLE orek_variable(
+    		variable_id  CHAR( 36 )     NOT NULL,
+    		name         VARCHAR( 255 ) NOT NULL,
+    		endpoint_id  CHAR( 36 )     NOT NULL,
+    		description  TEXT           NOT NULL,
+    		unit         CHAR( 30 )     NOT NULL,
+			type		 CHAR( 30 )		NOT NULL,
+    		PRIMARY KEY( variable_id ),
+    		UNIQUE(endpoint_id, name),
+    		FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
+				ON DELETE CASCADE
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_parameter",
+		QueryString: `CREATE TABLE orek_parameter(
+    			parameter_id  	CHAR( 36 )     	NOT NULL,
+    			name         	VARCHAR( 255 ) 	NOT NULL,
+    			endpoint_id    	CHAR( 36 )     	NOT NULL,
+    			description  	TEXT           	NOT NULL,
+    			unit         	CHAR( 30 )     	NOT NULL,
+				type		 	CHAR( 30 )		NOT NULL,
+				permission   	CHAR( 20 )		NOT NULL,
+    			PRIMARY KEY( parameter_id ),
+    			UNIQUE(endpoint_id, name),
+    			FOREIGN KEY( endpoint_id ) REFERENCES orek_endpoint( endpoint_id )
+					ON DELETE CASCADE
+    		);`,
+	},
+	CreateQuery{
+		TableName: "orek_variable_value",
+		QueryString: `CREATE TABLE orek_variable_value(
+    		variable_id         CHAR( 36 ) NOT NULL,
+    		value               VARCHAR( 256 ) NOT NULL,
+    		time                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    	);`,
+	},
+	CreateQuery{
+		TableName: "orek_user_session",
+		QueryString: `CREATE TABLE orek_user_session(
+    		session_id          CHAR( 36 ) NOT NULL,
+    		user_name			VARCHAR( 256 ) NOT NULL,
+    		time                TIMESTAMP NOT NULL,
+			PRIMARY KEY( session_id ),
+			UNIQUE( user_name ),
+			FOREIGN KEY( user_name ) REFERENCES orek_user( user_name )
+				ON DELETE CASCADE
+    	);`,
+	},
+}
+
+//Store - represents the orek datastore
+type Store struct {
 	*sqlx.DB
 }
 
@@ -120,14 +146,14 @@ type Options struct {
 }
 
 //Init - initializes the orek datastore
-func Init(options *Options) (*DataStore, error) {
+func Init(options *Options) (*Store, error) {
 	db, err := sqlx.Connect("sqlite3", options.Path)
 	if err != nil {
 		log.Print(err)
 		return nil, err
 	}
 	defer db.Close()
-	var sqliteDB *DataStore
+	var sqliteDB *Store
 	if err = db.Ping(); err == nil {
 		row := db.QueryRow(exists)
 		var count int
@@ -135,8 +161,6 @@ func Init(options *Options) (*DataStore, error) {
 		if err == nil {
 			if count == 0 {
 				sqliteDB, err = create(options, db)
-			} else {
-				sqliteDB, err = connect(options)
 			}
 		} else {
 			log.Print(err)
@@ -147,30 +171,51 @@ func Init(options *Options) (*DataStore, error) {
 }
 
 //connect - connects to a sqlite database file
-func connect(options *Options) (*DataStore, error) {
+func connect(options *Options) (*Store, error) {
 	mdb, err := sqlx.Open("sqlite3", options.Path)
 	if err != nil {
 		log.Print(err)
 	} else if err = mdb.Ping(); err != nil {
-		log.Printf("Could not connect to mysql database: %s", err)
+		log.Printf("Error: Could not connect to mysql database: %s", err)
 	} else {
 		log.Print("Database opened successfuly")
 	}
-	return &DataStore{mdb}, err
+	return &Store{mdb}, err
 }
 
 //create - connects to a sqlite database file and creates Orek schema
-func create(options *Options, db *sqlx.DB) (*DataStore, error) {
+func create(options *Options, db *sqlx.DB) (*Store, error) {
 	mdb, err := connect(options)
 	if err == nil {
-		for index, query := range queries {
-			_, err = mdb.Exec(query)
-			if err != nil {
-				log.Printf(`Failed to create database, query %d failed: %s`,
-					index, err)
-				break
+		for _, query := range queries {
+			if !tableExists(db, query.TableName) {
+				_, err = mdb.Exec(query.QueryString)
+				if err != nil {
+					log.Printf(`Error: Failed to create table %s: %s`,
+						query.TableName, err)
+					// break
+				}
+			} else {
+				log.Printf("Table %s exists, nothing to do", query.TableName)
 			}
+
 		}
 	}
 	return mdb, err
+}
+
+func tableExists(db *sqlx.DB, tableName string) (has bool) {
+	query := fmt.Sprintf(exists, tableName)
+	rows := db.QueryRowx(query)
+	err := rows.Err()
+	if err == nil {
+		err = rows.Scan(&has)
+	}
+	if err == sql.ErrNoRows {
+		has = false
+	} else if err != nil {
+		log.Fatalf("Error: Could not initialize database: %s", err)
+		has = false
+	}
+	return has
 }

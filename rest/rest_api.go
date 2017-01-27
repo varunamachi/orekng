@@ -25,7 +25,7 @@ func logIfError(err error) (errOut error) {
 }
 
 func getAllUsers(ctx echo.Context) (err error) {
-	users, err := data.GetDataStore().GetAllUsers()
+	users, err := data.GetStore().GetAllUsers()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -41,7 +41,7 @@ func getAllUsers(ctx echo.Context) (err error) {
 
 func getUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
-	user, err := data.GetDataStore().GetUser(userName)
+	user, err := data.GetStore().GetUser(userName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -57,7 +57,7 @@ func getUser(ctx echo.Context) (err error) {
 
 func getUserWithEmail(ctx echo.Context) (err error) {
 	email := ctx.Param("email")
-	user, err := data.GetDataStore().GetUserWithEmail(email)
+	user, err := data.GetStore().GetUserWithEmail(email)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -74,7 +74,7 @@ func createUser(ctx echo.Context) (err error) {
 	var user data.User
 	err = ctx.Bind(&user)
 	if err != nil {
-		err = data.GetDataStore().CreateUser(&user)
+		err = data.GetStore().CreateUser(&user)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -96,7 +96,7 @@ func updateUser(ctx echo.Context) (err error) {
 	var user data.User
 	err = ctx.Bind(&user)
 	if err != nil {
-		err = data.GetDataStore().UpdateUser(&user)
+		err = data.GetStore().UpdateUser(&user)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -116,7 +116,7 @@ func updateUser(ctx echo.Context) (err error) {
 
 func deleteUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
-	err = data.GetDataStore().DeleteUser(userName)
+	err = data.GetStore().DeleteUser(userName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -134,7 +134,7 @@ func deleteUser(ctx echo.Context) (err error) {
 }
 
 func getAllEndpoints(ctx echo.Context) (err error) {
-	endpoints, err := data.GetDataStore().GetAllEndpoints()
+	endpoints, err := data.GetStore().GetAllEndpoints()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -149,7 +149,7 @@ func getAllEndpoints(ctx echo.Context) (err error) {
 
 func getEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
-	endpoint, err := data.GetDataStore().GetEndpoint(endpointID)
+	endpoint, err := data.GetStore().GetEndpoint(endpointID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -167,7 +167,7 @@ func createEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
 	err = ctx.Bind(&endpoint)
 	if err != nil {
-		err = data.GetDataStore().CreateEndpoint(&endpoint)
+		err = data.GetStore().CreateEndpoint(&endpoint)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -189,7 +189,7 @@ func updateEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
 	err = ctx.Bind(&endpoint)
 	if err != nil {
-		err = data.GetDataStore().UpdateEndpoint(&endpoint)
+		err = data.GetStore().UpdateEndpoint(&endpoint)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -209,7 +209,7 @@ func updateEndpoint(ctx echo.Context) (err error) {
 
 func deleteEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
-	err = data.GetDataStore().DeleteEndpoint(endpointID)
+	err = data.GetStore().DeleteEndpoint(endpointID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -227,7 +227,7 @@ func deleteEndpoint(ctx echo.Context) (err error) {
 }
 
 func getAllVariables(ctx echo.Context) (err error) {
-	variables, err := data.GetDataStore().GetAllVariables()
+	variables, err := data.GetStore().GetAllVariables()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -242,7 +242,7 @@ func getAllVariables(ctx echo.Context) (err error) {
 
 func getVariablesForEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
-	variables, err := data.GetDataStore().GetVariablesForEndpoint(endpointID)
+	variables, err := data.GetStore().GetVariablesForEndpoint(endpointID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -257,7 +257,7 @@ func getVariablesForEndpoint(ctx echo.Context) (err error) {
 
 func getVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	variable, err := data.GetDataStore().GetVariable(variableID)
+	variable, err := data.GetStore().GetVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -274,7 +274,7 @@ func createVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
 	err = ctx.Bind(&variable)
 	if err != nil {
-		err = data.GetDataStore().CreateVariable(&variable)
+		err = data.GetStore().CreateVariable(&variable)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -296,7 +296,7 @@ func updateVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
 	err = ctx.Bind(&variable)
 	if err != nil {
-		err = data.GetDataStore().UpdateVariable(&variable)
+		err = data.GetStore().UpdateVariable(&variable)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -316,7 +316,7 @@ func updateVariable(ctx echo.Context) (err error) {
 
 func deleteVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	err = data.GetDataStore().DeleteVariable(variableID)
+	err = data.GetStore().DeleteVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -334,7 +334,7 @@ func deleteVariable(ctx echo.Context) (err error) {
 }
 
 func getAllParameters(ctx echo.Context) (err error) {
-	parameters, err := data.GetDataStore().GetAllParameters()
+	parameters, err := data.GetStore().GetAllParameters()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -349,7 +349,7 @@ func getAllParameters(ctx echo.Context) (err error) {
 
 func getParametersForEndpoint(ctx echo.Context) (err error) {
 	endpointID := ctx.Param("endpointID")
-	parameters, err := data.GetDataStore().GetParametersForEndpoint(endpointID)
+	parameters, err := data.GetStore().GetParametersForEndpoint(endpointID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -364,7 +364,7 @@ func getParametersForEndpoint(ctx echo.Context) (err error) {
 
 func getParameter(ctx echo.Context) (err error) {
 	parameterID := ctx.Param("parameterID")
-	parameter, err := data.GetDataStore().GetParameter(parameterID)
+	parameter, err := data.GetStore().GetParameter(parameterID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -381,7 +381,7 @@ func createParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
 	err = ctx.Bind(&parameter)
 	if err != nil {
-		err = data.GetDataStore().CreateParameter(&parameter)
+		err = data.GetStore().CreateParameter(&parameter)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -403,7 +403,7 @@ func updateParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
 	err = ctx.Bind(&parameter)
 	if err != nil {
-		err = data.GetDataStore().UpdateParameter(&parameter)
+		err = data.GetStore().UpdateParameter(&parameter)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -423,7 +423,7 @@ func updateParameter(ctx echo.Context) (err error) {
 
 func deleteParameter(ctx echo.Context) (err error) {
 	parameterID := ctx.Param("parameterID")
-	err = data.GetDataStore().DeleteParameter(parameterID)
+	err = data.GetStore().DeleteParameter(parameterID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -441,7 +441,7 @@ func deleteParameter(ctx echo.Context) (err error) {
 }
 
 func getAllUserGroups(ctx echo.Context) (err error) {
-	userGroups, err := data.GetDataStore().GetAllUserGroups()
+	userGroups, err := data.GetStore().GetAllUserGroups()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -457,7 +457,7 @@ func getAllUserGroups(ctx echo.Context) (err error) {
 
 func getUserGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
-	userGroup, err := data.GetDataStore().GetUserGroup(groupID)
+	userGroup, err := data.GetStore().GetUserGroup(groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -475,7 +475,7 @@ func createUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
 	err = ctx.Bind(&userGroup)
 	if err != nil {
-		err = data.GetDataStore().CreateUserGroup(&userGroup)
+		err = data.GetStore().CreateUserGroup(&userGroup)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -497,7 +497,7 @@ func updateUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
 	err = ctx.Bind(&userGroup)
 	if err != nil {
-		err = data.GetDataStore().UpdateUserGroup(&userGroup)
+		err = data.GetStore().UpdateUserGroup(&userGroup)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
@@ -517,7 +517,7 @@ func updateUserGroup(ctx echo.Context) (err error) {
 
 func deleteUserGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
-	err = data.GetDataStore().DeleteUserGroup(groupID)
+	err = data.GetStore().DeleteUserGroup(groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -537,7 +537,7 @@ func deleteUserGroup(ctx echo.Context) (err error) {
 func addUserToGroup(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	groupID := ctx.Param("groupID")
-	err = data.GetDataStore().AddUserToGroup(userName, groupID)
+	err = data.GetStore().AddUserToGroup(userName, groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -557,7 +557,7 @@ func addUserToGroup(ctx echo.Context) (err error) {
 func removeUserFromGroup(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
 	groupID := ctx.Param("groupID")
-	err = data.GetDataStore().RemoveUserFromGroup(userName, groupID)
+	err = data.GetStore().RemoveUserFromGroup(userName, groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -576,7 +576,7 @@ func removeUserFromGroup(ctx echo.Context) (err error) {
 
 func getUsersInGroup(ctx echo.Context) (err error) {
 	groupID := ctx.Param("groupID")
-	users, err := data.GetDataStore().GetUsersInGroup(groupID)
+	users, err := data.GetStore().GetUsersInGroup(groupID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -591,7 +591,7 @@ func getUsersInGroup(ctx echo.Context) (err error) {
 
 func getGroupsForUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
-	groups, err := data.GetDataStore().GetGroupsForUser(userName)
+	groups, err := data.GetStore().GetGroupsForUser(userName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -611,7 +611,7 @@ func addVariableValue(ctx echo.Context) (err error) {
 	}{}
 	err = ctx.Bind(&varValue)
 	if err != nil {
-		err = data.GetDataStore().AddVariableValue(varValue.VariableID,
+		err = data.GetStore().AddVariableValue(varValue.VariableID,
 			varValue.Value)
 	}
 	if err != nil {
@@ -632,7 +632,7 @@ func addVariableValue(ctx echo.Context) (err error) {
 
 func getValuesForVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	values, err := data.GetDataStore().GetValuesForVariable(variableID)
+	values, err := data.GetStore().GetValuesForVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -647,7 +647,7 @@ func getValuesForVariable(ctx echo.Context) (err error) {
 
 func clearValuesForVariable(ctx echo.Context) (err error) {
 	variableID := ctx.Param("variableID")
-	err = data.GetDataStore().ClearValuesForVariable(variableID)
+	err = data.GetStore().ClearValuesForVariable(variableID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
@@ -673,7 +673,7 @@ func setPassword(ctx echo.Context) (err error) {
 	var hash string
 	hash, err = passlib.Hash(password)
 	if err == nil {
-		err = data.GetDataStore().SetPasswordHash(userName, hash)
+		err = data.GetStore().SetPasswordHash(userName, hash)
 		if err == nil {
 			ctx.JSON(http.StatusOK,
 				Result{
@@ -700,7 +700,7 @@ func updatePassword(ctx echo.Context) (err error) {
 		var hash string
 		hash, err = passlib.Hash(password)
 		if err == nil {
-			err = data.GetDataStore().SetPasswordHash(userName, hash)
+			err = data.GetStore().SetPasswordHash(userName, hash)
 			if err == nil {
 				ctx.JSON(http.StatusOK,
 					Result{
@@ -727,12 +727,12 @@ func updatePassword(ctx echo.Context) (err error) {
 
 func varifyPassword(userName, password string) (err error) {
 	var hash string
-	hash, err = data.GetDataStore().GetPasswordHash(userName)
+	hash, err = data.GetStore().GetPasswordHash(userName)
 	if err == nil {
 		var newHash string
 		newHash, err = passlib.Verify(password, hash)
 		if err == nil && newHash != "" {
-			err = data.GetDataStore().SetPasswordHash(userName, newHash)
+			err = data.GetStore().SetPasswordHash(userName, newHash)
 		}
 	}
 	logIfError(err)
@@ -743,7 +743,7 @@ func login(ctx echo.Context) (err error) {
 	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")
 	if err = varifyPassword(userName, password); err != nil {
-		userExists, checkError := data.GetDataStore().UserExists(userName)
+		userExists, checkError := data.GetStore().UserExists(userName)
 		if checkError == nil && !userExists {
 			ctx.JSON(http.StatusUnauthorized,
 				Result{

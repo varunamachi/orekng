@@ -5,13 +5,13 @@ import "log"
 var db OrekDataStore
 
 //SetDataStore sets the application wIDe data store to be used
-func SetDataStore(dbInst OrekDataStore) error {
+func SetStore(dbInst OrekDataStore) error {
 	db = dbInst
 	return nil
 }
 
-//GetDataStore - give the application data store
-func GetDataStore() OrekDataStore {
+//GetStore - give the application data store
+func GetStore() OrekDataStore {
 	if db == nil {
 		log.Fatal("DataStore is Nil!!!")
 	}
