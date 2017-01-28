@@ -147,66 +147,37 @@ type Options struct {
 
 //Init - initializes the orek datastore
 func Init(options *Options) (*Store, error) {
-	db, err := sqlx.Connect("sqlite3", options.Path)
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
-	defer db.Close()
-	var sqliteDB *Store
-	if err = db.Ping(); err == nil {
-		row := db.QueryRow(exists)
-		var count int
-		err = row.Scan(&count)
-		if err == nil {
-			if count == 0 {
-				sqliteDB, err = create(options, db)
-			}
-		} else {
-			log.Print(err)
-			return nil, err
-		}
-	}
-	return sqliteDB, err
-}
-
-//connect - connects to a sqlite database file
-func connect(options *Options) (*Store, error) {
 	mdb, err := sqlx.Open("sqlite3", options.Path)
 	if err != nil {
 		log.Print(err)
 	} else if err = mdb.Ping(); err != nil {
-		log.Printf("Error: Could not connect to mysql database: %s", err)
+		log.Printf("Error: Could not connect to SQLite database: %s", err)
 	} else {
 		log.Print("Database opened successfuly")
 	}
 	return &Store{mdb}, err
 }
 
-//create - connects to a sqlite database file and creates Orek schema
-func create(options *Options, db *sqlx.DB) (*Store, error) {
-	mdb, err := connect(options)
-	if err == nil {
-		for _, query := range queries {
-			if !tableExists(db, query.TableName) {
-				_, err = mdb.Exec(query.QueryString)
-				if err != nil {
-					log.Printf(`Error: Failed to create table %s: %s`,
-						query.TableName, err)
-					// break
-				}
-			} else {
-				log.Printf("Table %s exists, nothing to do", query.TableName)
+//Init - Initialize the database, creates the tables taht aren't yet created
+func (sqlite *Store) Init() (err error) {
+	for _, query := range queries {
+		if !sqlite.tableExists(query.TableName) {
+			_, err = sqlite.Exec(query.QueryString)
+			if err != nil {
+				log.Printf(`Error: Failed to create table %s: %s`,
+					query.TableName, err)
+				// break
 			}
-
+		} else {
+			log.Printf("Table %s exists, nothing to do", query.TableName)
 		}
 	}
-	return mdb, err
+	return err
 }
 
-func tableExists(db *sqlx.DB, tableName string) (has bool) {
+func (sqlite *Store) tableExists(tableName string) (has bool) {
 	query := fmt.Sprintf(exists, tableName)
-	rows := db.QueryRowx(query)
+	rows := sqlite.QueryRowx(query)
 	err := rows.Err()
 	if err == nil {
 		err = rows.Scan(&has)

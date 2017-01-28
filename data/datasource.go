@@ -69,4 +69,6 @@ type OrekDataStore interface {
 	SetPasswordHash(userName, passwordHash string) (err error)
 	GetPasswordHash(userName string) (hash string, err error)
 	UpdatePasswordHash(userName, passwordHash string) (err error)
+
+	Init() (err error)
 }
