@@ -1,13 +1,18 @@
 package cmd
 
-import cli "gopkg.in/urfave/cli.v1"
+import (
+	"log"
+
+	"github.com/varunamachi/orekng/data"
+	cli "gopkg.in/urfave/cli.v1"
+)
 
 //ManageCommandProvider - provides command for managing Orek instance
 type ManageCommandProvider struct {
 }
 
-//GetCommands - gives commands for managing orek instance
-func (ccp *ManageCommandProvider) GetCommands(orek *OrekApp) cli.Command {
+//GetCommand - gives commands for managing orek instance
+func (ccp *ManageCommandProvider) GetCommand() cli.Command {
 	subcmds := []cli.Command{}
 	return cli.Command{
 		Name:        "manage",
@@ -16,13 +21,17 @@ func (ccp *ManageCommandProvider) GetCommands(orek *OrekApp) cli.Command {
 	}
 }
 
-func initCommand(orek *OrekApp) (cmd cli.Command) {
+func initCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "init",
 		Flags: []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
+				err = data.GetStore().Init()
+				if err != nil {
+					log.Println("Data source initialized")
+				}
 			}
 			return err
 		},
@@ -30,27 +39,17 @@ func initCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func reInitCommand(orek *OrekApp) (cmd cli.Command) {
-	cmd = cli.Command{
-		Name:  "re-init",
-		Flags: []cli.Flag{},
-		Action: func(ctx *cli.Context) (err error) {
-			argetr := ArgGetter{Ctx: ctx}
-			if err = argetr.Err; err == nil {
-			}
-			return err
-		},
-	}
-	return cmd
-}
-
-func deleteDatabaseCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteDatabaseCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "destroy",
 		Flags: []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
+				err = data.GetStore().DeleteSchema()
+				if err != nil {
+					log.Println("Data source destroyed")
+				}
 			}
 			return err
 		},
@@ -58,13 +57,17 @@ func deleteDatabaseCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func clearDataCommand(orek *OrekApp) (cmd cli.Command) {
+func clearDataCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "clear-data",
 		Flags: []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
+				err = data.GetStore().ClearData()
+				if err != nil {
+					log.Println("Data source cleared")
+				}
 			}
 			return err
 		},

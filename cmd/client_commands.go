@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
+	"log"
 
 	"github.com/varunamachi/orekng/data"
 	"gopkg.in/urfave/cli.v1"
@@ -11,45 +11,46 @@ import (
 //ClientCommandProvider - Providers commands for running Orek app as client
 type ClientCommandProvider struct{}
 
-//GetCommands - gives commands for running Orek app as client to Orek Service
-func (ccp *ClientCommandProvider) GetCommands(orek *OrekApp) cli.Command {
+//GetCommand - gives commands for running Orek app as client to Orek Service
+func (ccp *ClientCommandProvider) GetCommand() cli.Command {
+	client := &LocalClient{data.GetStore()}
 	subcmds := []cli.Command{
-		listUsersCommand(orek),
-		showUserCommand(orek),
-		showUserWithEmailCommand(orek),
-		createUserCommand(orek),
-		updateUserCommand(orek),
-		deleteUserCommand(orek),
-		listEndpointsCommand(orek),
-		showEndpointCommand(orek),
-		createEndpointCommand(orek),
-		updateEndpointCommand(orek),
-		deleteEndpointCommand(orek),
-		listVariablesCommand(orek),
-		listVariablesForEndpointCommand(orek),
-		showVariableCommand(orek),
-		createVariableCommand(orek),
-		updateVariableCommand(orek),
-		deleteVariableCommand(orek),
-		listParametersCommand(orek),
-		listParametersForEndpointCommand(orek),
-		showParameterCommand(orek),
-		createParameterCommand(orek),
-		updateParameterCommand(orek),
-		deleteParameterCommand(orek),
-		listUserGroupsCommand(orek),
-		showUserGroupCommand(orek),
-		createUserGroupCommand(orek),
-		updateUserGroupCommand(orek),
-		deleteUserGroupCommand(orek),
-		addUserToGroupCommand(orek),
-		removeUserFromGroupCommand(orek),
-		getUsersInGroupCommand(orek),
-		getGroupsForUserCommand(orek),
-		clearValuesForVariableCommand(orek),
-		getValuesForVariableCommand(orek),
-		setPasswordCommand(orek),
-		updatePasswordCommand(orek),
+		listUsersCommand(client),
+		showUserCommand(client),
+		showUserWithEmailCommand(client),
+		createUserCommand(client),
+		updateUserCommand(client),
+		deleteUserCommand(client),
+		listEndpointsCommand(client),
+		showEndpointCommand(client),
+		createEndpointCommand(client),
+		updateEndpointCommand(client),
+		deleteEndpointCommand(client),
+		listVariablesCommand(client),
+		listVariablesForEndpointCommand(client),
+		showVariableCommand(client),
+		createVariableCommand(client),
+		updateVariableCommand(client),
+		deleteVariableCommand(client),
+		listParametersCommand(client),
+		listParametersForEndpointCommand(client),
+		showParameterCommand(client),
+		createParameterCommand(client),
+		updateParameterCommand(client),
+		deleteParameterCommand(client),
+		listUserGroupsCommand(client),
+		showUserGroupCommand(client),
+		createUserGroupCommand(client),
+		updateUserGroupCommand(client),
+		deleteUserGroupCommand(client),
+		addUserToGroupCommand(client),
+		removeUserFromGroupCommand(client),
+		getUsersInGroupCommand(client),
+		getGroupsForUserCommand(client),
+		clearValuesForVariableCommand(client),
+		getValuesForVariableCommand(client),
+		setPasswordCommand(client),
+		updatePasswordCommand(client),
 	}
 	return cli.Command{
 		Name:        "client",
@@ -58,17 +59,17 @@ func (ccp *ClientCommandProvider) GetCommands(orek *OrekApp) cli.Command {
 	}
 }
 
-func listUsersCommand(orek *OrekApp) (cmd cli.Command) {
+func listUsersCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "list-users",
 		Flags: []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			var users []*data.User
-			users, err = orek.Client.GetAllUsers()
+			users, err = client.GetAllUsers()
 			//Make it better
 			if err == nil {
 				for _, user := range users {
-					fmt.Println(user)
+					log.Println(user)
 				}
 			}
 			return err
@@ -77,7 +78,7 @@ func listUsersCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showUserCommand(orek *OrekApp) (cmd cli.Command) {
+func showUserCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "show-user",
 		Flags: []cli.Flag{
@@ -92,9 +93,9 @@ func showUserCommand(orek *OrekApp) (cmd cli.Command) {
 			userName := argetr.GetRequiredString("user-name")
 			var user *data.User
 			if err = argetr.Err; err == nil {
-				user, err = orek.Client.GetUser(userName)
+				user, err = client.GetUser(userName)
 				if err == nil {
-					fmt.Println(user)
+					log.Println(user)
 				}
 			}
 			return err
@@ -103,7 +104,7 @@ func showUserCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showUserWithEmailCommand(orek *OrekApp) (cmd cli.Command) {
+func showUserWithEmailCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "",
 		Flags: []cli.Flag{},
@@ -113,9 +114,9 @@ func showUserWithEmailCommand(orek *OrekApp) (cmd cli.Command) {
 			err = argetr.Err
 			var user *data.User
 			if err == nil {
-				user, err = orek.Client.GetUserWithEmail(email)
+				user, err = client.GetUserWithEmail(email)
 				if err == nil {
-					fmt.Println(user)
+					log.Println(user)
 				}
 			}
 			return err
@@ -124,7 +125,7 @@ func showUserWithEmailCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func createUserCommand(orek *OrekApp) (cmd cli.Command) {
+func createUserCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "create-user",
 		Flags: []cli.Flag{
@@ -162,9 +163,9 @@ func createUserCommand(orek *OrekApp) (cmd cli.Command) {
 					SecondName: secondName,
 					Email:      email,
 				}
-				err = orek.Client.CreateUser(user)
+				err = client.CreateUser(user)
 				if err == nil {
-					fmt.Println("User created successfully")
+					log.Println("User created successfully")
 				}
 			}
 			return err
@@ -173,7 +174,7 @@ func createUserCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updateUserCommand(orek *OrekApp) (cmd cli.Command) {
+func updateUserCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "update-user",
 		Flags: []cli.Flag{
@@ -211,9 +212,9 @@ func updateUserCommand(orek *OrekApp) (cmd cli.Command) {
 					SecondName: secondName,
 					Email:      email,
 				}
-				err = orek.Client.UpdateUser(user)
+				err = client.UpdateUser(user)
 				if err == nil {
-					fmt.Println("User updated successfully")
+					log.Println("User updated successfully")
 				}
 			}
 			return err
@@ -222,7 +223,7 @@ func updateUserCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func deleteUserCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteUserCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "delete-user",
 		Flags: []cli.Flag{
@@ -236,9 +237,9 @@ func deleteUserCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			userName := argetr.GetRequiredString("user-name")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.DeleteUser(userName)
+				err = client.DeleteUser(userName)
 				if err == nil {
-					fmt.Println("User deleted successfully")
+					log.Println("User deleted successfully")
 				}
 			}
 			return err
@@ -247,16 +248,16 @@ func deleteUserCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func listEndpointsCommand(orek *OrekApp) (cmd cli.Command) {
+func listEndpointsCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "list-endpoint",
 		Flags: []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			var endpoints []*data.Endpoint
-			endpoints, err = orek.Client.GetAllEndpoints()
+			endpoints, err = client.GetAllEndpoints()
 			if err == nil {
 				for _, ep := range endpoints {
-					fmt.Println(ep)
+					log.Println(ep)
 				}
 			}
 			return err
@@ -265,7 +266,7 @@ func listEndpointsCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func showEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "show-endpoint",
 		Flags: []cli.Flag{
@@ -281,10 +282,10 @@ func showEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 			err = argetr.Err
 			var ep *data.Endpoint
 			if err == nil {
-				ep, err = orek.Client.GetEndpoint(endpointID)
+				ep, err = client.GetEndpoint(endpointID)
 			}
 			if err == nil {
-				fmt.Println(ep)
+				log.Println(ep)
 			}
 			return err
 		},
@@ -292,7 +293,7 @@ func showEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func createEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func createEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "create-endpoint",
 		Flags: []cli.Flag{
@@ -351,9 +352,9 @@ func createEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 				Visibility:  data.EndpointVisiblity(visibility),
 			}
 			if err = argetr.Err; err == nil {
-				err = orek.Client.CreateEndpoint(endpoint)
+				err = client.CreateEndpoint(endpoint)
 				if err == nil {
-					fmt.Print("Endpoint created")
+					log.Println("Endpoint created")
 				}
 			}
 			return err
@@ -362,7 +363,7 @@ func createEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updateEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func updateEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "update-endpoint",
 		Flags: []cli.Flag{
@@ -421,10 +422,10 @@ func updateEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 				Visibility:  data.EndpointVisiblity(visibility),
 			}
 			if argetr.Err == nil {
-				err = orek.Client.UpdateEndpoint(endpoint)
+				err = client.UpdateEndpoint(endpoint)
 			}
 			if err == nil {
-				fmt.Print("Endpoint updated")
+				log.Println("Endpoint updated")
 			}
 			return err
 		},
@@ -432,7 +433,7 @@ func updateEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func deleteEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "delete-endpoint",
 		Flags: []cli.Flag{
@@ -446,9 +447,9 @@ func deleteEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			endpointID := argetr.GetRequiredString("endpoint-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.DeleteEndpoint(endpointID)
+				err = client.DeleteEndpoint(endpointID)
 				if err == nil {
-					fmt.Println("Endpoint Deleted")
+					log.Println("Endpoint Deleted")
 				}
 			}
 			return err
@@ -457,7 +458,7 @@ func deleteEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func listVariablesCommand(orek *OrekApp) (cmd cli.Command) {
+func listVariablesCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "list-vars",
 		Flags: []cli.Flag{},
@@ -465,10 +466,10 @@ func listVariablesCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
 				var variables []*data.Variable
-				variables, err = orek.Client.GetAllVariables()
+				variables, err = client.GetAllVariables()
 				if err == nil {
 					for _, vrb := range variables {
-						fmt.Println(vrb)
+						log.Println(vrb)
 					}
 				}
 			}
@@ -478,7 +479,7 @@ func listVariablesCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func listVariablesForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func listVariablesForEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "list-ep-vars",
 		Flags: []cli.Flag{
@@ -493,10 +494,10 @@ func listVariablesForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 			endpointID := argetr.GetRequiredString("endpoint-id")
 			if err = argetr.Err; err == nil {
 				var variables []*data.Variable
-				variables, err = orek.Client.GetVariablesForEndpoint(endpointID)
+				variables, err = client.GetVariablesForEndpoint(endpointID)
 				if err == nil {
 					for _, vrb := range variables {
-						fmt.Println(vrb)
+						log.Println(vrb)
 					}
 				}
 			}
@@ -506,7 +507,7 @@ func listVariablesForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func showVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "show-var",
 		Flags: []cli.Flag{
@@ -521,9 +522,9 @@ func showVariableCommand(orek *OrekApp) (cmd cli.Command) {
 			variableID := argetr.GetRequiredString("variable-id")
 			if err = argetr.Err; err == nil {
 				var variable *data.Variable
-				variable, err = orek.Client.GetVariable(variableID)
+				variable, err = client.GetVariable(variableID)
 				if err == nil {
-					fmt.Println(variable)
+					log.Println(variable)
 				}
 			}
 			return err
@@ -532,7 +533,7 @@ func showVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func createVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func createVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "create-var",
 		Flags: []cli.Flag{
@@ -584,9 +585,9 @@ func createVariableCommand(orek *OrekApp) (cmd cli.Command) {
 					Unit:        unit,
 					Type:        variableType,
 				}
-				err = orek.Client.CreateVariable(variable)
+				err = client.CreateVariable(variable)
 				if err == nil {
-					fmt.Println("Variable created successfully")
+					log.Println("Variable created successfully")
 				}
 			}
 			return err
@@ -595,7 +596,7 @@ func createVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updateVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func updateVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "update-var",
 		Flags: []cli.Flag{
@@ -647,9 +648,9 @@ func updateVariableCommand(orek *OrekApp) (cmd cli.Command) {
 					Unit:        unit,
 					Type:        variableType,
 				}
-				err = orek.Client.UpdateVariable(variable)
+				err = client.UpdateVariable(variable)
 				if err == nil {
-					fmt.Println("Variable updated successfully")
+					log.Println("Variable updated successfully")
 				}
 			}
 			return err
@@ -658,7 +659,7 @@ func updateVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func deleteVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "delete-var",
 		Flags: []cli.Flag{
@@ -672,9 +673,9 @@ func deleteVariableCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			variableID := argetr.GetRequiredString("variable-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.DeleteVariable(variableID)
+				err = client.DeleteVariable(variableID)
 				if err == nil {
-					fmt.Println("Variable deleted successfully")
+					log.Println("Variable deleted successfully")
 				}
 			}
 			return err
@@ -683,7 +684,7 @@ func deleteVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func listUserGroupsCommand(orek *OrekApp) (cmd cli.Command) {
+func listUserGroupsCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "list-groups",
 		Flags: []cli.Flag{},
@@ -691,10 +692,10 @@ func listUserGroupsCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
 				var groups []*data.UserGroup
-				groups, err = orek.Client.GetAllUserGroups()
+				groups, err = client.GetAllUserGroups()
 				if err == nil {
 					for _, group := range groups {
-						fmt.Println(group)
+						log.Println(group)
 					}
 				}
 			}
@@ -704,7 +705,7 @@ func listUserGroupsCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func showUserGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "show-group",
 		Flags: []cli.Flag{
@@ -719,9 +720,9 @@ func showUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 			groupID := argetr.GetRequiredString("group-id")
 			if err = argetr.Err; err == nil {
 				var group *data.UserGroup
-				group, err = orek.Client.GetUserGroup(groupID)
+				group, err = client.GetUserGroup(groupID)
 				if err == nil {
-					fmt.Println(group)
+					log.Println(group)
 				}
 			}
 			return err
@@ -730,7 +731,7 @@ func showUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func createUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func createUserGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "create-group",
 		Flags: []cli.Flag{
@@ -769,9 +770,9 @@ func createUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 					Owner:       owner,
 					Description: description,
 				}
-				err = orek.Client.CreateUserGroup(userGroup)
+				err = client.CreateUserGroup(userGroup)
 				if err == nil {
-					fmt.Println("User group created successfully")
+					log.Println("User group created successfully")
 				}
 			}
 			return err
@@ -780,7 +781,7 @@ func createUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updateUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func updateUserGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "update-group",
 		Flags: []cli.Flag{
@@ -819,9 +820,9 @@ func updateUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 					Owner:       owner,
 					Description: description,
 				}
-				err = orek.Client.UpdateUserGroup(userGroup)
+				err = client.UpdateUserGroup(userGroup)
 				if err == nil {
-					fmt.Println("User group updated successfully")
+					log.Println("User group updated successfully")
 				}
 			}
 			return err
@@ -830,7 +831,7 @@ func updateUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func deleteUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteUserGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "delete-group",
 		Flags: []cli.Flag{
@@ -844,9 +845,9 @@ func deleteUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			groupID := argetr.GetRequiredString("group-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.DeleteUserGroup(groupID)
+				err = client.DeleteUserGroup(groupID)
 				if err == nil {
-					fmt.Println("User group deleted successfully")
+					log.Println("User group deleted successfully")
 				}
 			}
 			return err
@@ -855,7 +856,7 @@ func deleteUserGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func addUserToGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func addUserToGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "group-user-link",
 		Flags: []cli.Flag{
@@ -875,9 +876,9 @@ func addUserToGroupCommand(orek *OrekApp) (cmd cli.Command) {
 			userName := argetr.GetRequiredString("user-name")
 			groupID := argetr.GetRequiredString("group-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.AddUserToGroup(userName, groupID)
+				err = client.AddUserToGroup(userName, groupID)
 				if err == nil {
-					fmt.Println("User added to group")
+					log.Println("User added to group")
 				}
 			}
 			return err
@@ -886,7 +887,7 @@ func addUserToGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func removeUserFromGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func removeUserFromGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "group-user-unlink",
 		Flags: []cli.Flag{
@@ -906,9 +907,9 @@ func removeUserFromGroupCommand(orek *OrekApp) (cmd cli.Command) {
 			userName := argetr.GetRequiredString("user-name")
 			groupID := argetr.GetRequiredString("group-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.RemoveUserFromGroup(userName, groupID)
+				err = client.RemoveUserFromGroup(userName, groupID)
 				if err == nil {
-					fmt.Println("User removed from group")
+					log.Println("User removed from group")
 				}
 			}
 			return err
@@ -917,7 +918,7 @@ func removeUserFromGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func getUsersInGroupCommand(orek *OrekApp) (cmd cli.Command) {
+func getUsersInGroupCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "users-in-group",
 		Flags: []cli.Flag{
@@ -932,10 +933,10 @@ func getUsersInGroupCommand(orek *OrekApp) (cmd cli.Command) {
 			groupID := argetr.GetRequiredString("group-id")
 			if err = argetr.Err; err == nil {
 				var users []*data.User
-				users, err = orek.Client.GetUsersInGroup(groupID)
+				users, err = client.GetUsersInGroup(groupID)
 				if err == nil {
 					for _, user := range users {
-						fmt.Println(user.Name)
+						log.Println(user.Name)
 					}
 				}
 			}
@@ -945,7 +946,7 @@ func getUsersInGroupCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func getGroupsForUserCommand(orek *OrekApp) (cmd cli.Command) {
+func getGroupsForUserCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "groups-of-user",
 		Flags: []cli.Flag{
@@ -960,10 +961,10 @@ func getGroupsForUserCommand(orek *OrekApp) (cmd cli.Command) {
 			userName := argetr.GetRequiredString("user-name")
 			if err = argetr.Err; err == nil {
 				var groups []*data.UserGroup
-				groups, err = orek.Client.GetGroupsForUser(userName)
+				groups, err = client.GetGroupsForUser(userName)
 				if err == nil {
 					for _, group := range groups {
-						fmt.Println(group.GroupID)
+						log.Println(group.GroupID)
 					}
 				}
 			}
@@ -973,7 +974,7 @@ func getGroupsForUserCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func clearValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func clearValuesForVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "clear-vars",
 		Flags: []cli.Flag{
@@ -988,9 +989,9 @@ func clearValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
 			variableID := argetr.GetRequiredString("variable-id")
 			err = argetr.Err
 			if err == nil {
-				err = orek.Client.ClearValuesForVariable(variableID)
+				err = client.ClearValuesForVariable(variableID)
 				if err == nil {
-					fmt.Println("All variable values are cleared")
+					log.Println("All variable values are cleared")
 				}
 			}
 			return err
@@ -999,7 +1000,7 @@ func clearValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func getValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
+func getValuesForVariableCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "var-values",
 		Flags: []cli.Flag{
@@ -1015,10 +1016,10 @@ func getValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
 			err = argetr.Err
 			if err == nil {
 				var values []*string
-				values, err = orek.Client.GetValuesForVariable(variableID)
+				values, err = client.GetValuesForVariable(variableID)
 				if err == nil {
 					for _, val := range values {
-						fmt.Println(val)
+						log.Println(val)
 					}
 				}
 			}
@@ -1028,7 +1029,7 @@ func getValuesForVariableCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func setPasswordCommand(orek *OrekApp) (cmd cli.Command) {
+func setPasswordCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "set-password",
 		Flags: []cli.Flag{
@@ -1055,9 +1056,9 @@ func setPasswordCommand(orek *OrekApp) (cmd cli.Command) {
 			confirmPassword := argetr.GetRequiredString("confirm-password")
 			if err = argetr.Err; err == nil {
 				if password == confirmPassword {
-					err = orek.Client.SetPassword(userName, password)
+					err = client.SetPassword(userName, password)
 					if err == nil {
-						fmt.Println("Password set successfully")
+						log.Println("Password set successfully")
 					}
 				} else {
 					err = errors.New("Password dont match")
@@ -1069,7 +1070,7 @@ func setPasswordCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updatePasswordCommand(orek *OrekApp) (cmd cli.Command) {
+func updatePasswordCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "set-password",
 		Flags: []cli.Flag{
@@ -1102,10 +1103,10 @@ func updatePasswordCommand(orek *OrekApp) (cmd cli.Command) {
 			confirmPassword := argetr.GetRequiredString("confirm-password")
 			if err = argetr.Err; err == nil {
 				if confirmPassword == newPassword {
-					err = orek.Client.UpdatePassword(userName,
+					err = client.UpdatePassword(userName,
 						currentPassword, newPassword)
 					if err == nil {
-						fmt.Println("Password set successfully")
+						log.Println("Password set successfully")
 					}
 				} else {
 					err = errors.New("Password dont match")
@@ -1118,7 +1119,7 @@ func updatePasswordCommand(orek *OrekApp) (cmd cli.Command) {
 }
 
 //////////////////////////////////
-func listParametersCommand(orek *OrekApp) (cmd cli.Command) {
+func listParametersCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name:  "list-params",
 		Flags: []cli.Flag{},
@@ -1126,10 +1127,10 @@ func listParametersCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
 				var parameters []*data.Parameter
-				parameters, err = orek.Client.GetAllParameters()
+				parameters, err = client.GetAllParameters()
 				if err == nil {
 					for _, vrb := range parameters {
-						fmt.Println(vrb)
+						log.Println(vrb)
 					}
 				}
 			}
@@ -1139,7 +1140,7 @@ func listParametersCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func listParametersForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
+func listParametersForEndpointCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "list-ep-params",
 		Flags: []cli.Flag{
@@ -1154,10 +1155,10 @@ func listParametersForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 			endpointID := argetr.GetRequiredString("endpoint-id")
 			if err = argetr.Err; err == nil {
 				var parameters []*data.Parameter
-				parameters, err = orek.Client.GetParametersForEndpoint(endpointID)
+				parameters, err = client.GetParametersForEndpoint(endpointID)
 				if err == nil {
 					for _, vrb := range parameters {
-						fmt.Println(vrb)
+						log.Println(vrb)
 					}
 				}
 			}
@@ -1167,7 +1168,7 @@ func listParametersForEndpointCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func showParameterCommand(orek *OrekApp) (cmd cli.Command) {
+func showParameterCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "show-param",
 		Flags: []cli.Flag{
@@ -1182,9 +1183,9 @@ func showParameterCommand(orek *OrekApp) (cmd cli.Command) {
 			parameterID := argetr.GetRequiredString("parameter-id")
 			if err = argetr.Err; err == nil {
 				var parameter *data.Parameter
-				parameter, err = orek.Client.GetParameter(parameterID)
+				parameter, err = client.GetParameter(parameterID)
 				if err == nil {
-					fmt.Println(parameter)
+					log.Println(parameter)
 				}
 			}
 			return err
@@ -1193,7 +1194,7 @@ func showParameterCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func createParameterCommand(orek *OrekApp) (cmd cli.Command) {
+func createParameterCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "create-param",
 		Flags: []cli.Flag{
@@ -1245,9 +1246,9 @@ func createParameterCommand(orek *OrekApp) (cmd cli.Command) {
 					Unit:        unit,
 					Type:        parameterType,
 				}
-				err = orek.Client.CreateParameter(parameter)
+				err = client.CreateParameter(parameter)
 				if err == nil {
-					fmt.Println("Parameter created successfully")
+					log.Println("Parameter created successfully")
 				}
 			}
 			return err
@@ -1256,7 +1257,7 @@ func createParameterCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func updateParameterCommand(orek *OrekApp) (cmd cli.Command) {
+func updateParameterCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "update-param",
 		Flags: []cli.Flag{
@@ -1308,9 +1309,9 @@ func updateParameterCommand(orek *OrekApp) (cmd cli.Command) {
 					Unit:        unit,
 					Type:        parameterType,
 				}
-				err = orek.Client.UpdateParameter(parameter)
+				err = client.UpdateParameter(parameter)
 				if err == nil {
-					fmt.Println("Parameter updated successfully")
+					log.Println("Parameter updated successfully")
 				}
 			}
 			return err
@@ -1319,7 +1320,7 @@ func updateParameterCommand(orek *OrekApp) (cmd cli.Command) {
 	return cmd
 }
 
-func deleteParameterCommand(orek *OrekApp) (cmd cli.Command) {
+func deleteParameterCommand(client OrekClient) (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "delete-param",
 		Flags: []cli.Flag{
@@ -1333,9 +1334,9 @@ func deleteParameterCommand(orek *OrekApp) (cmd cli.Command) {
 			argetr := ArgGetter{Ctx: ctx}
 			parameterID := argetr.GetRequiredString("parameter-id")
 			if err = argetr.Err; err == nil {
-				err = orek.Client.DeleteParameter(parameterID)
+				err = client.DeleteParameter(parameterID)
 				if err == nil {
-					fmt.Println("Parameter deleted successfully")
+					log.Println("Parameter deleted successfully")
 				}
 			}
 			return err

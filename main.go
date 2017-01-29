@@ -1,13 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
-	_ "github.com/varunamachi/orekng/data"
-	_ "github.com/varunamachi/orekng/data/sqlite"
-	_ "github.com/varunamachi/orekng/rest"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/varunamachi/orekng/cmd"
 )
 
 func main() {
-	fmt.Println("Hello Orek!")
+	orek := cmd.OrekApp{
+		CommandProviders: []cmd.CliCommandProvider{
+			&cmd.ManageCommandProvider{},
+			&cmd.ServerCommandProvider{},
+			&cmd.ClientCommandProvider{},
+		},
+	}
+	orek.Run(os.Args)
 }

@@ -71,4 +71,6 @@ type OrekDataStore interface {
 	UpdatePasswordHash(userName, passwordHash string) (err error)
 
 	Init() (err error)
+	ClearData() (err error)
+	DeleteSchema() (err error)
 }

@@ -5,10 +5,10 @@ import cli "gopkg.in/urfave/cli.v1"
 //ServerCommandProvider - Providers commands for running Orek app as client
 type ServerCommandProvider struct{}
 
-//GetCommands - gives commands for running Orek app as client to Orek Service
-func (ccp *ServerCommandProvider) GetCommands(orek *OrekApp) cli.Command {
+//GetCommand - gives commands for running Orek app as client to Orek Service
+func (ccp *ServerCommandProvider) GetCommand() cli.Command {
 	subcmds := []cli.Command{
-		serveCommand(orek),
+		serveCommand(),
 	}
 	return cli.Command{
 		Name:        "server",
@@ -17,7 +17,7 @@ func (ccp *ServerCommandProvider) GetCommands(orek *OrekApp) cli.Command {
 	}
 }
 
-func serveCommand(orek *OrekApp) (cmd cli.Command) {
+func serveCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "serve",
 		Flags: []cli.Flag{
