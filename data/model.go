@@ -39,13 +39,13 @@ type UserGroup struct {
 //Endpoint - represents the a data endpoint that exposes variables and
 //parameters
 type Endpoint struct {
-	EndpointID  string            `json:"endpointID" db:"endpoint_id"`
-	Name        string            `json:"endpointName" db:"name"`
-	Owner       string            `json:"owner" db:"owner"`
-	OwnerGroup  string            `json:"group" db:"owner_group"`
-	Description string            `json:"description" db:"description"`
-	Location    string            `json:"location" db:"location"`
-	Visibility  EndpointVisiblity `json:"visibility" db:"visibility"`
+	EndpointID  string `json:"endpointID" db:"endpoint_id"`
+	Name        string `json:"endpointName" db:"name"`
+	Owner       string `json:"owner" db:"owner"`
+	OwnerGroup  string `json:"group" db:"owner_group"`
+	Description string `json:"description" db:"description"`
+	Location    string `json:"location" db:"location"`
+	Visibility  string `json:"visibility" db:"visibility"`
 }
 
 //Variable - is an entity associated with a endpoint that varies with time

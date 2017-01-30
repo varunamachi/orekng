@@ -4,7 +4,7 @@ import "log"
 
 var db OrekDataStore
 
-//SetDataStore sets the application wIDe data store to be used
+//SetStore sets the application wIDe data store to be used
 func SetStore(dbInst OrekDataStore) error {
 	db = dbInst
 	return nil

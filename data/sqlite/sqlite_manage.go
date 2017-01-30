@@ -166,7 +166,8 @@ func (sqlite *Store) Init() (err error) {
 			if err != nil {
 				log.Printf(`Error: Failed to create table %s: %s`,
 					query.TableName, err)
-				// break
+			} else {
+				log.Printf("Table %s created successfuly", query.TableName)
 			}
 		} else {
 			log.Printf("Table %s exists, nothing to do", query.TableName)

@@ -29,7 +29,7 @@ func (sqlite *Store) GetAllUsers() (users []*data.User, err error) {
 func (sqlite *Store) GetUser(userName string) (user *data.User, err error) {
 	user = &data.User{}
 	queryStr := `SELECT * FROM orek_user WHERE user_name = ?`
-	err = sqlite.Select(user, queryStr, userName)
+	err = sqlite.Get(user, queryStr, userName)
 	return user, err
 }
 
@@ -38,7 +38,7 @@ func (sqlite *Store) GetUserWithEmail(
 	email string) (user *data.User, err error) {
 	user = &data.User{}
 	queryStr := `SELECT * FROM orek_user WHERE email = ?`
-	err = sqlite.Select(user, queryStr, email)
+	err = sqlite.Get(user, queryStr, email)
 	logIfError(err)
 	return user, err
 }
@@ -49,7 +49,7 @@ func (sqlite *Store) CreateUser(user *data.User) (err error) {
 		user_name,  
 		first_name, 
 		second_name,
-		email,      
+		email      
 	) VALUES (
 		:user_name,
 		:first_name,
@@ -77,7 +77,7 @@ func (sqlite *Store) UpdateUser(user *data.User) (err error) {
 
 //DeleteUser - deletes the user entry with given user name
 func (sqlite *Store) DeleteUser(userName string) (err error) {
-	queryStr := `DELETE FROM orek_user WHERE user_id = ?`
+	queryStr := `DELETE FROM orek_user WHERE user_name = ?`
 	_, err = sqlite.Exec(queryStr, userName)
 	logIfError(err)
 	return err
@@ -97,7 +97,7 @@ func (sqlite *Store) GetAllEndpoints() (endpoints []*data.Endpoint, err error) {
 func (sqlite *Store) GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error) {
 	endpoint = &data.Endpoint{}
 	queryStr := `SELECT * FROM orek_endpoint WHERE endpoint_id = ?`
-	err = sqlite.Select(endpoint, queryStr, endpointID)
+	err = sqlite.Get(endpoint, queryStr, endpointID)
 	logIfError(err)
 	return endpoint, err
 }
@@ -105,14 +105,14 @@ func (sqlite *Store) GetEndpoint(endpointID string) (endpoint *data.Endpoint, er
 //CreateEndpoint - Creates a endpoint entry in database according to the endpoint
 //object
 func (sqlite *Store) CreateEndpoint(endpoint *data.Endpoint) (err error) {
-	queryStr := `INSERT INTO orek_endpoints(
+	queryStr := `INSERT INTO orek_endpoint(
 		endpoint_id,
 		name ,
 		owner,
 		owner_group,
 		description,
 		location,
-		visibility,
+		visibility
 	) VALUES (
 		:endpoint_id,
 		:name,
@@ -145,7 +145,7 @@ func (sqlite *Store) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
 
 //DeleteEndpoint - deletes an endpoint
 func (sqlite *Store) DeleteEndpoint(endpointID string) (err error) {
-	queryStr := `DELETE FROM orek_endpoit WHERE endpoint_id = ?`
+	queryStr := `DELETE FROM orek_endpoint WHERE endpoint_id = ?`
 	_, err = sqlite.Exec(queryStr, endpointID)
 	logIfError(err)
 	return err
@@ -175,7 +175,7 @@ func (sqlite *Store) GetVariablesForEndpoint(
 func (sqlite *Store) GetVariable(variableID string) (variable *data.Variable, err error) {
 	queryStr := `SELECT * FROM orek_variable WHERE variable_id = ?`
 	variable = &data.Variable{}
-	err = sqlite.Select(variable, queryStr, variableID)
+	err = sqlite.Get(variable, queryStr, variableID)
 	logIfError(err)
 	return variable, err
 }
@@ -249,7 +249,7 @@ func (sqlite *Store) GetParametersForEndpoint(
 func (sqlite *Store) GetParameter(parameterID string) (parameter *data.Parameter, err error) {
 	queryStr := `SELECT * FROM orek_parameter WHERE parameter_id = ?`
 	parameter = &data.Parameter{}
-	err = sqlite.Select(parameter, queryStr, parameterID)
+	err = sqlite.Get(parameter, queryStr, parameterID)
 	logIfError(err)
 	return parameter, err
 }
@@ -262,14 +262,16 @@ func (sqlite *Store) CreateParameter(parameter *data.Parameter) (err error) {
     	endpoint_id,
     	description,
     	unit,
-		type
+		type,
+		permission
 	) VALUES (
 		:parameter_id,
     	:name,
     	:endpoint_id,
     	:description,
     	:unit,
-		:type		
+		:type,
+		:permission
 	)`
 	_, err = sqlite.NamedExec(queryStr, parameter)
 	logIfError(err)
@@ -310,12 +312,12 @@ func (sqlite *Store) GetAllUserGroups() (userGroups []*data.UserGroup, err error
 
 //GetUserGroup - get an instance of user group for give group name
 func (sqlite *Store) GetUserGroup(
-	userGroupName string) (userGroup *data.UserGroup, err error) {
+	userGroupID string) (userGroup *data.UserGroup, err error) {
 	queryStr := `SELECT * FROM orek_user_group WHERE group_id = ?`
 	userGroup = &data.UserGroup{}
-	err = sqlite.Select(userGroup, queryStr, userGroupName)
+	err = sqlite.Get(userGroup, queryStr, userGroupID)
 	logIfError(err)
-	return nil, err
+	return userGroup, err
 }
 
 //CreateUserGroup - creates an user group with give details
@@ -390,7 +392,7 @@ func (sqlite *Store) GetUsersInGroup(
 		SELECT user_name FROM orek_user_to_group WHERE group_id = ?
 	)`
 	users = make([]*data.User, 0, 100)
-	err = sqlite.Select(users, queryStr, groupID)
+	err = sqlite.Select(&users, queryStr, groupID)
 	logIfError(err)
 	return users, err
 }
@@ -402,6 +404,14 @@ func (sqlite *Store) GetGroupsForUser(
 	queryStr := `SELECT * FROM orek_user_group WHERE group_id IN (
 		SELECT group_id FROM orek_user_to_group WHERE user_name = ?
 	)`
+
+	// query, args, err = sqlx.In(
+	// 	"DELETE FROM orek_user_session WHERE session_id IN (?)", expired)
+	// if err == nil {
+	// 	query = sqlite.Rebind(query)
+	// 	_, err = sqlite.Exec(query, args...)
+	// }
+
 	groups = make([]*data.UserGroup, 0, 100)
 	err = sqlite.Select(&groups, queryStr, userName)
 	logIfError(err)
@@ -463,7 +473,7 @@ func (sqlite *Store) GetUserSession(
 	sessionID string) (session *data.Session, err error) {
 	queryStr := `SELECT * FROM orek_user_session WHERE session_id = ?`
 	session = &data.Session{}
-	err = sqlite.Select(session, queryStr, sessionID)
+	err = sqlite.Get(session, queryStr, sessionID)
 	logIfError(err)
 	return session, err
 }
@@ -519,7 +529,7 @@ func (sqlite *Store) SetPasswordHash(userName, passwordHash string) (err error) 
 //GetPasswordHash - Retrieves password hash for an user from the database
 func (sqlite *Store) GetPasswordHash(userName string) (hash string, err error) {
 	queryStr := `SELECT hash FROM orek_user_password WHERE user_name = ?`
-	err = sqlite.Select(&hash, queryStr, userName)
+	err = sqlite.Get(&hash, queryStr, userName)
 	logIfError(err)
 	return hash, err
 }

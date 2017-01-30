@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"syscall"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -92,8 +93,19 @@ func (orek *OrekApp) RegisterCommandProvider(cmdProvider CliCommandProvider) {
 	}
 }
 
+func fromOrekDir(relative string) (path string) {
+	home := os.Getenv("HOME")
+	if runtime.GOOS == "windows" {
+		home = os.Getenv("APPDATA")
+	}
+	return filepath.Join(home, ".orek", relative)
+}
+
 //Run - runs the application
 func (orek *OrekApp) Run(args []string) (err error) {
+	if runtime.GOOS != "windows" {
+
+	}
 	app := cli.NewApp()
 	app.Name = "Orek"
 	app.Version = "0.0.1"
@@ -111,7 +123,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 		},
 		cli.StringFlag{
 			Name:  "db-path",
-			Value: "~/.orek/orek.db",
+			Value: fromOrekDir("orek.db"),
 			Usage: "Path to SQLite database [Only applicable for SQLite]",
 		},
 		cli.StringFlag{
@@ -141,7 +153,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 				"[Not applicable for SqliteDataSource]",
 		},
 	}
-	app.Action = func(ctx *cli.Context) (err error) {
+	app.Before = func(ctx *cli.Context) (err error) {
 		argetr := ArgGetter{Ctx: ctx}
 		ds := argetr.GetRequiredString("ds")
 		var store data.OrekDataStore
@@ -189,13 +201,12 @@ func (orek *OrekApp) Run(args []string) (err error) {
 		} else {
 			log.Fatalf("Unknown datasource %s requested", ds)
 		}
-		if err == nil {
-			app.Commands = make([]cli.Command, 0, 30)
-			for _, cmdp := range orek.CommandProviders {
-				app.Commands = append(app.Commands, cmdp.GetCommand())
-			}
-		}
 		return err
+	}
+	app.Action = app.Before
+	app.Commands = make([]cli.Command, 0, 30)
+	for _, cmdp := range orek.CommandProviders {
+		app.Commands = append(app.Commands, cmdp.GetCommand())
 	}
 	err = app.Run(args)
 	return err
