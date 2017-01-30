@@ -13,7 +13,11 @@ type ManageCommandProvider struct {
 
 //GetCommand - gives commands for managing orek instance
 func (ccp *ManageCommandProvider) GetCommand() cli.Command {
-	subcmds := []cli.Command{}
+	subcmds := []cli.Command{
+		initCommand(),
+		deleteDatabaseCommand(),
+		clearDataCommand(),
+	}
 	return cli.Command{
 		Name:        "manage",
 		Subcommands: subcmds,
@@ -35,6 +39,7 @@ func initCommand() (cmd cli.Command) {
 			}
 			return err
 		},
+		Usage: "Initializes the database if it is not initialized already",
 	}
 	return cmd
 }
@@ -53,6 +58,7 @@ func deleteDatabaseCommand() (cmd cli.Command) {
 			}
 			return err
 		},
+		Usage: "Deletes the Orek's database schema",
 	}
 	return cmd
 }
@@ -71,6 +77,7 @@ func clearDataCommand() (cmd cli.Command) {
 			}
 			return err
 		},
+		Usage: "Clears all the data from all of the orek's table",
 	}
 	return cmd
 }

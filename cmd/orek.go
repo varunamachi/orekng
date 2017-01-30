@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -203,7 +204,9 @@ func (orek *OrekApp) Run(args []string) (err error) {
 		}
 		return err
 	}
-	app.Action = app.Before
+	// app.Action = func(ctx *cli.Context) error {
+	// 	return errors.New("Please provide arguments")
+	// }
 	app.Commands = make([]cli.Command, 0, 30)
 	for _, cmdp := range orek.CommandProviders {
 		app.Commands = append(app.Commands, cmdp.GetCommand())
@@ -220,6 +223,17 @@ type ArgGetter struct {
 	Err error
 }
 
+func readInput(text *string) (err error) {
+	scanner := bufio.NewScanner(os.Stdin)
+	*text = ""
+	for scanner.Scan() {
+		*text = scanner.Text()
+		break
+	}
+	err = scanner.Err()
+	return err
+}
+
 //GetString - gives a string argument either from commandline or from blocking
 //user input, this method doesnt complain even if the arg-value is empty
 func (retriever *ArgGetter) GetString(key string) (val string) {
@@ -229,7 +243,7 @@ func (retriever *ArgGetter) GetString(key string) (val string) {
 	val = retriever.Ctx.String(key)
 	if len(val) == 0 {
 		fmt.Print(key + ": ")
-		_, err := fmt.Scanln(&val)
+		err := readInput(&val)
 		if err != nil {
 			val = ""
 		}
@@ -246,7 +260,7 @@ func (retriever *ArgGetter) GetRequiredString(key string) (val string) {
 	val = retriever.Ctx.String(key)
 	if len(val) == 0 {
 		fmt.Print(key + ": ")
-		_, err := fmt.Scanln(&val)
+		err := readInput(&val)
 		if err != nil || len(val) == 0 {
 			val = ""
 			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
@@ -265,7 +279,7 @@ func (retriever *ArgGetter) GetRequiredInt(key string) (val int) {
 	if !retriever.Ctx.IsSet(key) {
 		fmt.Print(key + ": ")
 		var strval string
-		_, err := fmt.Scanln(&strval)
+		err := readInput(&strval)
 		if err != nil || len(strval) == 0 {
 			val = 0
 			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
@@ -290,7 +304,7 @@ func (retriever *ArgGetter) GetInt(key string) (val int) {
 	if !retriever.Ctx.IsSet(key) {
 		fmt.Print(key + ": ")
 		var strval string
-		_, err := fmt.Scanln(&strval)
+		err := readInput(&strval)
 		if err != nil || len(strval) == 0 {
 			val = 0
 		} else {
