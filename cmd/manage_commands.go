@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/olog"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -34,7 +33,7 @@ func initCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = data.GetStore().Init()
 				if err != nil {
-					log.Println("Data source initialized")
+					olog.Print("Manage", "Data source initialized")
 				}
 			}
 			return err
@@ -53,7 +52,7 @@ func deleteDatabaseCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = data.GetStore().DeleteSchema()
 				if err != nil {
-					log.Println("Data source destroyed")
+					olog.Print("Manage", "Data source destroyed")
 				}
 			}
 			return err
@@ -72,7 +71,7 @@ func clearDataCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = data.GetStore().ClearData()
 				if err != nil {
-					log.Println("Data source cleared")
+					olog.Print("Manage", "Data source cleared")
 				}
 			}
 			return err

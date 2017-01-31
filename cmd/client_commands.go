@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"log"
 
 	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/olog"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -91,7 +91,7 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 			if clientType == "local" {
 				ccp.Client = &LocalClient{data.GetStore()}
 			} else {
-				log.Fatalf("REST client is not yet implemented")
+				olog.Error("Client", "REST client is not yet implemented")
 			}
 			return err
 		},
@@ -108,7 +108,7 @@ func (ccp *ClientCommandProvider) listUsersCommand() (cmd cli.Command) {
 			//Make it better
 			if err == nil {
 				for _, user := range users {
-					log.Println(user)
+					olog.Print("Client", "%v", user)
 				}
 			}
 			return err
@@ -134,7 +134,7 @@ func (ccp *ClientCommandProvider) showUserCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				user, err = ccp.Client.GetUser(userName)
 				if err == nil {
-					log.Println(user)
+					olog.Print("Client", "%v", user)
 				}
 			}
 			return err
@@ -162,7 +162,7 @@ func (ccp *ClientCommandProvider) showUserWithEmailCommand() (
 			if err == nil {
 				user, err = ccp.Client.GetUserWithEmail(email)
 				if err == nil {
-					log.Println(user)
+					olog.Print("Client", "%v", user)
 				}
 			}
 			return err
@@ -211,7 +211,7 @@ func (ccp *ClientCommandProvider) createUserCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.CreateUser(user)
 				if err == nil {
-					log.Println("User created successfully")
+					olog.Print("Client", "User created successfully")
 				}
 			}
 			return err
@@ -260,7 +260,7 @@ func (ccp *ClientCommandProvider) updateUserCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.UpdateUser(user)
 				if err == nil {
-					log.Println("User updated successfully")
+					olog.Print("Client", "User updated successfully")
 				}
 			}
 			return err
@@ -285,7 +285,7 @@ func (ccp *ClientCommandProvider) deleteUserCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.DeleteUser(userName)
 				if err == nil {
-					log.Println("User deleted successfully")
+					olog.Print("Client", "User deleted successfully")
 				}
 			}
 			return err
@@ -303,7 +303,7 @@ func (ccp *ClientCommandProvider) listEndpointsCommand() (cmd cli.Command) {
 			endpoints, err = ccp.Client.GetAllEndpoints()
 			if err == nil {
 				for _, ep := range endpoints {
-					log.Println(ep)
+					olog.Print("Client", "%v", ep)
 				}
 			}
 			return err
@@ -331,7 +331,7 @@ func (ccp *ClientCommandProvider) showEndpointCommand() (cmd cli.Command) {
 				ep, err = ccp.Client.GetEndpoint(endpointID)
 			}
 			if err == nil {
-				log.Println(ep)
+				olog.Print("Client", "%v", ep)
 			}
 			return err
 		},
@@ -400,7 +400,7 @@ func (ccp *ClientCommandProvider) createEndpointCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.CreateEndpoint(endpoint)
 				if err == nil {
-					log.Println("Endpoint created")
+					olog.Print("Client", "Endpoint created")
 				}
 			}
 			return err
@@ -471,7 +471,7 @@ func (ccp *ClientCommandProvider) updateEndpointCommand() (cmd cli.Command) {
 				err = ccp.Client.UpdateEndpoint(endpoint)
 			}
 			if err == nil {
-				log.Println("Endpoint updated")
+				olog.Print("Client", "Endpoint updated")
 			}
 			return err
 		},
@@ -495,7 +495,7 @@ func (ccp *ClientCommandProvider) deleteEndpointCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.DeleteEndpoint(endpointID)
 				if err == nil {
-					log.Println("Endpoint Deleted")
+					olog.Print("Client", "Endpoint Deleted")
 				}
 			}
 			return err
@@ -515,7 +515,7 @@ func (ccp *ClientCommandProvider) listVariablesCommand() (cmd cli.Command) {
 				variables, err = ccp.Client.GetAllVariables()
 				if err == nil {
 					for _, vrb := range variables {
-						log.Println(vrb)
+						olog.Print("Client", "%v", vrb)
 					}
 				}
 			}
@@ -544,7 +544,7 @@ func (ccp *ClientCommandProvider) listVariablesForEndpointCommand() (
 				variables, err = ccp.Client.GetVariablesForEndpoint(endpointID)
 				if err == nil {
 					for _, vrb := range variables {
-						log.Println(vrb)
+						olog.Print("Client", "%v", vrb)
 					}
 				}
 			}
@@ -571,7 +571,7 @@ func (ccp *ClientCommandProvider) showVariableCommand() (cmd cli.Command) {
 				var variable *data.Variable
 				variable, err = ccp.Client.GetVariable(variableID)
 				if err == nil {
-					log.Println(variable)
+					olog.Print("Client", "%v", variable)
 				}
 			}
 			return err
@@ -634,7 +634,7 @@ func (ccp *ClientCommandProvider) createVariableCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.CreateVariable(variable)
 				if err == nil {
-					log.Println("Variable created successfully")
+					olog.Print("Client", "%v", "Variable created successfully")
 				}
 			}
 			return err
@@ -697,7 +697,7 @@ func (ccp *ClientCommandProvider) updateVariableCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.UpdateVariable(variable)
 				if err == nil {
-					log.Println("Variable updated successfully")
+					olog.Print("Client", "%v", "Variable updated successfully")
 				}
 			}
 			return err
@@ -722,7 +722,7 @@ func (ccp *ClientCommandProvider) deleteVariableCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.DeleteVariable(variableID)
 				if err == nil {
-					log.Println("Variable deleted successfully")
+					olog.Print("Client", "Variable deleted successfully")
 				}
 			}
 			return err
@@ -742,7 +742,7 @@ func (ccp *ClientCommandProvider) listUserGroupsCommand() (cmd cli.Command) {
 				groups, err = ccp.Client.GetAllUserGroups()
 				if err == nil {
 					for _, group := range groups {
-						log.Println(group)
+						olog.Print("Client", "%v", group)
 					}
 				}
 			}
@@ -769,7 +769,7 @@ func (ccp *ClientCommandProvider) showUserGroupCommand() (cmd cli.Command) {
 				var group *data.UserGroup
 				group, err = ccp.Client.GetUserGroup(groupID)
 				if err == nil {
-					log.Println(group)
+					olog.Print("Client", "%v", group)
 				}
 			}
 			return err
@@ -819,7 +819,7 @@ func (ccp *ClientCommandProvider) createUserGroupCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.CreateUserGroup(userGroup)
 				if err == nil {
-					log.Println("User group created successfully")
+					olog.Print("Client", "User group created successfully")
 				}
 			}
 			return err
@@ -869,7 +869,7 @@ func (ccp *ClientCommandProvider) updateUserGroupCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.UpdateUserGroup(userGroup)
 				if err == nil {
-					log.Println("User group updated successfully")
+					olog.Print("Client", "User group updated successfully")
 				}
 			}
 			return err
@@ -894,7 +894,7 @@ func (ccp *ClientCommandProvider) deleteUserGroupCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.DeleteUserGroup(groupID)
 				if err == nil {
-					log.Println("User group deleted successfully")
+					olog.Print("Client", "User group deleted successfully")
 				}
 			}
 			return err
@@ -925,7 +925,7 @@ func (ccp *ClientCommandProvider) addUserToGroupCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.AddUserToGroup(userName, groupID)
 				if err == nil {
-					log.Println("User added to group")
+					olog.Print("Client", "User added to group")
 				}
 			}
 			return err
@@ -956,7 +956,7 @@ func (ccp *ClientCommandProvider) removeUserFromGroupCommand() (cmd cli.Command)
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.RemoveUserFromGroup(userName, groupID)
 				if err == nil {
-					log.Println("User removed from group")
+					olog.Print("Client", "User removed from group")
 				}
 			}
 			return err
@@ -983,10 +983,10 @@ func (ccp *ClientCommandProvider) getUsersInGroupCommand() (cmd cli.Command) {
 				users, err = ccp.Client.GetUsersInGroup(groupID)
 				if err == nil {
 					if len(users) == 0 {
-						log.Printf("No users found")
+						olog.Print("Client", "No users found")
 					}
 					for _, user := range users {
-						log.Println(user.Name)
+						olog.Print("Client", "%v", user.Name)
 					}
 				}
 			}
@@ -1014,7 +1014,7 @@ func (ccp *ClientCommandProvider) getGroupsForUserCommand() (cmd cli.Command) {
 				groups, err = ccp.Client.GetGroupsForUser(userName)
 				if err == nil {
 					for _, group := range groups {
-						log.Println(group.GroupID)
+						olog.Print("Client", "%v", group.GroupID)
 					}
 				}
 			}
@@ -1041,7 +1041,7 @@ func (ccp *ClientCommandProvider) clearValuesForVariableCommand() (cmd cli.Comma
 			if err == nil {
 				err = ccp.Client.ClearValuesForVariable(variableID)
 				if err == nil {
-					log.Println("All variable values are cleared")
+					olog.Print("Client", "All variable values are cleared")
 				}
 			}
 			return err
@@ -1069,7 +1069,7 @@ func (ccp *ClientCommandProvider) getValuesForVariableCommand() (cmd cli.Command
 				values, err = ccp.Client.GetValuesForVariable(variableID)
 				if err == nil {
 					for _, val := range values {
-						log.Println(val)
+						olog.Print("Client", "%v", val)
 					}
 				}
 			}
@@ -1108,7 +1108,7 @@ func (ccp *ClientCommandProvider) setPasswordCommand() (cmd cli.Command) {
 				if password == confirmPassword {
 					err = ccp.Client.SetPassword(userName, password)
 					if err == nil {
-						log.Println("Password set successfully")
+						olog.Print("Client", "Password set successfully")
 					}
 				} else {
 					err = errors.New("Password dont match")
@@ -1156,7 +1156,7 @@ func (ccp *ClientCommandProvider) updatePasswordCommand() (cmd cli.Command) {
 					err = ccp.Client.UpdatePassword(userName,
 						currentPassword, newPassword)
 					if err == nil {
-						log.Println("Password set successfully")
+						olog.Print("Client", "Password set successfully")
 					}
 				} else {
 					err = errors.New("Password dont match")
@@ -1180,7 +1180,7 @@ func (ccp *ClientCommandProvider) listParametersCommand() (cmd cli.Command) {
 				parameters, err = ccp.Client.GetAllParameters()
 				if err == nil {
 					for _, vrb := range parameters {
-						log.Println(vrb)
+						olog.Print("Client", "%v", vrb)
 					}
 				}
 			}
@@ -1209,7 +1209,7 @@ func (ccp *ClientCommandProvider) listParametersForEndpointCommand() (
 				parameters, err = ccp.Client.GetParametersForEndpoint(endpointID)
 				if err == nil {
 					for _, vrb := range parameters {
-						log.Println(vrb)
+						olog.Print("Client", "%v", vrb)
 					}
 				}
 			}
@@ -1236,7 +1236,7 @@ func (ccp *ClientCommandProvider) showParameterCommand() (cmd cli.Command) {
 				var parameter *data.Parameter
 				parameter, err = ccp.Client.GetParameter(parameterID)
 				if err == nil {
-					log.Println(parameter)
+					olog.Print("Client", "%v", parameter)
 				}
 			}
 			return err
@@ -1299,7 +1299,7 @@ func (ccp *ClientCommandProvider) createParameterCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.CreateParameter(parameter)
 				if err == nil {
-					log.Println("Parameter created successfully")
+					olog.Print("Client", "Parameter created successfully")
 				}
 			}
 			return err
@@ -1362,7 +1362,7 @@ func (ccp *ClientCommandProvider) updateParameterCommand() (cmd cli.Command) {
 				}
 				err = ccp.Client.UpdateParameter(parameter)
 				if err == nil {
-					log.Println("Parameter updated successfully")
+					olog.Print("Client", "Parameter updated successfully")
 				}
 			}
 			return err
@@ -1387,7 +1387,7 @@ func (ccp *ClientCommandProvider) deleteParameterCommand() (cmd cli.Command) {
 			if err = argetr.Err; err == nil {
 				err = ccp.Client.DeleteParameter(parameterID)
 				if err == nil {
-					log.Println("Parameter deleted successfully")
+					olog.Print("Client", "Parameter deleted successfully")
 				}
 			}
 			return err

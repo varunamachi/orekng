@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"fmt"
-	"log"
 
 	"time"
 
@@ -10,11 +9,12 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/olog"
 )
 
 func logIfError(err error) {
 	if err != nil {
-		log.Printf("Error: %s", err)
+		olog.PrintError("SQLiteDS", err)
 	}
 }
 

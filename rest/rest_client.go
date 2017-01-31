@@ -255,13 +255,13 @@ func (client *Client) GetValuesForVariable(
 	return values, err
 }
 
-//SetPasswordHash - stores password hash for an user in the server
+//SetPassword - stores password hash for an user in the server
 func (client *Client) SetPassword(userName, password string) (err error) {
 	logIfError(err)
 	return err
 }
 
-//UpdatePasswordHash - updates password hash for a user in the server
+//UpdatePassword - updates password hash for a user in the server
 func (client *Client) UpdatePassword(userName,
 	currentPassword, newPassword string) (err error) {
 	logIfError(err)

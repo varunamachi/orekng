@@ -3,10 +3,10 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/varunamachi/orekng/olog"
 )
 
 //CreateQuery - query for creating table with table name
@@ -154,11 +154,12 @@ func Init(options *Options) (*Store, error) {
 		_, err = mdb.Exec("PRAGMA foreign_keys = ON;")
 	}
 	if err != nil {
-		log.Print(err)
+		olog.PrintError("SQLiteDS", err)
 	} else if err = mdb.Ping(); err != nil {
-		log.Printf("Error: Could not connect to SQLite database: %s", err)
+		olog.Error("SQLiteDS",
+			"Error: Could not connect to SQLite database: %s", err)
 	} else {
-		log.Print("Database opened successfuly")
+		olog.Info("SQLiteDS", "Database opened successfuly")
 	}
 	return &Store{mdb, options.Path}, err
 }
@@ -170,13 +171,15 @@ func (sqlite *Store) Init() (err error) {
 			// _, err = sqlite.Exec("PRAGMA foreign_keys = ON;")
 			_, err = sqlite.Exec(query.QueryString)
 			if err != nil {
-				log.Printf(`Error: Failed to create table %s: %s`,
+				olog.Error("SQLiteDS", `Failed to create table %s: %s`,
 					query.TableName, err)
 			} else {
-				log.Printf("Table %s created successfuly", query.TableName)
+				olog.Info("SQLiteDS",
+					"Table %s created successfuly", query.TableName)
 			}
 		} else {
-			log.Printf("Table %s exists, nothing to do", query.TableName)
+			olog.Info("SQLiteDS",
+				"Table %s exists, nothing to do", query.TableName)
 		}
 	}
 	return err
@@ -219,7 +222,7 @@ func (sqlite *Store) tableExists(tableName string) (has bool) {
 	if err == sql.ErrNoRows {
 		has = false
 	} else if err != nil {
-		log.Fatalf("Error: Could not initialize database: %s", err)
+		olog.Fatal("SQLiteDS", "Could not initialize database: %s", err)
 		has = false
 	}
 	return has

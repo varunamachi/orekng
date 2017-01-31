@@ -1,6 +1,6 @@
 package data
 
-import "log"
+import "github.com/varunamachi/orekng/olog"
 
 var db OrekDataStore
 
@@ -13,7 +13,7 @@ func SetStore(dbInst OrekDataStore) error {
 //GetStore - give the application data store
 func GetStore() OrekDataStore {
 	if db == nil {
-		log.Fatal("DataStore is Nil!!!")
+		olog.Fatal("Orek", "DataStore is Nil!!!")
 	}
 	return db
 }

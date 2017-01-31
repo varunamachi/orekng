@@ -4,14 +4,13 @@ import (
 	"net/http"
 	"time"
 
-	"log"
-
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/olog"
 	"gopkg.in/hlandau/passlib.v1"
 )
 
@@ -19,7 +18,7 @@ const ky = "orek_2232redsfaj3234edsa"
 
 func logIfError(err error) (errOut error) {
 	if err != nil {
-		log.Printf("Error:REST: %v", err)
+		olog.PrintError("RestApi", err)
 	}
 	return
 }

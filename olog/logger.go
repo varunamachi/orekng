@@ -1,9 +1,6 @@
-package log
+package olog
 
-import (
-	"fmt"
-	"os"
-)
+import "os"
 
 //Level - gives log level
 type Level int
@@ -49,17 +46,17 @@ type Logger interface {
 		args ...interface{})
 
 	//RegisterWriter - registers a writer
-	RegisterWriter(writer *Writer)
+	RegisterWriter(writer Writer)
 
 	//RemoveWriter - removes a writer with given ID
 	RemoveWriter(uniqueID string)
 
 	//GetWriter - gives the writer with given ID
-	GetWriter(uniqueID string) (writer *Writer)
+	GetWriter(uniqueID string) (writer Writer)
 }
 
-func (level Level) String() string {
-	switch level {
+func (level *Level) String() string {
+	switch *level {
 	case TraceLevel:
 		return "[TRACE]"
 	case DebugLevel:
@@ -76,7 +73,7 @@ func (level Level) String() string {
 	return "[     ]"
 }
 
-var logger Logger
+var logger = &DirectLogger{}
 var logConsole = false
 var filterLevel = InfoLevel
 
@@ -92,27 +89,34 @@ func GetLevel() (level Level) {
 
 //Trace - trace logs
 func Trace(module, fmtStr string, args ...interface{}) {
-	logger.Log(TraceLevel, module, fmtStr, args)
+	logger.Log(TraceLevel, module, fmtStr, args...)
 }
 
 //Debug - debug logs
 func Debug(module, fmtStr string, args ...interface{}) {
-	logger.Log(DebugLevel, module, fmtStr, args)
+	logger.Log(DebugLevel, module, fmtStr, args...)
 }
 
 //Info - information logs
 func Info(module, fmtStr string, args ...interface{}) {
-	logger.Log(InfoLevel, module, fmtStr, args)
+	logger.Log(InfoLevel, module, fmtStr, args...)
 }
 
 //Warn - warning logs
 func Warn(module, fmtStr string, args ...interface{}) {
-	logger.Log(WarnLevel, module, fmtStr, args)
+	logger.Log(WarnLevel, module, fmtStr, args...)
 }
 
 //Error - error logs
 func Error(module, fmtStr string, args ...interface{}) {
-	logger.Log(ErrorLevel, module, fmtStr, args)
+	logger.Log(ErrorLevel, module, fmtStr, args...)
+}
+
+//Fatal - error logs
+func Fatal(module, fmtStr string, args ...interface{}) {
+	logger.Log(FatalLevel, module, fmtStr, args...)
+	Print(module, fmtStr, args...)
+	os.Exit(-1)
 }
 
 //PrintError - error logs
@@ -120,14 +124,14 @@ func PrintError(module string, err error) {
 	logger.Log(ErrorLevel, module, "%v", err)
 }
 
-//FatalError - error logs
-func FatalError(module string, err error) {
+//PrintFatal - error logs
+func PrintFatal(module string, err error) {
 	logger.Log(FatalLevel, module, "%v", err)
 	os.Exit(-1)
 }
 
 //Print - prints the message on console
 func Print(module, fmtStr string, args ...interface{}) {
-	logger.Log(InfoLevel, module, fmtStr, args)
-	fmt.Printf("%s %s "+fmtStr, module, InfoLevel, args)
+	logger.Log(PrintLevel, module, fmtStr, args)
+	// fmt.Printf(fmtStr+"\n", args...)
 }

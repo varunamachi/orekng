@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"syscall"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/data/sqlite"
+	"github.com/varunamachi/orekng/olog"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -161,7 +161,6 @@ func (orek *OrekApp) Run(args []string) (err error) {
 		if ds == "sqlite" {
 			path := argetr.GetRequiredString("db-path")
 			dirPath := filepath.Dir(path)
-			fmt.Println(dirPath)
 			if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 				err = os.Mkdir(dirPath, 0755)
 				fmt.Println(err)
@@ -173,10 +172,10 @@ func (orek *OrekApp) Run(args []string) (err error) {
 				data.SetStore(store)
 				// err = data.GetStore().Init()
 				if err != nil {
-					log.Fatalf("Data Store initialization failed: %v", err)
-				} //else {
-				// 	log.Printf("Data Store initialized")
-				// }
+					olog.Fatal("Orek", "Data Store initialization failed: %v", err)
+				} else {
+					olog.Info("Orek", "Data Store initialized")
+				}
 			}
 		} else if ds == "postgres" {
 			host := argetr.GetRequiredString("db-host")
@@ -189,18 +188,18 @@ func (orek *OrekApp) Run(args []string) (err error) {
 				var pbyte []byte
 				pbyte, err = terminal.ReadPassword(int(syscall.Stdin))
 				if err != nil {
-					log.Fatalf("Could not retrieve DB password: %v", err)
+					olog.Fatal("Orek", "Could not retrieve DB password: %v", err)
 				} else {
 					pswd = string(pbyte)
 				}
 			}
-			log.Printf(`Postgres isnt supported yet. Here are the args
+			olog.Print("Orek", `Postgres isnt supported yet. Here are the args
 				Host: %s,
 				Port: %d,
 				DbName: %s,
 				User: %s`, host, port, dbName, user)
 		} else {
-			log.Fatalf("Unknown datasource %s requested", ds)
+			olog.Fatal("Orek", "Unknown datasource %s requested", ds)
 		}
 		return err
 	}
