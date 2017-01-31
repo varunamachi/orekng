@@ -447,7 +447,7 @@ func (sqlite *Store) GetValuesForVariable(
 	variableID string) (values []*string, err error) {
 	queryStr := `SELECT value FROM orek_variable_value WHERE variable_id = ?`
 	values = make([]*string, 0, 100)
-	err = sqlite.Select(values, queryStr, variableID)
+	err = sqlite.Select(&values, queryStr, variableID)
 	logIfError(err)
 	return values, err
 }

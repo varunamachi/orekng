@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -136,6 +137,7 @@ var queries = [...]CreateQuery{
 //Store - represents the orek datastore
 type Store struct {
 	*sqlx.DB
+	Path string
 }
 
 //Options - options for connecting to sqlite database
@@ -148,6 +150,9 @@ type Options struct {
 //Init - initializes the orek datastore
 func Init(options *Options) (*Store, error) {
 	mdb, err := sqlx.Open("sqlite3", options.Path)
+	if err == nil {
+		_, err = mdb.Exec("PRAGMA foreign_keys = ON;")
+	}
 	if err != nil {
 		log.Print(err)
 	} else if err = mdb.Ping(); err != nil {
@@ -155,13 +160,14 @@ func Init(options *Options) (*Store, error) {
 	} else {
 		log.Print("Database opened successfuly")
 	}
-	return &Store{mdb}, err
+	return &Store{mdb, options.Path}, err
 }
 
 //Init - Initialize the database, creates the tables taht aren't yet created
 func (sqlite *Store) Init() (err error) {
 	for _, query := range queries {
 		if !sqlite.tableExists(query.TableName) {
+			// _, err = sqlite.Exec("PRAGMA foreign_keys = ON;")
 			_, err = sqlite.Exec(query.QueryString)
 			if err != nil {
 				log.Printf(`Error: Failed to create table %s: %s`,
@@ -178,9 +184,9 @@ func (sqlite *Store) Init() (err error) {
 
 //ClearData - clears data from all the tables
 func (sqlite *Store) ClearData() (err error) {
-	qtemplate := "DELETE FROM %s"
-	for tableName := range queries {
-		query := fmt.Sprintf(qtemplate, tableName)
+	qtemplate := "DELETE FROM %s;"
+	for _, q := range queries {
+		query := fmt.Sprintf(qtemplate, q.TableName)
 		_, err = sqlite.Exec(query)
 		logIfError(err)
 	}
@@ -189,11 +195,16 @@ func (sqlite *Store) ClearData() (err error) {
 
 //DeleteSchema - Drops all the tables
 func (sqlite *Store) DeleteSchema() (err error) {
-	qtemplate := "DROP TABLE %s"
-	for tableName := range queries {
+	qtemplate := "DROP TABLE %s;"
+	// for _, q := range queries {
+	for i := len(queries) - 1; i >= 0; i-- {
+		tableName := queries[i].TableName
 		query := fmt.Sprintf(qtemplate, tableName)
 		_, err = sqlite.Exec(query)
-		logIfError(err)
+	}
+	err = sqlite.Close()
+	if err == nil {
+		err = os.Remove(sqlite.Path)
 	}
 	return err
 }

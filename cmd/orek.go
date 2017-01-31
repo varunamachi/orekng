@@ -171,12 +171,12 @@ func (orek *OrekApp) Run(args []string) (err error) {
 			})
 			if err == nil {
 				data.SetStore(store)
-				err = data.GetStore().Init()
+				// err = data.GetStore().Init()
 				if err != nil {
 					log.Fatalf("Data Store initialization failed: %v", err)
-				} else {
-					log.Printf("Data Store initialized")
-				}
+				} //else {
+				// 	log.Printf("Data Store initialized")
+				// }
 			}
 		} else if ds == "postgres" {
 			host := argetr.GetRequiredString("db-host")
