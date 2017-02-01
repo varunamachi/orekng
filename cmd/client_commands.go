@@ -95,13 +95,16 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 			}
 			return err
 		},
+		Usage: "Use orek as a client to Orek service or to DataStore",
 	}
 }
 
 func (ccp *ClientCommandProvider) listUsersCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name:  "list-users",
-		Flags: []cli.Flag{},
+		Name:     "list-users",
+		Usage:    "Lists the user presetnt in the data store",
+		Category: "User",
+		Flags:    []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			var users []*data.User
 			users, err = ccp.Client.GetAllUsers()
@@ -119,7 +122,9 @@ func (ccp *ClientCommandProvider) listUsersCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) showUserCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "show-user",
+		Name:     "show-user",
+		Usage:    "Shows details of a user identified by user-name ",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -146,7 +151,9 @@ func (ccp *ClientCommandProvider) showUserCommand() (cmd cli.Command) {
 func (ccp *ClientCommandProvider) showUserWithEmailCommand() (
 	cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "user-with-email",
+		Name:     "user-with-email",
+		Usage:    "Shows details of a user identified by user email ",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "email",
@@ -173,7 +180,9 @@ func (ccp *ClientCommandProvider) showUserWithEmailCommand() (
 
 func (ccp *ClientCommandProvider) createUserCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "create-user",
+		Name:     "create-user",
+		Usage:    "Creates user with given details ",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -222,7 +231,9 @@ func (ccp *ClientCommandProvider) createUserCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updateUserCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "update-user",
+		Name:     "update-user",
+		Usage:    "Updates a existing user record with new information",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -271,7 +282,9 @@ func (ccp *ClientCommandProvider) updateUserCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) deleteUserCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "delete-user",
+		Name:     "delete-user",
+		Usage:    "Removes a user record identified by user-name ",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -296,8 +309,10 @@ func (ccp *ClientCommandProvider) deleteUserCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) listEndpointsCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name:  "list-endpoints",
-		Flags: []cli.Flag{},
+		Name:     "list-endpoints",
+		Usage:    "Lists all the endpoints registered",
+		Category: "Endpoint",
+		Flags:    []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			var endpoints []*data.Endpoint
 			endpoints, err = ccp.Client.GetAllEndpoints()
@@ -314,7 +329,9 @@ func (ccp *ClientCommandProvider) listEndpointsCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) showEndpointCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "show-endpoint",
+		Name:     "show-endpoint",
+		Usage:    "Shows the details of endpoint identified by its ID",
+		Category: "Endpoint",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -341,7 +358,9 @@ func (ccp *ClientCommandProvider) showEndpointCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) createEndpointCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "create-endpoint",
+		Name:     "create-endpoint",
+		Usage:    "Creates an endpoint with given information",
+		Category: "Endpoint",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -411,7 +430,9 @@ func (ccp *ClientCommandProvider) createEndpointCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updateEndpointCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "update-endpoint",
+		Name:     "update-endpoint",
+		Usage:    "Updates existing endpoints with new information",
+		Category: "Endpoint",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -481,7 +502,9 @@ func (ccp *ClientCommandProvider) updateEndpointCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) deleteEndpointCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "delete-endpoint",
+		Name:     "delete-endpoint",
+		Usage:    "Deletes an endpoint identified by its ID",
+		Category: "Endpoint",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -506,8 +529,10 @@ func (ccp *ClientCommandProvider) deleteEndpointCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) listVariablesCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name:  "list-vars",
-		Flags: []cli.Flag{},
+		Name:     "list-vars",
+		Usage:    "Lists all the registered variables",
+		Category: "Variable",
+		Flags:    []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
@@ -528,7 +553,9 @@ func (ccp *ClientCommandProvider) listVariablesCommand() (cmd cli.Command) {
 func (ccp *ClientCommandProvider) listVariablesForEndpointCommand() (
 	cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "list-ep-vars",
+		Name:     "list-ep-vars",
+		Usage:    "Lists variables registered with the given endpoint",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -556,7 +583,9 @@ func (ccp *ClientCommandProvider) listVariablesForEndpointCommand() (
 
 func (ccp *ClientCommandProvider) showVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "show-var",
+		Name:     "show-var",
+		Usage:    "Displays information about a variable with given ID",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -582,7 +611,9 @@ func (ccp *ClientCommandProvider) showVariableCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) createVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "create-var",
+		Name:     "create-var",
+		Usage:    "Creates variable from given information",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -645,7 +676,9 @@ func (ccp *ClientCommandProvider) createVariableCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updateVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "update-var",
+		Name:     "update-var",
+		Usage:    "Updates the existing variable with new information",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -708,7 +741,9 @@ func (ccp *ClientCommandProvider) updateVariableCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) deleteVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "delete-var",
+		Name:     "delete-var",
+		Usage:    "Deletes a variable with given ID",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -733,8 +768,10 @@ func (ccp *ClientCommandProvider) deleteVariableCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) listUserGroupsCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name:  "list-groups",
-		Flags: []cli.Flag{},
+		Name:     "list-groups",
+		Usage:    "Lists all the user groups present in the data store",
+		Category: "Group",
+		Flags:    []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
@@ -754,7 +791,9 @@ func (ccp *ClientCommandProvider) listUserGroupsCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) showUserGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "show-group",
+		Name:     "show-group",
+		Usage:    "Shows a group identified by the given ID",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "group-id",
@@ -780,7 +819,9 @@ func (ccp *ClientCommandProvider) showUserGroupCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) createUserGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "create-group",
+		Name:     "create-group",
+		Usage:    "Creates a user group with given information",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "group-id",
@@ -830,7 +871,9 @@ func (ccp *ClientCommandProvider) createUserGroupCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updateUserGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "update-group",
+		Name:     "update-group",
+		Usage:    "Updates a existing group with new information",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "group-id",
@@ -880,7 +923,9 @@ func (ccp *ClientCommandProvider) updateUserGroupCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) deleteUserGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "delete-group",
+		Name:     "delete-group",
+		Usage:    "Deletes a user group identified by the given ID",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "group-id",
@@ -906,6 +951,9 @@ func (ccp *ClientCommandProvider) deleteUserGroupCommand() (cmd cli.Command) {
 func (ccp *ClientCommandProvider) addUserToGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "link-group-user",
+		Usage: "Adds the user identified by user-name to group " +
+			"identified by groupID",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -937,6 +985,9 @@ func (ccp *ClientCommandProvider) addUserToGroupCommand() (cmd cli.Command) {
 func (ccp *ClientCommandProvider) removeUserFromGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
 		Name: "unlink-group-user",
+		Usage: "Removes a user identified by user-name to group " +
+			"identified by groupID",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -967,7 +1018,9 @@ func (ccp *ClientCommandProvider) removeUserFromGroupCommand() (cmd cli.Command)
 
 func (ccp *ClientCommandProvider) getUsersInGroupCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "users-in-group",
+		Name:     "users-in-group",
+		Usage:    "Lists the users present in the group with given group ID",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "group-id",
@@ -998,7 +1051,9 @@ func (ccp *ClientCommandProvider) getUsersInGroupCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) getGroupsForUserCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "groups-of-user",
+		Name:     "groups-of-user",
+		Usage:    "Lists the groups with which the user with given ID is associated",
+		Category: "Group",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -1026,7 +1081,9 @@ func (ccp *ClientCommandProvider) getGroupsForUserCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) clearValuesForVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "clear-vars",
+		Name:     "clear-vars",
+		Usage:    "Clears the values stored for the variable identified by the ID",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -1052,7 +1109,9 @@ func (ccp *ClientCommandProvider) clearValuesForVariableCommand() (cmd cli.Comma
 
 func (ccp *ClientCommandProvider) getValuesForVariableCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "var-values",
+		Name:     "var-values",
+		Usage:    "Lists the values stored for the variable identified by the ID",
+		Category: "Variable",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "variable-id",
@@ -1081,7 +1140,9 @@ func (ccp *ClientCommandProvider) getValuesForVariableCommand() (cmd cli.Command
 
 func (ccp *ClientCommandProvider) setPasswordCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "set-password",
+		Name:     "set-password",
+		Usage:    "Sets the password for an user with given ID",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -1122,7 +1183,9 @@ func (ccp *ClientCommandProvider) setPasswordCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updatePasswordCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "set-password",
+		Name:     "update-password",
+		Usage:    "Updates the password for an user with given ID",
+		Category: "User",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "user-name",
@@ -1171,8 +1234,10 @@ func (ccp *ClientCommandProvider) updatePasswordCommand() (cmd cli.Command) {
 //////////////////////////////////
 func (ccp *ClientCommandProvider) listParametersCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name:  "list-params",
-		Flags: []cli.Flag{},
+		Name:     "list-params",
+		Usage:    "Lists all the registered parameters",
+		Category: "Parameter",
+		Flags:    []cli.Flag{},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			if err = argetr.Err; err == nil {
@@ -1193,7 +1258,9 @@ func (ccp *ClientCommandProvider) listParametersCommand() (cmd cli.Command) {
 func (ccp *ClientCommandProvider) listParametersForEndpointCommand() (
 	cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "list-ep-params",
+		Name:     "list-ep-params",
+		Usage:    "Lists all the parameters registered with endpoint of given ID",
+		Category: "Parameter",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "endpoint-id",
@@ -1221,7 +1288,9 @@ func (ccp *ClientCommandProvider) listParametersForEndpointCommand() (
 
 func (ccp *ClientCommandProvider) showParameterCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "show-param",
+		Name:     "show-param",
+		Usage:    "Shows the details of the parameter with given ID",
+		Category: "Parameter",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "parameter-id",
@@ -1247,7 +1316,9 @@ func (ccp *ClientCommandProvider) showParameterCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) createParameterCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "create-param",
+		Name:     "create-param",
+		Usage:    "Creates parameter with given information",
+		Category: "Parameter",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "parameter-id",
@@ -1310,7 +1381,9 @@ func (ccp *ClientCommandProvider) createParameterCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) updateParameterCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "update-param",
+		Name:     "update-param",
+		Usage:    "Updates an existing parameter with new information",
+		Category: "Parameter",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "parameter-id",
@@ -1373,7 +1446,9 @@ func (ccp *ClientCommandProvider) updateParameterCommand() (cmd cli.Command) {
 
 func (ccp *ClientCommandProvider) deleteParameterCommand() (cmd cli.Command) {
 	cmd = cli.Command{
-		Name: "delete-param",
+		Name:     "delete-param",
+		Usage:    "Deletes a parameter identified by the given ID",
+		Category: "Parameter",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:  "parameter-id",

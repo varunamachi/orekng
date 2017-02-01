@@ -55,8 +55,9 @@ type Logger interface {
 	GetWriter(uniqueID string) (writer Writer)
 }
 
-func (level *Level) String() string {
-	switch *level {
+//ToString - maps level to a string
+func ToString(level Level) string {
+	switch level {
 	case TraceLevel:
 		return "[TRACE]"
 	case DebugLevel:
@@ -73,7 +74,11 @@ func (level *Level) String() string {
 	return "[     ]"
 }
 
-var logger = &DirectLogger{}
+func (level Level) String() string {
+	return ToString(level)
+}
+
+var logger Logger = NewDirectLogger()
 var logConsole = false
 var filterLevel = InfoLevel
 
@@ -127,6 +132,7 @@ func PrintError(module string, err error) {
 //PrintFatal - error logs
 func PrintFatal(module string, err error) {
 	logger.Log(FatalLevel, module, "%v", err)
+	Print(module, "%v", err)
 	os.Exit(-1)
 }
 
@@ -134,4 +140,14 @@ func PrintFatal(module string, err error) {
 func Print(module, fmtStr string, args ...interface{}) {
 	logger.Log(PrintLevel, module, fmtStr, args)
 	// fmt.Printf(fmtStr+"\n", args...)
+}
+
+//GetLogger - gives the underlying Logger implementation
+func GetLogger() Logger {
+	return logger
+}
+
+//SetLogger - sets the logger implementation
+func SetLogger(lgr Logger) {
+	logger = lgr
 }

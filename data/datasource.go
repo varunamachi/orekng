@@ -21,6 +21,8 @@ func GetStore() OrekDataStore {
 //OrekDataStore - interface declares the operation that will be exposed by a
 //application data store
 type OrekDataStore interface {
+	Name() string
+
 	GetAllUsers() (users []*User, err error)
 	GetUser(userName string) (users *User, err error)
 	GetUserWithEmail(email string) (user *User, err error)

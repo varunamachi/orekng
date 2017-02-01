@@ -9,14 +9,23 @@ type DirectLogger struct {
 	writers map[string]Writer
 }
 
+//NewDirectLogger - creates a new DirectLogger instace
+func NewDirectLogger() *DirectLogger {
+	return &DirectLogger{
+		writers: make(map[string]Writer),
+	}
+}
+
 //Log - logs a message with given level and module
 func (dl *DirectLogger) Log(level Level,
 	module string,
 	fmtstr string,
 	args ...interface{}) {
-	// args = append(args, level, module)
-	msg := fmt.Sprintf(string(level)+" "+module+" "+fmtstr, args...)
-	fmt.Println(msg)
+	if level == PrintLevel {
+		return
+	}
+	fmtstr = ToString(level) + " [" + module + "] " + fmtstr
+	msg := fmt.Sprintf(fmtstr, args...)
 	for _, writer := range dl.writers {
 		if writer.IsEnabled() {
 			writer.Write(msg)

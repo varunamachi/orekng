@@ -18,6 +18,11 @@ func logIfError(err error) {
 	}
 }
 
+//Name - gives the name of the Data Store
+func (sqlite *Store) Name() string {
+	return "SQLite"
+}
+
 //GetAllUsers - Gives all user entries in the database
 func (sqlite *Store) GetAllUsers() (users []*data.User, err error) {
 	users = make([]*data.User, 0, 20)

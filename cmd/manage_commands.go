@@ -21,6 +21,7 @@ func (ccp *ManageCommandProvider) GetCommand() cli.Command {
 		Name:        "manage",
 		Subcommands: subcmds,
 		Flags:       []cli.Flag{},
+		Usage:       "Manage an Orek instance",
 	}
 }
 

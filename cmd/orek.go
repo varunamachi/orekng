@@ -13,6 +13,8 @@ import (
 
 	"path/filepath"
 
+	"strings"
+
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/data/sqlite"
 	"github.com/varunamachi/orekng/olog"
@@ -163,7 +165,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 			dirPath := filepath.Dir(path)
 			if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 				err = os.Mkdir(dirPath, 0755)
-				fmt.Println(err)
+				olog.PrintError("Orek", err)
 			}
 			store, err = sqlite.Init(&sqlite.Options{
 				Path: path,
@@ -172,9 +174,10 @@ func (orek *OrekApp) Run(args []string) (err error) {
 				data.SetStore(store)
 				// err = data.GetStore().Init()
 				if err != nil {
-					olog.Fatal("Orek", "Data Store initialization failed: %v", err)
+					olog.Fatal("Orek",
+						"Data Store initialization failed: %v", err)
 				} else {
-					olog.Info("Orek", "Data Store initialized")
+					olog.Info("Orek", "%s Data Store initialized", store.Name())
 				}
 			}
 		} else if ds == "postgres" {
@@ -310,6 +313,56 @@ func (retriever *ArgGetter) GetInt(key string) (val int) {
 			val, err = strconv.Atoi(strval)
 			if err != nil {
 				val = 0
+			}
+		}
+	}
+	return val
+}
+
+//GetRequiredBool - gives a Boolean argument either from commandline or from
+//blocking user input, this method sets the error if required arg-val is empty
+func (retriever *ArgGetter) GetRequiredBool(key string) (val bool) {
+	if retriever.Err != nil {
+		return val
+	}
+	val = retriever.Ctx.Bool(key)
+	if !retriever.Ctx.IsSet(key) {
+		fmt.Print(key + ": ")
+		var strval string
+		err := readInput(&strval)
+		trimmed := strings.TrimSpace(strval)
+		if err != nil || len(trimmed) == 0 {
+			val = false
+			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
+		} else {
+			val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
+			if err != nil {
+				retriever.Err = fmt.Errorf("Invalid value for %s given", key)
+				val = false
+			}
+		}
+	}
+	return val
+}
+
+//GetBool - gives a Boolean argument either from commandline or from blocking
+//user input, this method doesnt complain even if the arg-value is empty
+func (retriever *ArgGetter) GetBool(key string) (val bool) {
+	if retriever.Err != nil {
+		return val
+	}
+	val = retriever.Ctx.Bool(key)
+	if !retriever.Ctx.IsSet(key) {
+		fmt.Print(key + ": ")
+		var strval string
+		err := readInput(&strval)
+		if err != nil || len(strval) == 0 {
+			val = false
+		} else {
+			trimmed := strings.TrimSpace(strval)
+			val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
+			if err != nil {
+				val = false
 			}
 		}
 	}
