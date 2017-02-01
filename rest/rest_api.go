@@ -40,34 +40,40 @@ func getAllUsers(ctx echo.Context) (err error) {
 
 func getUser(ctx echo.Context) (err error) {
 	userName := ctx.Param("userName")
-	user, err := data.GetStore().GetUser(userName)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError,
-			Result{
-				Operation: "Get User Details",
-				Message:   "Failed to fetch user details",
-				Error:     err})
-
-	} else {
-		err = logIfError(ctx.JSON(http.StatusOK, user))
-	}
-	return err
-}
-
-func getUserWithEmail(ctx echo.Context) (err error) {
 	email := ctx.Param("email")
-	user, err := data.GetStore().GetUserWithEmail(email)
+	var user *data.User
+	if len(userName) != 0 {
+		user, err = data.GetStore().GetUser(userName)
+	} else {
+		user, err = data.GetStore().GetUserWithEmail(email)
+	}
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,
 			Result{
 				Operation: "Get User Details",
 				Message:   "Failed to fetch user details",
 				Error:     err})
+
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, user))
 	}
 	return err
 }
+
+// func getUserWithEmail(ctx echo.Context) (err error) {
+// 	email := ctx.Param("email")
+// 	user, err := data.GetStore().GetUserWithEmail(email)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError,
+// 			Result{
+// 				Operation: "Get User Details",
+// 				Message:   "Failed to fetch user details",
+// 				Error:     err})
+// 	} else {
+// 		err = logIfError(ctx.JSON(http.StatusOK, user))
+// 	}
+// 	return err
+// }
 
 func createUser(ctx echo.Context) (err error) {
 	var user data.User
@@ -795,4 +801,48 @@ func Map() {
 	in0.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(ky),
 	}))
+
+	v0.GET("/users", getAllUsers)
+	v0.GET("/users/:userName", getUser)
+	v0.GET("/users/:email", getUser)
+	v0.POST("/users", createUser)
+	v0.PUT("/users", updateUser)
+	v0.DELETE("/users/:userName", deleteUser)
+
+	v0.GET("/endpoints", getAllEndpoints)
+	v0.GET("/endpoints/:endpointID", getEndpoint)
+	v0.POST("/endpoints", createEndpoint)
+	v0.PUT("/endpoints", updateEndpoint)
+	v0.DELETE("/endpoints:endpointID", deleteEndpoint)
+
+	v0.GET("/variables", getAllVariables)
+	v0.GET("/endpoints/:endpointID/variables", getVariablesForEndpoint)
+	v0.GET("/variables/:variableID", getVariable)
+	v0.POST("/variables", createVariable)
+	v0.PUT("/variables", updateVariable)
+	v0.DELETE("/variables/:endpointID", deleteVariable)
+
+	v0.GET("/parameters", getAllParameters)
+	v0.GET("/endpoints/:endpointID/parameters", getParametersForEndpoint)
+	v0.GET("/parameters/:parameterID", getParameter)
+	v0.POST("/parameters", createParameter)
+	v0.PUT("/parameters", updateParameter)
+	v0.DELETE("/parameters/:parameterID", deleteParameter)
+
+	v0.GET("/groups", getAllUserGroups)
+	v0.GET("/groups/:groupID", getUserGroup)
+	v0.POST("/groups", createUserGroup)
+	v0.PUT("/groups", updateUserGroup)
+	v0.DELETE("/groups/:groupID", deleteUserGroup)
+	v0.PUT("/groups/:groupID/users/:userName", addUserToGroup)
+	v0.DELETE("/groups/:groupID/users/:userName", removeUserFromGroup)
+	v0.GET("/groups/:groupID/users", getUsersInGroup)
+	v0.GET("/users/:userName/groups", getGroupsForUser)
+
+	v0.POST("/varialbes/:variableID/values", addVariableValue)
+	v0.GET("/variables/:variableID/values", getValuesForVariable)
+	v0.DELETE("/variables/:variableID/values", clearValuesForVariable)
+	v0.POST("/manageAuth", setPassword)
+	v0.PUT("/manageAuth", updatePassword)
+
 }
