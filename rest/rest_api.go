@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"errors"
-
 	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
@@ -20,7 +18,7 @@ const ky = "orek_2232redsfaj3234edsa"
 
 func logIfError(err error) (errOut error) {
 	if err != nil {
-		olog.PrintError("RestApi", err)
+		olog.PrintError("REST", err)
 	}
 	return
 }
@@ -709,14 +707,14 @@ func updatePassword(ctx echo.Context) (err error) {
 		if err == nil {
 			err = data.GetStore().SetPasswordHash(userName, hash)
 			if err == nil {
-				ctx.JSON(http.StatusOK,
+				ctx.JSON(http.StatusInternalServerError,
 					Result{
 						Operation: "UpdatePassword",
 						Message:   "Password updated successfully",
 						Error:     err})
 			}
 		} else {
-			ctx.JSON(http.StatusOK,
+			ctx.JSON(http.StatusInternalServerError,
 				Result{
 					Operation: "UpdatePassword",
 					Message:   "Error occured while updating password",
@@ -749,21 +747,25 @@ func varifyPassword(userName, password string) (err error) {
 func login(ctx echo.Context) (err error) {
 	userName := ctx.FormValue("username")
 	password := ctx.FormValue("password")
-	if err = varifyPassword(userName, password); err != nil {
-		userExists, checkError := data.GetStore().UserExists(userName)
-		if checkError == nil && !userExists {
-			ctx.JSON(http.StatusUnauthorized,
-				Result{
-					Operation: "login",
-					Message:   "Create password",
-					Error:     errors.New("NoPasswordFound"),
-				})
-			err = nil
-		} else {
-			err = echo.ErrUnauthorized
-		}
-
-	} else {
+	if err = varifyPassword(userName, password); err == nil {
+		// 	userExists, checkError := data.GetStore().UserExists(userName)
+		// 	if checkError == nil && !userExists {
+		// 		ctx.JSON(http.StatusUnauthorized,
+		// 			Result{
+		// 				Operation: "login",
+		// 				Message:   "Create password",
+		// 				Error:     errors.New("NoPasswordFound"),
+		// 			})
+		// 		err = nil
+		// 	} else {
+		// 		if !userExists {
+		// 			olog.Error("REST", "User %s does not exist", userName)
+		// 			err = echo.ErrUnauthorized
+		// 		} else {
+		// 			// err = checkError
+		// 		}
+		// 	}
+		// } else {
 		// Create token
 		token := jwt.New(jwt.SigningMethodHS256)
 
@@ -778,9 +780,16 @@ func login(ctx echo.Context) (err error) {
 		if err != nil {
 			return err
 		}
-		return ctx.JSON(http.StatusOK, map[string]string{
+		err = ctx.JSON(http.StatusOK, map[string]string{
 			"token": t,
 		})
+		olog.Print("REST", "## %s", t)
+	} else {
+		ctx.JSON(http.StatusUnauthorized,
+			Result{
+				Operation: "Login",
+				Message:   "Invalid user name or password",
+				Error:     err})
 	}
 	logIfError(err)
 	return err

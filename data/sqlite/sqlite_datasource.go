@@ -551,7 +551,7 @@ func (sqlite *Store) UpdatePasswordHash(userName, passwordHash string) (err erro
 func (sqlite *Store) checkExists(
 	query string, args ...interface{}) (exists bool, err error) {
 	query = fmt.Sprintf("SELECT exists (%s)", query)
-	rows := sqlite.QueryRowx(query, args)
+	rows := sqlite.QueryRowx(query, args...)
 	if rows.Err() == nil {
 		exists = true
 	} else if rows.Err() == sql.ErrNoRows {
@@ -559,13 +559,14 @@ func (sqlite *Store) checkExists(
 	} else {
 		exists = false
 		err = rows.Err()
+		olog.Error("SQLiteDS", "%v", err)
 	}
 	return exists, err
 }
 
 //UserExists - Checks if an user record exists for given user bane
 func (sqlite *Store) UserExists(userName string) (exists bool, err error) {
-	query := `SELECT 1 FROM orek_user WHERE user_name = ? LIMIT 1`
+	query := `SELECT 1 FROM orek_user WHERE user_name = '?' LIMIT 1`
 	exists, err = sqlite.checkExists(query, userName)
 	return exists, err
 }

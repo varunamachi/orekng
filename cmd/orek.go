@@ -13,9 +13,12 @@ import (
 
 	"path/filepath"
 
+	"errors"
+
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/data/sqlite"
 	"github.com/varunamachi/orekng/olog"
+	passlib "gopkg.in/hlandau/passlib.v1"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -68,12 +71,28 @@ type LocalClient struct {
 
 //SetPassword - sets the password for the user
 func (ds LocalClient) SetPassword(userName, password string) (err error) {
+	var hash string
+	hash, err = passlib.Hash(password)
+	if err == nil {
+		err = data.GetStore().SetPasswordHash(userName, hash)
+	}
 	return err
 }
 
 //UpdatePassword - updates the password for the user
 func (ds LocalClient) UpdatePassword(userName,
 	currentPassword, newPassword string) (err error) {
+	var newHash, oldHash, dbHash string
+	newHash, err = passlib.Hash(newPassword)
+	oldHash, err = passlib.Hash(oldHash)
+	dbHash, err = data.GetStore().GetPasswordHash(userName)
+	if err == nil {
+		if oldHash == dbHash {
+			data.GetStore().UpdatePasswordHash(userName, newHash)
+		} else {
+			err = errors.New("Current password does not match")
+		}
+	}
 	return err
 }
 
@@ -88,15 +107,14 @@ type OrekApp struct {
 }
 
 //AskSecret - asks password from user, does not echo charectors
-func AskSecret(what string) (secret string) {
-	fmt.Printf("%s: ", what)
-	pbyte, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		olog.PrintFatal("Orek", err)
-	} else {
+func askSecret() (secret string, err error) {
+	var pbyte []byte
+	pbyte, err = terminal.ReadPassword(int(syscall.Stdin))
+	if err == nil {
 		secret = string(pbyte)
+		fmt.Println()
 	}
-	return secret
+	return secret, err
 }
 
 //RegisterCommandProvider - registers a command provider
@@ -271,8 +289,27 @@ func (retriever *ArgGetter) GetRequiredString(key string) (val string) {
 	}
 	val = retriever.Ctx.String(key)
 	if !retriever.Ctx.IsSet(key) && len(val) == 0 {
-		fmt.Print(key + ": ")
+		fmt.Print(key + "*: ")
 		err := readInput(&val)
+		if err != nil || len(val) == 0 {
+			val = ""
+			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
+		}
+	}
+	return val
+}
+
+//GetRequiredSecret - gives a string argument either from commandline or from
+//blocking user input, this method sets the error if required arg-val is empty
+func (retriever *ArgGetter) GetRequiredSecret(key string) (val string) {
+	if retriever.Err != nil {
+		return val
+	}
+	val = retriever.Ctx.String(key)
+	if !retriever.Ctx.IsSet(key) && len(val) == 0 {
+		fmt.Print(key + "*: ")
+		var err error
+		val, err = askSecret()
 		if err != nil || len(val) == 0 {
 			val = ""
 			retriever.Err = fmt.Errorf("Required argument %s not provided", key)

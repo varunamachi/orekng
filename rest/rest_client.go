@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -16,6 +17,7 @@ type Client struct {
 	http.Client
 	Address    string
 	VersionStr string
+	Token      string
 }
 
 //NewRestClient - creates a new rest client
@@ -38,10 +40,19 @@ func (client *Client) Login(userName, password string) (err error) {
 	var req *http.Request
 	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
 	if err == nil {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		var resp *http.Response
 		resp, err = client.Do(req)
 		if err == nil {
-			olog.Print("RESTClient", "%v", resp)
+			if resp.StatusCode == http.StatusOK {
+				defer resp.Body.Close()
+				decoder := json.NewDecoder(resp.Body)
+				tmap := make(map[string]string)
+				err = decoder.Decode(&tmap)
+				client.Token = tmap["token"]
+			} else {
+				olog.Error("REST", "Unexpected response status %s", resp.Status)
+			}
 		}
 	}
 	if err != nil {
@@ -52,13 +63,71 @@ func (client *Client) Login(userName, password string) (err error) {
 
 //GetAllUsers - Gives all user entries in the server
 func (client *Client) GetAllUsers() (users []*data.User, err error) {
-	users = make([]*data.User, 0, 20)
+	apiURL := fmt.Sprintf("%s/%s/in/users", client.Address, client.VersionStr)
+	var req *http.Request
+	req, err = http.NewRequest("GET", apiURL, nil)
+	if err == nil {
+		// req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		authHeader := fmt.Sprintf("Bearer %s", client.Token)
+		req.Header.Add("Authorization", authHeader)
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			if resp.StatusCode == http.StatusOK {
+				users = make([]*data.User, 0, 20)
+				err = decoder.Decode(&users)
+			} else if resp.StatusCode == http.StatusInternalServerError {
+				var res Result
+				err = decoder.Decode(&res)
+				olog.Error("REST", "%s : %s - %s", res.Operation,
+					res.Message,
+					res.Error)
+			} else {
+				olog.Print("REST", "Unexpected response status %s", resp.Status)
+			}
+		}
+	}
+	if err != nil {
+		olog.PrintError("RESTClient", err)
+	}
 	return users, err
 }
 
 //GetUser - Gives the user with given userName from server
 func (client *Client) GetUser(userName string) (user *data.User, err error) {
-	user = &data.User{}
+	apiURL := fmt.Sprintf("%s/%s/in/users/%s", client.Address,
+		client.VersionStr,
+		userName)
+	var req *http.Request
+	req, err = http.NewRequest("GET", apiURL, nil)
+	if err == nil {
+		// req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		authHeader := fmt.Sprintf("Bearer %s", client.Token)
+		req.Header.Add("Authorization", authHeader)
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			if resp.StatusCode == http.StatusOK {
+				user = &data.User{}
+				err = decoder.Decode(&user)
+			} else if resp.StatusCode == http.StatusInternalServerError {
+				var res Result
+				err = decoder.Decode(&res)
+				olog.Error("REST", "%s : %s - %s", res.Operation,
+					res.Message,
+					res.Error)
+			} else {
+				olog.Print("REST", "Unexpected response status %s", resp.Status)
+			}
+		}
+	}
+	if err != nil {
+		olog.PrintError("RESTClient", err)
+	}
 	return user, err
 }
 

@@ -82,11 +82,11 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 				Value: "",
 				Usage: "User name for using Orek service",
 			},
-			// cli.StringFlag{
-			// 	Name:  "api-password",
-			// 	Value: "",
-			// 	Usage: "Orek password, use this falg only for testing",
-			// },
+			cli.StringFlag{
+				Name:  "api-password",
+				Value: "",
+				Usage: "Orek password, use this falg only for testing",
+			},
 		},
 		Before: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
@@ -97,7 +97,7 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 				host := argetr.GetRequiredString("api-host")
 				port := argetr.GetRequiredInt("api-port")
 				user := argetr.GetRequiredString("api-user")
-				pswd := AskSecret("api-password")
+				pswd := argetr.GetRequiredSecret("api-password")
 				address := fmt.Sprintf("%s:%d", host, port)
 				restClient := rest.NewRestClient(address, "v0")
 				err = restClient.Login(user, pswd)
@@ -1166,19 +1166,19 @@ func (ccp *ClientCommandProvider) setPasswordCommand() (cmd cli.Command) {
 			cli.StringFlag{
 				Name:  "password",
 				Value: "",
-				Usage: "Password for the user",
+				Usage: "Password for the user - For testing purpose only",
 			},
 			cli.StringFlag{
 				Name:  "confirm-password",
 				Value: "",
-				Usage: "New Password for the user",
+				Usage: "New Password for the user - For testing purpose only ",
 			},
 		},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			userName := argetr.GetRequiredString("user-name")
-			password := argetr.GetRequiredString("password")
-			confirmPassword := argetr.GetRequiredString("confirm-password")
+			password := argetr.GetRequiredSecret("password")
+			confirmPassword := argetr.GetRequiredSecret("confirm-password")
 			if err = argetr.Err; err == nil {
 				if password == confirmPassword {
 					err = ccp.Client.SetPassword(userName, password)
@@ -1209,25 +1209,25 @@ func (ccp *ClientCommandProvider) updatePasswordCommand() (cmd cli.Command) {
 			cli.StringFlag{
 				Name:  "current-password",
 				Value: "",
-				Usage: "Current Password for the user",
+				Usage: "Current Password for the user - For testing purpose only",
 			},
 			cli.StringFlag{
 				Name:  "new-password",
 				Value: "",
-				Usage: "New Password for the user",
+				Usage: "New Password for the user - For testing purpose only",
 			},
 			cli.StringFlag{
 				Name:  "confirm-password",
 				Value: "",
-				Usage: "New Password for the user",
+				Usage: "New Password for the user - For testing purpose only",
 			},
 		},
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			userName := argetr.GetRequiredString("user-name")
 			currentPassword := argetr.GetRequiredString("current-password")
-			newPassword := argetr.GetRequiredString("new-password")
-			confirmPassword := argetr.GetRequiredString("confirm-password")
+			newPassword := argetr.GetRequiredSecret("new-password")
+			confirmPassword := argetr.GetRequiredSecret("confirm-password")
 			if err = argetr.Err; err == nil {
 				if confirmPassword == newPassword {
 					err = ccp.Client.UpdatePassword(userName,
