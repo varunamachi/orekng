@@ -1,6 +1,9 @@
 package olog
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 //Level - gives log level
 type Level int
@@ -139,7 +142,7 @@ func PrintFatal(module string, err error) {
 //Print - prints the message on console
 func Print(module, fmtStr string, args ...interface{}) {
 	logger.Log(PrintLevel, module, fmtStr, args)
-	// fmt.Printf(fmtStr+"\n", args...)
+	fmt.Printf(fmtStr+"\n", args...)
 }
 
 //GetLogger - gives the underlying Logger implementation

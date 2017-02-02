@@ -1,7 +1,10 @@
 package cmd
 
 import cli "gopkg.in/urfave/cli.v1"
-import "github.com/varunamachi/orekng/olog"
+import (
+	"github.com/varunamachi/orekng/olog"
+	"github.com/varunamachi/orekng/rest"
+)
 
 //ServerCommandProvider - Providers commands for running Orek app as client
 type ServerCommandProvider struct{}
@@ -39,10 +42,12 @@ func serveCommand() (cmd cli.Command) {
 
 			argetr := ArgGetter{Ctx: ctx}
 			silent := argetr.GetRequiredBool("silent")
+			port := argetr.GetRequiredInt("port")
 			if err = argetr.Err; err == nil {
 				if !silent {
 					olog.GetLogger().RegisterWriter(olog.NewConsoleWriter())
 				}
+				rest.Serve(port)
 			}
 			return err
 		},

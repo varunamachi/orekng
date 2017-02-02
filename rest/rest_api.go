@@ -6,6 +6,8 @@ import (
 
 	"errors"
 
+	"fmt"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -789,8 +791,8 @@ func defaultHandler(ctx echo.Context) (err error) {
 	return err
 }
 
-//Map - maps a route to handler function
-func Map() {
+//Serve - maps a route to handler function and starts the server
+func Serve(port int) {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -802,47 +804,49 @@ func Map() {
 		SigningKey: []byte(ky),
 	}))
 
-	v0.GET("/users", getAllUsers)
-	v0.GET("/users/:userName", getUser)
-	v0.GET("/users/:email", getUser)
-	v0.POST("/users", createUser)
-	v0.PUT("/users", updateUser)
-	v0.DELETE("/users/:userName", deleteUser)
+	in0.GET("/users", getAllUsers)
+	in0.GET("/users/:userName", getUser)
+	in0.GET("/users/email/:email", getUser)
+	in0.POST("/users", createUser)
+	in0.PUT("/users", updateUser)
+	in0.DELETE("/users/:userName", deleteUser)
 
-	v0.GET("/endpoints", getAllEndpoints)
-	v0.GET("/endpoints/:endpointID", getEndpoint)
-	v0.POST("/endpoints", createEndpoint)
-	v0.PUT("/endpoints", updateEndpoint)
-	v0.DELETE("/endpoints:endpointID", deleteEndpoint)
+	in0.GET("/endpoints", getAllEndpoints)
+	in0.GET("/endpoints/:endpointID", getEndpoint)
+	in0.POST("/endpoints", createEndpoint)
+	in0.PUT("/endpoints", updateEndpoint)
+	in0.DELETE("/endpoints:endpointID", deleteEndpoint)
 
-	v0.GET("/variables", getAllVariables)
-	v0.GET("/endpoints/:endpointID/variables", getVariablesForEndpoint)
-	v0.GET("/variables/:variableID", getVariable)
-	v0.POST("/variables", createVariable)
-	v0.PUT("/variables", updateVariable)
-	v0.DELETE("/variables/:endpointID", deleteVariable)
+	in0.GET("/variables", getAllVariables)
+	in0.GET("/endpoints/:endpointID/variables", getVariablesForEndpoint)
+	in0.GET("/variables/:variableID", getVariable)
+	in0.POST("/variables", createVariable)
+	in0.PUT("/variables", updateVariable)
+	in0.DELETE("/variables/:endpointID", deleteVariable)
 
-	v0.GET("/parameters", getAllParameters)
-	v0.GET("/endpoints/:endpointID/parameters", getParametersForEndpoint)
-	v0.GET("/parameters/:parameterID", getParameter)
-	v0.POST("/parameters", createParameter)
-	v0.PUT("/parameters", updateParameter)
-	v0.DELETE("/parameters/:parameterID", deleteParameter)
+	in0.GET("/parameters", getAllParameters)
+	in0.GET("/endpoints/:endpointID/parameters", getParametersForEndpoint)
+	in0.GET("/parameters/:parameterID", getParameter)
+	in0.POST("/parameters", createParameter)
+	in0.PUT("/parameters", updateParameter)
+	in0.DELETE("/parameters/:parameterID", deleteParameter)
 
-	v0.GET("/groups", getAllUserGroups)
-	v0.GET("/groups/:groupID", getUserGroup)
-	v0.POST("/groups", createUserGroup)
-	v0.PUT("/groups", updateUserGroup)
-	v0.DELETE("/groups/:groupID", deleteUserGroup)
-	v0.PUT("/groups/:groupID/users/:userName", addUserToGroup)
-	v0.DELETE("/groups/:groupID/users/:userName", removeUserFromGroup)
-	v0.GET("/groups/:groupID/users", getUsersInGroup)
-	v0.GET("/users/:userName/groups", getGroupsForUser)
+	in0.GET("/groups", getAllUserGroups)
+	in0.GET("/groups/:groupID", getUserGroup)
+	in0.POST("/groups", createUserGroup)
+	in0.PUT("/groups", updateUserGroup)
+	in0.DELETE("/groups/:groupID", deleteUserGroup)
+	in0.PUT("/groups/:groupID/users/:userName", addUserToGroup)
+	in0.DELETE("/groups/:groupID/users/:userName", removeUserFromGroup)
+	in0.GET("/groups/:groupID/users", getUsersInGroup)
+	in0.GET("/users/:userName/groups", getGroupsForUser)
 
-	v0.POST("/varialbes/:variableID/values", addVariableValue)
-	v0.GET("/variables/:variableID/values", getValuesForVariable)
-	v0.DELETE("/variables/:variableID/values", clearValuesForVariable)
-	v0.POST("/manageAuth", setPassword)
-	v0.PUT("/manageAuth", updatePassword)
+	in0.POST("/varialbes/:variableID/values", addVariableValue)
+	in0.GET("/variables/:variableID/values", getValuesForVariable)
+	in0.DELETE("/variables/:variableID/values", clearValuesForVariable)
+	in0.POST("/manageAuth", setPassword)
+	in0.PUT("/manageAuth", updatePassword)
 
+	portStr := fmt.Sprintf(":%d", port)
+	e.Logger.Fatal(e.Start(portStr))
 }

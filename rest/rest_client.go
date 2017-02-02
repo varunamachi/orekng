@@ -1,15 +1,52 @@
 package rest
 
-import "github.com/varunamachi/orekng/data"
-import "net"
+import (
+	"fmt"
+	"net/http"
+	"net/url"
+
+	"strings"
+
+	"github.com/varunamachi/orekng/data"
+	"github.com/varunamachi/orekng/olog"
+)
 
 //Client - client for orek service
 type Client struct {
+	http.Client
+	Address    string
+	VersionStr string
 }
 
-//Connect - login to the server
-func (client *Client) Connect(ipAddress net.IPAddr, port int,
-	userName, password string) (err error) {
+//NewRestClient - creates a new rest client
+func NewRestClient(address, versionStr string) *Client {
+	return &Client{
+		Client: http.Client{
+			Timeout: 0,
+		},
+		Address:    address,
+		VersionStr: versionStr,
+	}
+}
+
+//Login - login to the server
+func (client *Client) Login(userName, password string) (err error) {
+	apiURL := fmt.Sprintf("%s/%s/login", client.Address, client.VersionStr)
+	form := url.Values{}
+	form.Add("username", userName)
+	form.Add("password", password)
+	var req *http.Request
+	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
+	if err == nil {
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			olog.Print("RESTClient", "%v", resp)
+		}
+	}
+	if err != nil {
+		olog.PrintError("RESTClient", err)
+	}
 	return err
 }
 

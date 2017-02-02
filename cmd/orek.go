@@ -13,8 +13,6 @@ import (
 
 	"path/filepath"
 
-	"strings"
-
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/data/sqlite"
 	"github.com/varunamachi/orekng/olog"
@@ -87,6 +85,18 @@ type CliCommandProvider interface {
 //OrekApp - contains command providers and runs the app
 type OrekApp struct {
 	CommandProviders []CliCommandProvider
+}
+
+//AskSecret - asks password from user, does not echo charectors
+func AskSecret(what string) (secret string) {
+	fmt.Printf("%s: ", what)
+	pbyte, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		olog.PrintFatal("Orek", err)
+	} else {
+		secret = string(pbyte)
+	}
+	return secret
 }
 
 //RegisterCommandProvider - registers a command provider
@@ -185,7 +195,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 			port := argetr.GetRequiredInt("db-port")
 			dbName := argetr.GetRequiredString("db-name")
 			user := argetr.GetRequiredString("db-user")
-			pswd := argetr.GetRequiredString("db-password")
+			pswd := argetr.GetString("db-password")
 			if len(pswd) == 0 {
 				fmt.Printf("Password for %s: ", user)
 				var pbyte []byte
@@ -243,7 +253,7 @@ func (retriever *ArgGetter) GetString(key string) (val string) {
 		return val
 	}
 	val = retriever.Ctx.String(key)
-	if len(val) == 0 {
+	if !retriever.Ctx.IsSet(key) && len(val) == 0 {
 		fmt.Print(key + ": ")
 		err := readInput(&val)
 		if err != nil {
@@ -260,7 +270,7 @@ func (retriever *ArgGetter) GetRequiredString(key string) (val string) {
 		return val
 	}
 	val = retriever.Ctx.String(key)
-	if len(val) == 0 {
+	if !retriever.Ctx.IsSet(key) && len(val) == 0 {
 		fmt.Print(key + ": ")
 		err := readInput(&val)
 		if err != nil || len(val) == 0 {
@@ -278,7 +288,7 @@ func (retriever *ArgGetter) GetRequiredInt(key string) (val int) {
 		return val
 	}
 	val = retriever.Ctx.Int(key)
-	if !retriever.Ctx.IsSet(key) {
+	if !retriever.Ctx.IsSet(key) && val == 0 {
 		fmt.Print(key + ": ")
 		var strval string
 		err := readInput(&strval)
@@ -303,7 +313,7 @@ func (retriever *ArgGetter) GetInt(key string) (val int) {
 		return val
 	}
 	val = retriever.Ctx.Int(key)
-	if !retriever.Ctx.IsSet(key) {
+	if !retriever.Ctx.IsSet(key) && val == 0 {
 		fmt.Print(key + ": ")
 		var strval string
 		err := readInput(&strval)
@@ -326,22 +336,22 @@ func (retriever *ArgGetter) GetRequiredBool(key string) (val bool) {
 		return val
 	}
 	val = retriever.Ctx.Bool(key)
-	if !retriever.Ctx.IsSet(key) {
-		fmt.Print(key + ": ")
-		var strval string
-		err := readInput(&strval)
-		trimmed := strings.TrimSpace(strval)
-		if err != nil || len(trimmed) == 0 {
-			val = false
-			retriever.Err = fmt.Errorf("Required argument %s not provided", key)
-		} else {
-			val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
-			if err != nil {
-				retriever.Err = fmt.Errorf("Invalid value for %s given", key)
-				val = false
-			}
-		}
-	}
+	// if !retriever.Ctx.IsSet(key) {
+	// 	fmt.Print(key + ": ")
+	// 	var strval string
+	// 	err := readInput(&strval)
+	// 	trimmed := strings.TrimSpace(strval)
+	// 	if err != nil || len(trimmed) == 0 {
+	// 		val = false
+	// 		retriever.Err = fmt.Errorf("Required argument %s not provided", key)
+	// 	} else {
+	// 		val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
+	// 		if err != nil {
+	// 			retriever.Err = fmt.Errorf("Invalid value for %s given", key)
+	// 			val = false
+	// 		}
+	// 	}
+	// }
 	return val
 }
 
@@ -352,19 +362,19 @@ func (retriever *ArgGetter) GetBool(key string) (val bool) {
 		return val
 	}
 	val = retriever.Ctx.Bool(key)
-	if !retriever.Ctx.IsSet(key) {
-		fmt.Print(key + ": ")
-		var strval string
-		err := readInput(&strval)
-		if err != nil || len(strval) == 0 {
-			val = false
-		} else {
-			trimmed := strings.TrimSpace(strval)
-			val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
-			if err != nil {
-				val = false
-			}
-		}
-	}
+	// if !retriever.Ctx.IsSet(key) {
+	// 	fmt.Print(key + ": ")
+	// 	var strval string
+	// 	err := readInput(&strval)
+	// 	if err != nil || len(strval) == 0 {
+	// 		val = false
+	// 	} else {
+	// 		trimmed := strings.TrimSpace(strval)
+	// 		val = strings.ToUpper(trimmed) == "TRUE" || trimmed == "1"
+	// 		if err != nil {
+	// 			val = false
+	// 		}
+	// 	}
+	// }
 	return val
 }

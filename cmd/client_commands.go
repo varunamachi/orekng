@@ -3,8 +3,11 @@ package cmd
 import (
 	"errors"
 
+	"fmt"
+
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/olog"
+	"github.com/varunamachi/orekng/rest"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -64,7 +67,7 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "api-host",
-				Value: "localhost",
+				Value: "http://localhost",
 				Usage: "Host where the Orek server is running " +
 					"(Only applicable to REST client)",
 			},
@@ -79,11 +82,11 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 				Value: "",
 				Usage: "User name for using Orek service",
 			},
-			cli.StringFlag{
-				Name:  "api-password",
-				Value: "",
-				Usage: "Orek password, use this falg only for testing",
-			},
+			// cli.StringFlag{
+			// 	Name:  "api-password",
+			// 	Value: "",
+			// 	Usage: "Orek password, use this falg only for testing",
+			// },
 		},
 		Before: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
@@ -91,7 +94,18 @@ func (ccp *ClientCommandProvider) GetCommand() cli.Command {
 			if clientType == "local" {
 				ccp.Client = &LocalClient{data.GetStore()}
 			} else {
-				olog.Error("Client", "REST client is not yet implemented")
+				host := argetr.GetRequiredString("api-host")
+				port := argetr.GetRequiredInt("api-port")
+				user := argetr.GetRequiredString("api-user")
+				pswd := AskSecret("api-password")
+				address := fmt.Sprintf("%s:%d", host, port)
+				restClient := rest.NewRestClient(address, "v0")
+				err = restClient.Login(user, pswd)
+				if err == nil {
+					ccp.Client = restClient
+				} else {
+					olog.PrintFatal("Client", err)
+				}
 			}
 			return err
 		},
