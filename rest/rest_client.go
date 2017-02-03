@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-
 	"strings"
 
 	"github.com/varunamachi/orekng/data"
@@ -37,7 +36,8 @@ func NewRestClient(address, versionStr string) *Client {
 func handleStatusCode(statusCode int, decoder *json.Decoder) {
 	if statusCode == http.StatusInternalServerError ||
 		statusCode == http.StatusBadRequest ||
-		statusCode == http.StatusUnauthorized {
+		statusCode == http.StatusUnauthorized ||
+		statusCode == http.StatusOK {
 		var res Result
 		err := decoder.Decode(&res)
 		if err == nil && len(res.Error) != 0 {
@@ -146,36 +146,6 @@ func (client *Client) orekPost(content interface{},
 func (client *Client) orekPut(content interface{},
 	urlArgs ...string) (err error) {
 	return client.orekPutOrPost("PUT", content, urlArgs...)
-}
-
-//Login - login to the server
-func (client *Client) Login(userName, password string) (err error) {
-	apiURL := fmt.Sprintf("%s/%s/login", client.Address, client.VersionStr)
-	form := url.Values{}
-	form.Add("username", userName)
-	form.Add("password", password)
-	var req *http.Request
-	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
-	if err == nil {
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		var resp *http.Response
-		resp, err = client.Do(req)
-		if err == nil {
-			defer resp.Body.Close()
-			decoder := json.NewDecoder(resp.Body)
-			if resp.StatusCode == http.StatusOK {
-				tmap := make(map[string]string)
-				err = decoder.Decode(&tmap)
-				client.Token = tmap["token"]
-			} else {
-				handleStatusCode(resp.StatusCode, decoder)
-			}
-		}
-	}
-	if err != nil {
-		olog.PrintError("RESTClient", err)
-	}
-	return err
 }
 
 //GetAllUsers - Gives all user entries in the server
@@ -379,14 +349,14 @@ func (client *Client) DeleteUserGroup(groupID string) (err error) {
 //AddUserToGroup - adds user with given user name to a group with given group
 //name
 func (client *Client) AddUserToGroup(userName, groupID string) (err error) {
-	logIfError(err)
+	err = client.orekPut("", "groups", groupID, "users", userName)
 	return err
 }
 
 //RemoveUserFromGroup - disassociates user with given user name from group with
 //given group name
 func (client *Client) RemoveUserFromGroup(userName, groupID string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("", "groups", groupID, "users", userName)
 	return err
 }
 
@@ -394,7 +364,8 @@ func (client *Client) RemoveUserFromGroup(userName, groupID string) (err error) 
 //with given group name
 func (client *Client) GetUsersInGroup(
 	groupID string) (users []*data.User, err error) {
-	logIfError(err)
+	users = make([]*data.User, 0, 20)
+	err = client.orekGet(&users, "groups", groupID, "users")
 	return users, err
 }
 
@@ -403,20 +374,20 @@ func (client *Client) GetUsersInGroup(
 func (client *Client) GetGroupsForUser(
 	userName string) (groups []*data.UserGroup, err error) {
 	groups = make([]*data.UserGroup, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&groups, "users", userName, "groups")
 	return groups, err
 }
 
 //AddVariableValue - Adds value to list of values of a variable
 func (client *Client) AddVariableValue(variableID, value string) (err error) {
-	logIfError(err)
+	err = client.orekPost(&value, "variables", variableID, "values")
 	return err
 }
 
 //ClearValuesForVariable - clears values from the list of values associated with
 //the variable with given variable id
 func (client *Client) ClearValuesForVariable(variableID string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("variables", variableID, "values")
 	return err
 }
 
@@ -425,78 +396,80 @@ func (client *Client) ClearValuesForVariable(variableID string) (err error) {
 func (client *Client) GetValuesForVariable(
 	variableID string) (values []*string, err error) {
 	values = make([]*string, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&values, "variables", variableID, "values")
 	return values, err
+}
+
+//Login - login to the server
+func (client *Client) Login(userName, password string) (err error) {
+	apiURL := fmt.Sprintf("%s/%s/login", client.Address, client.VersionStr)
+	form := url.Values{}
+	form.Add("username", userName)
+	form.Add("password", password)
+	var req *http.Request
+	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
+	if err == nil {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			if resp.StatusCode == http.StatusOK {
+				tmap := make(map[string]string)
+				err = decoder.Decode(&tmap)
+				client.Token = tmap["token"]
+			} else {
+				handleStatusCode(resp.StatusCode, decoder)
+			}
+		}
+	}
+	if err != nil {
+		olog.PrintError("RESTClient", err)
+	}
+	return err
 }
 
 //SetPassword - stores password hash for an user in the server
 func (client *Client) SetPassword(userName, password string) (err error) {
-	logIfError(err)
+	apiURL := fmt.Sprintf("%s/%s/in/manageAuth", client.Address, client.VersionStr)
+	form := url.Values{}
+	form.Add("username", userName)
+	form.Add("password", password)
+	var req *http.Request
+	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
+	if err == nil {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			handleStatusCode(resp.StatusCode, decoder)
+		}
+	}
 	return err
 }
 
 //UpdatePassword - updates password hash for a user in the server
 func (client *Client) UpdatePassword(userName,
 	currentPassword, newPassword string) (err error) {
-	logIfError(err)
+	apiURL := fmt.Sprintf("%s/%s/in/manageAuth", client.Address, client.VersionStr)
+	form := url.Values{}
+	form.Add("username", userName)
+	form.Add("oldPassword", currentPassword)
+	form.Add("password", newPassword)
+	var req *http.Request
+	req, err = http.NewRequest("PUT", apiURL, strings.NewReader(form.Encode()))
+	if err == nil {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		var resp *http.Response
+		resp, err = client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
+			handleStatusCode(resp.StatusCode, decoder)
+		}
+	}
 	return err
 }
-
-// //UserExists - Checks if an user record exists for given user bane
-// func (client *Client) UserExists(userName string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //UserExistsWithEmail - checks if an user record exists with given email
-// func (client *Client) UserExistsWithEmail(email string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //EndpointExists - checks if an endpoint exists with given ID
-// func (client *Client) EndpointExists(endpointID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //VariableExists - checks if a variable exists with given variable ID
-// func (client *Client) VariableExists(variableID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //VariableExistsInEndpoint - checks if a variable with given variableID in an
-// //endpoint given by the endpointID
-// func (client *Client) VariableExistsInEndpoint(
-// 	variableID, endpointID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //ParameterExists - checks if a parameter exists with given parameter ID
-// func (client *Client) ParameterExists(parameterID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
-// //endpoint given by the endpointID
-// func (client *Client) ParameterExistsInEndpoint(
-// 	parameterID, endpointID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //UserGroupExists - checks if an User group exists with given ID
-// func (client *Client) UserGroupExists(
-// 	userGroupID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //UserExistsInGroup - checks if user with given user ID is associated with the
-// //group with given groupID
-// func (client *Client) UserExistsInGroup(
-// 	userName, groupID string) (exists bool, err error) {
-// 	return exists, err
-// }
-
-// //GroupHasUser - checks if group with given ID has a user with given userName
-// //associated with it
-// func (client *Client) GroupHasUser(
-// 	groupID, userName string) (has bool, err error) {
-// 	return has, err
-// }
