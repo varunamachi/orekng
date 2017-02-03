@@ -8,7 +8,7 @@ import (
 type Result struct {
 	Operation string `json:"operation"`
 	Message   string `json:"message"`
-	Error     error  `json:"error"`
+	Error     string `json:"error"`
 }
 
 //Session - represents a session object

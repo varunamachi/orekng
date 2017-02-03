@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,6 +19,7 @@ type Client struct {
 	Address    string
 	VersionStr string
 	Token      string
+	BaseURL    string
 }
 
 //NewRestClient - creates a new rest client
@@ -28,7 +30,122 @@ func NewRestClient(address, versionStr string) *Client {
 		},
 		Address:    address,
 		VersionStr: versionStr,
+		BaseURL:    fmt.Sprintf("%s/%s", address, versionStr),
 	}
+}
+
+func handleStatusCode(statusCode int, decoder *json.Decoder) {
+	if statusCode == http.StatusInternalServerError ||
+		statusCode == http.StatusBadRequest ||
+		statusCode == http.StatusUnauthorized {
+		var res Result
+		err := decoder.Decode(&res)
+		if err == nil && len(res.Error) != 0 {
+			olog.Error("REST", "%s : %s - %s", res.Operation,
+				res.Message,
+				res.Error)
+		} else if err != nil {
+			olog.Error("RESTClient", "Result decode failed: ", err)
+		} else {
+			olog.Info("REST", "%s : %s", res.Operation, res.Message)
+		}
+	} else {
+		olog.Error("REST", "Unexpected response status %s",
+			http.StatusText(statusCode))
+	}
+}
+
+func (client *Client) orekDo(req *http.Request) (resp *http.Response, err error) {
+	authHeader := fmt.Sprintf("Bearer %s", client.Token)
+	req.Header.Add("Authorization", authHeader)
+	resp, err = client.Do(req)
+	return resp, err
+}
+
+func (client *Client) getURL(args ...string) (str string) {
+	var buffer bytes.Buffer
+	buffer.WriteString(client.BaseURL)
+	buffer.WriteString("/in/")
+	for i := 0; i < len(args); i++ {
+		buffer.WriteString(args[i])
+		if i < len(args)-1 {
+			buffer.WriteString("/")
+		}
+	}
+	str = buffer.String()
+	return str
+}
+
+func (client *Client) orekPutOrPost(
+	method string,
+	content interface{},
+	urlArgs ...string) (err error) {
+
+	var data []byte
+	var resp *http.Response
+	data, err = json.Marshal(bytes.Buffer{})
+	apiURL := client.getURL(urlArgs...)
+	req, err := http.NewRequest(method, apiURL, bytes.NewBuffer(data))
+	authHeader := fmt.Sprintf("Bearer %s", client.Token)
+	req.Header.Add("Authorization", authHeader)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err = client.Do(req)
+	if err == nil {
+		defer resp.Body.Close()
+		decoder := json.NewDecoder(resp.Body)
+		handleStatusCode(resp.StatusCode, decoder)
+	}
+	return err
+}
+
+func (client *Client) orekGet(
+	content interface{},
+	urlArgs ...string) (err error) {
+
+	var req *http.Request
+	var resp *http.Response
+	apiURL := client.getURL(urlArgs...)
+	req, err = http.NewRequest("GET", apiURL, nil)
+	authHeader := fmt.Sprintf("Bearer %s", client.Token)
+	req.Header.Add("Authorization", authHeader)
+	resp, err = client.Do(req)
+	if err == nil {
+		defer resp.Body.Close()
+		decoder := json.NewDecoder(resp.Body)
+		if resp.StatusCode == http.StatusOK {
+			err = decoder.Decode(content)
+		} else {
+			handleStatusCode(resp.StatusCode, decoder)
+		}
+	}
+	return err
+}
+
+func (client *Client) orekDelete(
+	urlArgs ...string) (err error) {
+	var req *http.Request
+	var resp *http.Response
+	apiURL := client.getURL(urlArgs...)
+	req, err = http.NewRequest("GET", apiURL, nil)
+	authHeader := fmt.Sprintf("Bearer %s", client.Token)
+	req.Header.Add("Authorization", authHeader)
+	resp, err = client.Do(req)
+	if err == nil {
+		defer resp.Body.Close()
+		decoder := json.NewDecoder(resp.Body)
+		handleStatusCode(resp.StatusCode, decoder)
+	}
+	return err
+}
+
+func (client *Client) orekPost(content interface{},
+	urlArgs ...string) (err error) {
+	return client.orekPutOrPost("POST", content, urlArgs...)
+}
+
+func (client *Client) orekPut(content interface{},
+	urlArgs ...string) (err error) {
+	return client.orekPutOrPost("PUT", content, urlArgs...)
 }
 
 //Login - login to the server
@@ -44,14 +161,14 @@ func (client *Client) Login(userName, password string) (err error) {
 		var resp *http.Response
 		resp, err = client.Do(req)
 		if err == nil {
+			defer resp.Body.Close()
+			decoder := json.NewDecoder(resp.Body)
 			if resp.StatusCode == http.StatusOK {
-				defer resp.Body.Close()
-				decoder := json.NewDecoder(resp.Body)
 				tmap := make(map[string]string)
 				err = decoder.Decode(&tmap)
 				client.Token = tmap["token"]
 			} else {
-				olog.Error("REST", "Unexpected response status %s", resp.Status)
+				handleStatusCode(resp.StatusCode, decoder)
 			}
 		}
 	}
@@ -63,32 +180,9 @@ func (client *Client) Login(userName, password string) (err error) {
 
 //GetAllUsers - Gives all user entries in the server
 func (client *Client) GetAllUsers() (users []*data.User, err error) {
-	apiURL := fmt.Sprintf("%s/%s/in/users", client.Address, client.VersionStr)
-	var req *http.Request
-	req, err = http.NewRequest("GET", apiURL, nil)
-	if err == nil {
-		// req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		authHeader := fmt.Sprintf("Bearer %s", client.Token)
-		req.Header.Add("Authorization", authHeader)
-		var resp *http.Response
-		resp, err = client.Do(req)
-		if err == nil {
-			defer resp.Body.Close()
-			decoder := json.NewDecoder(resp.Body)
-			if resp.StatusCode == http.StatusOK {
-				users = make([]*data.User, 0, 20)
-				err = decoder.Decode(&users)
-			} else if resp.StatusCode == http.StatusInternalServerError {
-				var res Result
-				err = decoder.Decode(&res)
-				olog.Error("REST", "%s : %s - %s", res.Operation,
-					res.Message,
-					res.Error)
-			} else {
-				olog.Print("REST", "Unexpected response status %s", resp.Status)
-			}
-		}
-	}
+	// apiURL := fmt.Sprintf("%s/%s/in/users", client.Address, client.VersionStr)
+	users = make([]*data.User, 0, 20)
+	err = client.orekGet(&users, "users")
 	if err != nil {
 		olog.PrintError("RESTClient", err)
 	}
@@ -97,34 +191,8 @@ func (client *Client) GetAllUsers() (users []*data.User, err error) {
 
 //GetUser - Gives the user with given userName from server
 func (client *Client) GetUser(userName string) (user *data.User, err error) {
-	apiURL := fmt.Sprintf("%s/%s/in/users/%s", client.Address,
-		client.VersionStr,
-		userName)
-	var req *http.Request
-	req, err = http.NewRequest("GET", apiURL, nil)
-	if err == nil {
-		// req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		authHeader := fmt.Sprintf("Bearer %s", client.Token)
-		req.Header.Add("Authorization", authHeader)
-		var resp *http.Response
-		resp, err = client.Do(req)
-		if err == nil {
-			defer resp.Body.Close()
-			decoder := json.NewDecoder(resp.Body)
-			if resp.StatusCode == http.StatusOK {
-				user = &data.User{}
-				err = decoder.Decode(&user)
-			} else if resp.StatusCode == http.StatusInternalServerError {
-				var res Result
-				err = decoder.Decode(&res)
-				olog.Error("REST", "%s : %s - %s", res.Operation,
-					res.Message,
-					res.Error)
-			} else {
-				olog.Print("REST", "Unexpected response status %s", resp.Status)
-			}
-		}
-	}
+	user = &data.User{}
+	err = client.orekGet(&user, "users", userName)
 	if err != nil {
 		olog.PrintError("RESTClient", err)
 	}
@@ -135,33 +203,33 @@ func (client *Client) GetUser(userName string) (user *data.User, err error) {
 func (client *Client) GetUserWithEmail(
 	email string) (user *data.User, err error) {
 	user = &data.User{}
-	logIfError(err)
+	err = client.orekGet(&user, "users/email", email)
 	return user, err
 }
 
 //CreateUser - creates a user entry in the server with given User object
 func (client *Client) CreateUser(user *data.User) (err error) {
-	logIfError(err)
+	err = client.orekPost(user, "users")
 	return err
 }
 
 //UpdateUser - Upadates the user entry in the server with the information
 //in the given user object
 func (client *Client) UpdateUser(user *data.User) (err error) {
-	logIfError(err)
+	err = client.orekPut(user, "users")
 	return err
 }
 
 //DeleteUser - deletes the user entry with given user name
 func (client *Client) DeleteUser(userName string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("users", userName)
 	return err
 }
 
 //GetAllEndpoints - Gives all the data endpoints which have entries in server
 func (client *Client) GetAllEndpoints() (endpoints []*data.Endpoint, err error) {
 	endpoints = make([]*data.Endpoint, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&endpoints, "endpoints")
 	return endpoints, err
 }
 
@@ -169,34 +237,34 @@ func (client *Client) GetAllEndpoints() (endpoints []*data.Endpoint, err error) 
 // given name
 func (client *Client) GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error) {
 	endpoint = &data.Endpoint{}
-	logIfError(err)
+	err = client.orekGet(endpoint, "endpoints", endpointID)
 	return endpoint, err
 }
 
 //CreateEndpoint - Creates a endpoint entry in server according to the endpoint
 //object
 func (client *Client) CreateEndpoint(endpoint *data.Endpoint) (err error) {
-	logIfError(err)
+	err = client.orekPost(endpoint, "endpoints")
 	return err
 }
 
 //UpdateEndpoint - Updates the endpoint entry in server with information provided
 //in the endpoint object
 func (client *Client) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
-	logIfError(err)
+	err = client.orekPut(endpoint, "endpoints")
 	return err
 }
 
 //DeleteEndpoint - deletes an endpoint
 func (client *Client) DeleteEndpoint(endpointID string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("endpoints", endpointID)
 	return err
 }
 
 //GetAllVariables - Gives list of all variables
 func (client *Client) GetAllVariables() (variables []*data.Variable, err error) {
 	variables = make([]*data.Variable, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&variables, "variables")
 	return variables, err
 }
 
@@ -204,39 +272,39 @@ func (client *Client) GetAllVariables() (variables []*data.Variable, err error) 
 func (client *Client) GetVariablesForEndpoint(
 	endpointID string) (variables []*data.Variable, err error) {
 	variables = make([]*data.Variable, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&variables, "endpoints", endpointID, "variables")
 	return variables, err
 }
 
 //GetVariable - Gives the variable with the given ID
 func (client *Client) GetVariable(variableID string) (variable *data.Variable, err error) {
 	variable = &data.Variable{}
-	logIfError(err)
+	err = client.orekGet(variable, "variables", variableID)
 	return variable, err
 }
 
 //CreateVariable - creates a variable in the server
 func (client *Client) CreateVariable(variable *data.Variable) (err error) {
-	logIfError(err)
+	err = client.orekPost(variable, "variables")
 	return err
 }
 
 //UpdateVariable - updates a variable in the server
 func (client *Client) UpdateVariable(variable *data.Variable) (err error) {
-	logIfError(err)
+	err = client.orekPut(variable, "variables")
 	return err
 }
 
 //DeleteVariable - delete a variable from the server
 func (client *Client) DeleteVariable(variableID string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("variables", variableID)
 	return err
 }
 
 //GetAllParameters - Gives list of all parameters
 func (client *Client) GetAllParameters() (parameters []*data.Parameter, err error) {
 	parameters = make([]*data.Parameter, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&parameters, "parameters")
 	return parameters, err
 }
 
@@ -244,7 +312,7 @@ func (client *Client) GetAllParameters() (parameters []*data.Parameter, err erro
 func (client *Client) GetParametersForEndpoint(
 	endpointID string) (parameters []*data.Parameter, err error) {
 	parameters = make([]*data.Parameter, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&parameters, "endpoints", endpointID, "parameters")
 	return parameters, err
 }
 
@@ -252,59 +320,59 @@ func (client *Client) GetParametersForEndpoint(
 func (client *Client) GetParameter(
 	parameterID string) (parameter *data.Parameter, err error) {
 	parameter = &data.Parameter{}
-	logIfError(err)
+	err = client.orekGet(parameter, "parameters", parameterID)
 	return parameter, err
 }
 
 //CreateParameter - creates a parameter in the server
 func (client *Client) CreateParameter(parameter *data.Parameter) (err error) {
-	logIfError(err)
+	err = client.orekPost(parameter, "parameters")
 	return err
 }
 
 //UpdateParameter - updates a parameter in the server
 func (client *Client) UpdateParameter(parameter *data.Parameter) (err error) {
-	logIfError(err)
+	err = client.orekPut(parameter, "parameters")
 	return err
 }
 
 //DeleteParameter - delete a parameter from the server
 func (client *Client) DeleteParameter(parameterID string) (err error) {
-	logIfError(err)
+	err = client.orekDelete("parameters", parameterID)
 	return err
 }
 
 //GetAllUserGroups - gets the list of user group from the server
 func (client *Client) GetAllUserGroups() (userGroups []*data.UserGroup, err error) {
 	userGroups = make([]*data.UserGroup, 0, 100)
-	logIfError(err)
+	err = client.orekGet(&userGroups, "groups")
 	return userGroups, err
 }
 
 //GetUserGroup - get an instance of user group for give group name
 func (client *Client) GetUserGroup(
-	userGroupName string) (userGroup *data.UserGroup, err error) {
+	groupID string) (userGroup *data.UserGroup, err error) {
 	userGroup = &data.UserGroup{}
-	logIfError(err)
+	err = client.orekGet(userGroup, "groups", groupID)
 	return nil, err
 }
 
 //CreateUserGroup - creates an user group with give details
 func (client *Client) CreateUserGroup(userGroup *data.UserGroup) (err error) {
-	logIfError(err)
+	err = client.orekPost(userGroup, "groups")
 	return err
 }
 
 //UpdateUserGroup - Updates an existing user group with details from the
 //given object
 func (client *Client) UpdateUserGroup(userGroup *data.UserGroup) (err error) {
-	logIfError(err)
+	err = client.orekPut(userGroup, "groups")
 	return err
 }
 
 //DeleteUserGroup - deletes an user group with the given group name
-func (client *Client) DeleteUserGroup(userGroupName string) (err error) {
-	logIfError(err)
+func (client *Client) DeleteUserGroup(groupID string) (err error) {
+	err = client.orekDelete("groups", groupID)
 	return err
 }
 
@@ -374,61 +442,61 @@ func (client *Client) UpdatePassword(userName,
 	return err
 }
 
-//UserExists - Checks if an user record exists for given user bane
-func (client *Client) UserExists(userName string) (exists bool, err error) {
-	return exists, err
-}
+// //UserExists - Checks if an user record exists for given user bane
+// func (client *Client) UserExists(userName string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//UserExistsWithEmail - checks if an user record exists with given email
-func (client *Client) UserExistsWithEmail(email string) (exists bool, err error) {
-	return exists, err
-}
+// //UserExistsWithEmail - checks if an user record exists with given email
+// func (client *Client) UserExistsWithEmail(email string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//EndpointExists - checks if an endpoint exists with given ID
-func (client *Client) EndpointExists(endpointID string) (exists bool, err error) {
-	return exists, err
-}
+// //EndpointExists - checks if an endpoint exists with given ID
+// func (client *Client) EndpointExists(endpointID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//VariableExists - checks if a variable exists with given variable ID
-func (client *Client) VariableExists(variableID string) (exists bool, err error) {
-	return exists, err
-}
+// //VariableExists - checks if a variable exists with given variable ID
+// func (client *Client) VariableExists(variableID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//VariableExistsInEndpoint - checks if a variable with given variableID in an
-//endpoint given by the endpointID
-func (client *Client) VariableExistsInEndpoint(
-	variableID, endpointID string) (exists bool, err error) {
-	return exists, err
-}
+// //VariableExistsInEndpoint - checks if a variable with given variableID in an
+// //endpoint given by the endpointID
+// func (client *Client) VariableExistsInEndpoint(
+// 	variableID, endpointID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//ParameterExists - checks if a parameter exists with given parameter ID
-func (client *Client) ParameterExists(parameterID string) (exists bool, err error) {
-	return exists, err
-}
+// //ParameterExists - checks if a parameter exists with given parameter ID
+// func (client *Client) ParameterExists(parameterID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
-//endpoint given by the endpointID
-func (client *Client) ParameterExistsInEndpoint(
-	parameterID, endpointID string) (exists bool, err error) {
-	return exists, err
-}
+// //ParameterExistsInEndpoint - checks if a parameter with given parameterID in an
+// //endpoint given by the endpointID
+// func (client *Client) ParameterExistsInEndpoint(
+// 	parameterID, endpointID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//UserGroupExists - checks if an User group exists with given ID
-func (client *Client) UserGroupExists(
-	userGroupID string) (exists bool, err error) {
-	return exists, err
-}
+// //UserGroupExists - checks if an User group exists with given ID
+// func (client *Client) UserGroupExists(
+// 	userGroupID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//UserExistsInGroup - checks if user with given user ID is associated with the
-//group with given groupID
-func (client *Client) UserExistsInGroup(
-	userName, groupID string) (exists bool, err error) {
-	return exists, err
-}
+// //UserExistsInGroup - checks if user with given user ID is associated with the
+// //group with given groupID
+// func (client *Client) UserExistsInGroup(
+// 	userName, groupID string) (exists bool, err error) {
+// 	return exists, err
+// }
 
-//GroupHasUser - checks if group with given ID has a user with given userName
-//associated with it
-func (client *Client) GroupHasUser(
-	groupID, userName string) (has bool, err error) {
-	return has, err
-}
+// //GroupHasUser - checks if group with given ID has a user with given userName
+// //associated with it
+// func (client *Client) GroupHasUser(
+// 	groupID, userName string) (has bool, err error) {
+// 	return has, err
+// }

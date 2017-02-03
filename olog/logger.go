@@ -118,6 +118,7 @@ func Warn(module, fmtStr string, args ...interface{}) {
 //Error - error logs
 func Error(module, fmtStr string, args ...interface{}) {
 	logger.Log(ErrorLevel, module, fmtStr, args...)
+	Print(module, fmtStr, args...)
 }
 
 //Fatal - error logs
@@ -130,6 +131,7 @@ func Fatal(module, fmtStr string, args ...interface{}) {
 //PrintError - error logs
 func PrintError(module string, err error) {
 	logger.Log(ErrorLevel, module, "%v", err)
+	Print(module, "%v", err)
 }
 
 //PrintFatal - error logs

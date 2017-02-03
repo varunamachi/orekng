@@ -23,6 +23,13 @@ func logIfError(err error) (errOut error) {
 	return
 }
 
+func str(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
+}
+
 func getAllUsers(ctx echo.Context) (err error) {
 	users, err := data.GetStore().GetAllUsers()
 	if err != nil {
@@ -30,7 +37,7 @@ func getAllUsers(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get User List",
 				Message:   "Failed to fetch list of user",
-				Error:     err})
+				Error:     str(err)})
 
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, users))
@@ -52,7 +59,7 @@ func getUser(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get User Details",
 				Message:   "Failed to fetch user details",
-				Error:     err})
+				Error:     str(err)})
 
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, user))
@@ -68,7 +75,7 @@ func getUser(ctx echo.Context) (err error) {
 // 			Result{
 // 				Operation: "Get User Details",
 // 				Message:   "Failed to fetch user details",
-// 				Error:     err})
+// 				Error: str(err)})
 // 	} else {
 // 		err = logIfError(ctx.JSON(http.StatusOK, user))
 // 	}
@@ -86,13 +93,13 @@ func createUser(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Create User",
 				Message:   "User creation failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Create User",
 				Message:   "User creation successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -108,13 +115,13 @@ func updateUser(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Update User",
 				Message:   "User update failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Update User",
 				Message:   "User update successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -127,13 +134,13 @@ func deleteUser(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Delete User",
 				Message:   "User deletion failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Delete User",
 				Message:   "User deletion successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -145,7 +152,7 @@ func getAllEndpoints(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Endpoint",
 				Message:   "Listing endpoint failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, endpoints))
 	}
@@ -160,7 +167,7 @@ func getEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get Endpoint Details",
 				Message:   "Failed to fetch endpoint details",
-				Error:     err})
+				Error:     str(err)})
 
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, endpoint))
@@ -179,13 +186,13 @@ func createEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Create Endpoint",
 				Message:   "Failed to create endpoint",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Create Endpoint",
 				Message:   "Endpoint created succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -201,13 +208,13 @@ func updateEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Update Endpoint",
 				Message:   "Failed to update endpoint",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Update Endpoint",
 				Message:   "Endpoint updated succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -220,13 +227,13 @@ func deleteEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Dalete Endpoint",
 				Message:   "Failed to delete endpoint",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Delete Endpoint",
 				Message:   "Endpoint delete succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -238,7 +245,7 @@ func getAllVariables(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Variables",
 				Message:   "Failed to list all variables",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, variables))
 	}
@@ -253,7 +260,7 @@ func getVariablesForEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Variables For Endpoint",
 				Message:   "Failed to list all variables associated with an endpoint",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, variables))
 	}
@@ -268,7 +275,7 @@ func getVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get Variable Details",
 				Message:   "Failed to fetch information about a variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, variable))
 	}
@@ -286,13 +293,13 @@ func createVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Create Variable",
 				Message:   "Failed to create variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Create Variable",
 				Message:   "Variable created succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -308,13 +315,13 @@ func updateVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Update Variable",
 				Message:   "Failed to update variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Update Variable",
 				Message:   "Variable updated succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -327,13 +334,13 @@ func deleteVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Dalete Variable",
 				Message:   "Failed to delete variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Delete Variable",
 				Message:   "Variable delete succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -345,7 +352,7 @@ func getAllParameters(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Parameters",
 				Message:   "Failed to list all parameters",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, parameters))
 	}
@@ -360,7 +367,7 @@ func getParametersForEndpoint(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Parameters For Endpoint",
 				Message:   "Failed to list all parameters associated with an endpoint",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, parameters))
 	}
@@ -375,7 +382,7 @@ func getParameter(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get Parameter Details",
 				Message:   "Failed to fetch information about a parameter",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, parameter))
 	}
@@ -393,13 +400,13 @@ func createParameter(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Create Parameter",
 				Message:   "Failed to create parameter",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Create Parameter",
 				Message:   "Parameter created succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -415,13 +422,13 @@ func updateParameter(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Update Parameter",
 				Message:   "Failed to update parameter",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Update Parameter",
 				Message:   "Parameter updated succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -434,13 +441,13 @@ func deleteParameter(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Dalete Parameter",
 				Message:   "Failed to delete parameter",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Delete Parameter",
 				Message:   "Parameter delete succesffully",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -452,7 +459,7 @@ func getAllUserGroups(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get UserGroup List",
 				Message:   "Failed to fetch list of userGroup",
-				Error:     err})
+				Error:     str(err)})
 
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, userGroups))
@@ -468,7 +475,7 @@ func getUserGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Get UserGroup Details",
 				Message:   "Failed to fetch userGroup details",
-				Error:     err})
+				Error:     str(err)})
 
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, userGroup))
@@ -487,13 +494,13 @@ func createUserGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Create UserGroup",
 				Message:   "UserGroup creation failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Create UserGroup",
 				Message:   "UserGroup creation successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -509,13 +516,13 @@ func updateUserGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Update UserGroup",
 				Message:   "UserGroup update failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Update UserGroup",
 				Message:   "UserGroup update successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -528,13 +535,13 @@ func deleteUserGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Delete UserGroup",
 				Message:   "UserGroup deletion failed",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Delete UserGroup",
 				Message:   "UserGroup deletion successful",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -548,13 +555,13 @@ func addUserToGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Associate User to Group",
 				Message:   "Failed to associate user to a group",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Associate User to Group",
 				Message:   "User associated with a group successfully",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -568,13 +575,13 @@ func removeUserFromGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Disassociate User to Group",
 				Message:   "Failed to disaassociate user to a group",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Associate User to Group",
 				Message:   "User associated with a group successfully",
-				Error:     nil})
+				Error:     ""})
 	}
 	return err
 }
@@ -587,7 +594,7 @@ func getUsersInGroup(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List User in Group",
 				Message:   "Failed to fetch users associated with a group",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, users))
 	}
@@ -602,7 +609,7 @@ func getGroupsForUser(ctx echo.Context) (err error) {
 			Result{
 				Operation: "List Groups of User",
 				Message:   "Failed to fetch groups to which a user is  associated",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, groups))
 	}
@@ -624,13 +631,13 @@ func addVariableValue(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Add Variable Value",
 				Message:   "Failed add a value for a variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Add Variable Value",
 				Message:   "Value for a variable added",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -643,7 +650,7 @@ func getValuesForVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Fetch Variable Values",
 				Message:   "Failed fetch values of a variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		err = logIfError(ctx.JSON(http.StatusOK, values))
 	}
@@ -658,13 +665,13 @@ func clearValuesForVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Clear Variable Values",
 				Message:   "Failed clear the values of a variable",
-				Error:     err})
+				Error:     str(err)})
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "Clear Variable Values",
 				Message:   "Cleared values of a variable",
-				Error:     err})
+				Error:     str(err)})
 	}
 	logIfError(err)
 	return err
@@ -684,14 +691,14 @@ func setPassword(ctx echo.Context) (err error) {
 				Result{
 					Operation: "SetPassword",
 					Message:   "Password set successfully",
-					Error:     err})
+					Error:     str(err)})
 		}
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "SetPassword",
 				Message:   "Error occured while setting password",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -711,21 +718,21 @@ func updatePassword(ctx echo.Context) (err error) {
 					Result{
 						Operation: "UpdatePassword",
 						Message:   "Password updated successfully",
-						Error:     err})
+						Error:     str(err)})
 			}
 		} else {
 			ctx.JSON(http.StatusInternalServerError,
 				Result{
 					Operation: "UpdatePassword",
 					Message:   "Error occured while updating password",
-					Error:     err})
+					Error:     str(err)})
 		}
 	} else {
 		ctx.JSON(http.StatusOK,
 			Result{
 				Operation: "UpdatePassword",
 				Message:   "Error occured while updating password",
-				Error:     err})
+				Error:     str(err)})
 	}
 	return err
 }
@@ -754,7 +761,7 @@ func login(ctx echo.Context) (err error) {
 		// 			Result{
 		// 				Operation: "login",
 		// 				Message:   "Create password",
-		// 				Error:     errors.New("NoPasswordFound"),
+		// 				Error: str(err)ors.New("NoPasswordFound"),
 		// 			})
 		// 		err = nil
 		// 	} else {
@@ -789,7 +796,7 @@ func login(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Login",
 				Message:   "Invalid user name or password",
-				Error:     err})
+				Error:     str(err)})
 	}
 	logIfError(err)
 	return err
@@ -824,7 +831,7 @@ func Serve(port int) {
 	in0.GET("/endpoints/:endpointID", getEndpoint)
 	in0.POST("/endpoints", createEndpoint)
 	in0.PUT("/endpoints", updateEndpoint)
-	in0.DELETE("/endpoints:endpointID", deleteEndpoint)
+	in0.DELETE("/endpoints/:endpointID", deleteEndpoint)
 
 	in0.GET("/variables", getAllVariables)
 	in0.GET("/endpoints/:endpointID/variables", getVariablesForEndpoint)
