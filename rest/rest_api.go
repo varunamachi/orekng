@@ -85,7 +85,7 @@ func getUser(ctx echo.Context) (err error) {
 func createUser(ctx echo.Context) (err error) {
 	var user data.User
 	err = ctx.Bind(&user)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().CreateUser(&user)
 	}
 	if err != nil {
@@ -107,7 +107,7 @@ func createUser(ctx echo.Context) (err error) {
 func updateUser(ctx echo.Context) (err error) {
 	var user data.User
 	err = ctx.Bind(&user)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().UpdateUser(&user)
 	}
 	if err != nil {
@@ -178,7 +178,7 @@ func getEndpoint(ctx echo.Context) (err error) {
 func createEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
 	err = ctx.Bind(&endpoint)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().CreateEndpoint(&endpoint)
 	}
 	if err != nil {
@@ -200,7 +200,7 @@ func createEndpoint(ctx echo.Context) (err error) {
 func updateEndpoint(ctx echo.Context) (err error) {
 	var endpoint data.Endpoint
 	err = ctx.Bind(&endpoint)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().UpdateEndpoint(&endpoint)
 	}
 	if err != nil {
@@ -285,7 +285,7 @@ func getVariable(ctx echo.Context) (err error) {
 func createVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
 	err = ctx.Bind(&variable)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().CreateVariable(&variable)
 	}
 	if err != nil {
@@ -307,7 +307,7 @@ func createVariable(ctx echo.Context) (err error) {
 func updateVariable(ctx echo.Context) (err error) {
 	var variable data.Variable
 	err = ctx.Bind(&variable)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().UpdateVariable(&variable)
 	}
 	if err != nil {
@@ -392,7 +392,7 @@ func getParameter(ctx echo.Context) (err error) {
 func createParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
 	err = ctx.Bind(&parameter)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().CreateParameter(&parameter)
 	}
 	if err != nil {
@@ -414,7 +414,7 @@ func createParameter(ctx echo.Context) (err error) {
 func updateParameter(ctx echo.Context) (err error) {
 	var parameter data.Parameter
 	err = ctx.Bind(&parameter)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().UpdateParameter(&parameter)
 	}
 	if err != nil {
@@ -486,7 +486,7 @@ func getUserGroup(ctx echo.Context) (err error) {
 func createUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
 	err = ctx.Bind(&userGroup)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().CreateUserGroup(&userGroup)
 	}
 	if err != nil {
@@ -508,7 +508,7 @@ func createUserGroup(ctx echo.Context) (err error) {
 func updateUserGroup(ctx echo.Context) (err error) {
 	var userGroup data.UserGroup
 	err = ctx.Bind(&userGroup)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().UpdateUserGroup(&userGroup)
 	}
 	if err != nil {
@@ -622,7 +622,7 @@ func addVariableValue(ctx echo.Context) (err error) {
 		Value      string `json:"value"`
 	}{}
 	err = ctx.Bind(&varValue)
-	if err != nil {
+	if err == nil {
 		err = data.GetStore().AddVariableValue(varValue.VariableID,
 			varValue.Value)
 	}
@@ -671,7 +671,7 @@ func clearValuesForVariable(ctx echo.Context) (err error) {
 			Result{
 				Operation: "Clear Variable Values",
 				Message:   "Cleared values of a variable",
-				Error:     str(err)})
+				Error:     ""})
 	}
 	logIfError(err)
 	return err
@@ -698,7 +698,7 @@ func setPassword(ctx echo.Context) (err error) {
 			Result{
 				Operation: "SetPassword",
 				Message:   "Error occured while setting password",
-				Error:     str(err)})
+				Error:     ""})
 	}
 	return err
 }

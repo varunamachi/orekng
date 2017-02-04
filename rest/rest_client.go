@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"strings"
 
+	"errors"
+
 	"github.com/varunamachi/orekng/data"
 	"github.com/varunamachi/orekng/olog"
 )
@@ -33,26 +35,29 @@ func NewRestClient(address, versionStr string) *Client {
 	}
 }
 
-func handleStatusCode(statusCode int, decoder *json.Decoder) {
-	if statusCode == http.StatusInternalServerError ||
+func handleStatusCode(statusCode int, decoder *json.Decoder) (err error) {
+	var res Result
+	if statusCode == http.StatusOK {
+		err = decoder.Decode(&res)
+		olog.Info("REST", "%s : %s", res.Operation, res.Message)
+	} else if statusCode == http.StatusInternalServerError ||
 		statusCode == http.StatusBadRequest ||
-		statusCode == http.StatusUnauthorized ||
-		statusCode == http.StatusOK {
-		var res Result
-		err := decoder.Decode(&res)
+		statusCode == http.StatusUnauthorized {
+		err = decoder.Decode(&res)
 		if err == nil && len(res.Error) != 0 {
 			olog.Error("REST", "%s : %s - %s", res.Operation,
 				res.Message,
 				res.Error)
+			err = errors.New(res.Error)
 		} else if err != nil {
 			olog.Error("RESTClient", "Result decode failed: ", err)
-		} else {
-			olog.Info("REST", "%s : %s", res.Operation, res.Message)
 		}
 	} else {
-		olog.Error("REST", "Unexpected response status %s",
+		err = fmt.Errorf("Status Error: %d - %s", statusCode,
 			http.StatusText(statusCode))
+		// olog.PrintError("REST", err)
 	}
+	return err
 }
 
 func (client *Client) orekDo(req *http.Request) (resp *http.Response, err error) {
@@ -83,7 +88,7 @@ func (client *Client) orekPutOrPost(
 
 	var data []byte
 	var resp *http.Response
-	data, err = json.Marshal(bytes.Buffer{})
+	data, err = json.Marshal(content)
 	apiURL := client.getURL(urlArgs...)
 	req, err := http.NewRequest(method, apiURL, bytes.NewBuffer(data))
 	authHeader := fmt.Sprintf("Bearer %s", client.Token)
@@ -93,7 +98,7 @@ func (client *Client) orekPutOrPost(
 	if err == nil {
 		defer resp.Body.Close()
 		decoder := json.NewDecoder(resp.Body)
-		handleStatusCode(resp.StatusCode, decoder)
+		err = handleStatusCode(resp.StatusCode, decoder)
 	}
 	return err
 }
@@ -115,7 +120,7 @@ func (client *Client) orekGet(
 		if resp.StatusCode == http.StatusOK {
 			err = decoder.Decode(content)
 		} else {
-			handleStatusCode(resp.StatusCode, decoder)
+			err = handleStatusCode(resp.StatusCode, decoder)
 		}
 	}
 	return err
@@ -126,14 +131,14 @@ func (client *Client) orekDelete(
 	var req *http.Request
 	var resp *http.Response
 	apiURL := client.getURL(urlArgs...)
-	req, err = http.NewRequest("GET", apiURL, nil)
+	req, err = http.NewRequest("DELETE", apiURL, nil)
 	authHeader := fmt.Sprintf("Bearer %s", client.Token)
 	req.Header.Add("Authorization", authHeader)
 	resp, err = client.Do(req)
 	if err == nil {
 		defer resp.Body.Close()
 		decoder := json.NewDecoder(resp.Body)
-		handleStatusCode(resp.StatusCode, decoder)
+		err = handleStatusCode(resp.StatusCode, decoder)
 	}
 	return err
 }
@@ -420,7 +425,7 @@ func (client *Client) Login(userName, password string) (err error) {
 				err = decoder.Decode(&tmap)
 				client.Token = tmap["token"]
 			} else {
-				handleStatusCode(resp.StatusCode, decoder)
+				err = handleStatusCode(resp.StatusCode, decoder)
 			}
 		}
 	}
@@ -445,7 +450,7 @@ func (client *Client) SetPassword(userName, password string) (err error) {
 		if err == nil {
 			defer resp.Body.Close()
 			decoder := json.NewDecoder(resp.Body)
-			handleStatusCode(resp.StatusCode, decoder)
+			err = handleStatusCode(resp.StatusCode, decoder)
 		}
 	}
 	return err
@@ -468,7 +473,7 @@ func (client *Client) UpdatePassword(userName,
 		if err == nil {
 			defer resp.Body.Close()
 			decoder := json.NewDecoder(resp.Body)
-			handleStatusCode(resp.StatusCode, decoder)
+			err = handleStatusCode(resp.StatusCode, decoder)
 		}
 	}
 	return err
