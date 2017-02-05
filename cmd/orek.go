@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"runtime"
 	"syscall"
@@ -138,6 +139,7 @@ func (orek *OrekApp) Run(args []string) (err error) {
 
 	}
 	app := cli.NewApp()
+	app.ErrWriter = ioutil.Discard
 	app.Name = "Orek"
 	app.Version = "0.0.1"
 	app.Authors = []cli.Author{
@@ -234,9 +236,6 @@ func (orek *OrekApp) Run(args []string) (err error) {
 		}
 		return err
 	}
-	// app.Action = func(ctx *cli.Context) error {
-	// 	return errors.New("Please provide arguments")
-	// }
 	app.Commands = make([]cli.Command, 0, 30)
 	for _, cmdp := range orek.CommandProviders {
 		app.Commands = append(app.Commands, cmdp.GetCommand())

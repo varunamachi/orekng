@@ -440,8 +440,8 @@ func (sqlite *Store) AddVariableValue(variableID, value string) (err error) {
 //ClearValuesForVariable - clears values from the list of values associated with
 //the variable with given variable id
 func (sqlite *Store) ClearValuesForVariable(variableID string) (err error) {
-	queryStr := `DELETE * FROM orek_variable_value`
-	_, err = sqlite.Exec(queryStr)
+	queryStr := `DELETE FROM orek_variable_value WHERE variable_id=?`
+	_, err = sqlite.Exec(queryStr, variableID)
 	logIfError(err)
 	return err
 }

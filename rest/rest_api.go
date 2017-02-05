@@ -687,7 +687,7 @@ func setPassword(ctx echo.Context) (err error) {
 	if err == nil {
 		err = data.GetStore().SetPasswordHash(userName, hash)
 		if err == nil {
-			ctx.JSON(http.StatusOK,
+			ctx.JSON(http.StatusUnauthorized,
 				Result{
 					Operation: "SetPassword",
 					Message:   "Password set successfully",
@@ -704,7 +704,7 @@ func setPassword(ctx echo.Context) (err error) {
 }
 
 func updatePassword(ctx echo.Context) (err error) {
-	userName := ctx.FormValue("userName")
+	userName := ctx.FormValue("username")
 	oldPassword := ctx.FormValue("oldPassword")
 	password := ctx.FormValue("password")
 	err = varifyPassword(userName, oldPassword)
@@ -712,9 +712,9 @@ func updatePassword(ctx echo.Context) (err error) {
 		var hash string
 		hash, err = passlib.Hash(password)
 		if err == nil {
-			err = data.GetStore().SetPasswordHash(userName, hash)
+			err = data.GetStore().UpdatePasswordHash(userName, hash)
 			if err == nil {
-				ctx.JSON(http.StatusInternalServerError,
+				ctx.JSON(http.StatusOK,
 					Result{
 						Operation: "UpdatePassword",
 						Message:   "Password updated successfully",
@@ -728,11 +728,11 @@ func updatePassword(ctx echo.Context) (err error) {
 					Error:     str(err)})
 		}
 	} else {
-		ctx.JSON(http.StatusOK,
+		ctx.JSON(http.StatusUnauthorized,
 			Result{
 				Operation: "UpdatePassword",
-				Message:   "Error occured while updating password",
-				Error:     str(err)})
+				Message:   "Invalid user name or password",
+				Error:     "Invalid credentials"})
 	}
 	return err
 }
@@ -747,7 +747,6 @@ func varifyPassword(userName, password string) (err error) {
 			err = data.GetStore().SetPasswordHash(userName, newHash)
 		}
 	}
-	logIfError(err)
 	return err
 }
 
@@ -790,7 +789,6 @@ func login(ctx echo.Context) (err error) {
 		err = ctx.JSON(http.StatusOK, map[string]string{
 			"token": t,
 		})
-		olog.Print("REST", "## %s", t)
 	} else {
 		ctx.JSON(http.StatusUnauthorized,
 			Result{
@@ -815,6 +813,8 @@ func Serve(port int) {
 	v0 := e.Group("/v0")
 
 	v0.POST("/login", login)
+	v0.POST("/manageAuth", setPassword)
+	v0.PUT("/manageAuth", updatePassword)
 	in0 := v0.Group("/in")
 	in0.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(ky),
@@ -860,8 +860,6 @@ func Serve(port int) {
 	in0.POST("/varialbes/:variableID/values", addVariableValue)
 	in0.GET("/variables/:variableID/values", getValuesForVariable)
 	in0.DELETE("/variables/:variableID/values", clearValuesForVariable)
-	in0.POST("/manageAuth", setPassword)
-	in0.PUT("/manageAuth", updatePassword)
 
 	portStr := fmt.Sprintf(":%d", port)
 	e.Logger.Fatal(e.Start(portStr))

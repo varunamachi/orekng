@@ -97,28 +97,38 @@ func GetLevel() (level Level) {
 
 //Trace - trace logs
 func Trace(module, fmtStr string, args ...interface{}) {
-	logger.Log(TraceLevel, module, fmtStr, args...)
+	if TraceLevel <= filterLevel {
+		logger.Log(TraceLevel, module, fmtStr, args...)
+	}
 }
 
 //Debug - debug logs
 func Debug(module, fmtStr string, args ...interface{}) {
-	logger.Log(DebugLevel, module, fmtStr, args...)
+	if DebugLevel <= filterLevel {
+		logger.Log(DebugLevel, module, fmtStr, args...)
+	}
 }
 
 //Info - information logs
 func Info(module, fmtStr string, args ...interface{}) {
-	logger.Log(InfoLevel, module, fmtStr, args...)
+	if InfoLevel <= filterLevel {
+		logger.Log(InfoLevel, module, fmtStr, args...)
+	}
 }
 
 //Warn - warning logs
 func Warn(module, fmtStr string, args ...interface{}) {
-	logger.Log(WarnLevel, module, fmtStr, args...)
+	if WarnLevel <= filterLevel {
+		logger.Log(WarnLevel, module, fmtStr, args...)
+	}
 }
 
 //Error - error logs
 func Error(module, fmtStr string, args ...interface{}) {
-	logger.Log(ErrorLevel, module, fmtStr, args...)
-	Print(module, fmtStr, args...)
+	if ErrorLevel <= filterLevel {
+		logger.Log(ErrorLevel, module, fmtStr, args...)
+		Print(module, fmtStr, args...)
+	}
 }
 
 //Fatal - error logs

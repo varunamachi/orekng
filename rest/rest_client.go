@@ -329,7 +329,7 @@ func (client *Client) GetUserGroup(
 	groupID string) (userGroup *data.UserGroup, err error) {
 	userGroup = &data.UserGroup{}
 	err = client.orekGet(userGroup, "groups", groupID)
-	return nil, err
+	return userGroup, err
 }
 
 //CreateUserGroup - creates an user group with give details
@@ -361,7 +361,7 @@ func (client *Client) AddUserToGroup(userName, groupID string) (err error) {
 //RemoveUserFromGroup - disassociates user with given user name from group with
 //given group name
 func (client *Client) RemoveUserFromGroup(userName, groupID string) (err error) {
-	err = client.orekDelete("", "groups", groupID, "users", userName)
+	err = client.orekDelete("groups", groupID, "users", userName)
 	return err
 }
 
@@ -437,29 +437,30 @@ func (client *Client) Login(userName, password string) (err error) {
 
 //SetPassword - stores password hash for an user in the server
 func (client *Client) SetPassword(userName, password string) (err error) {
-	apiURL := fmt.Sprintf("%s/%s/in/manageAuth", client.Address, client.VersionStr)
-	form := url.Values{}
-	form.Add("username", userName)
-	form.Add("password", password)
-	var req *http.Request
-	req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
-	if err == nil {
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		var resp *http.Response
-		resp, err = client.Do(req)
-		if err == nil {
-			defer resp.Body.Close()
-			decoder := json.NewDecoder(resp.Body)
-			err = handleStatusCode(resp.StatusCode, decoder)
-		}
-	}
+	// apiURL := fmt.Sprintf("%s/%s/manageAuth", client.Address, client.VersionStr)
+	// form := url.Values{}
+	// form.Add("username", userName)
+	// form.Add("password", password)
+	// var req *http.Request
+	// req, err = http.NewRequest("POST", apiURL, strings.NewReader(form.Encode()))
+	// if err == nil {
+	// 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	// 	var resp *http.Response
+	// 	resp, err = client.Do(req)
+	// 	if err == nil {
+	// 		defer resp.Body.Close()
+	// 		decoder := json.NewDecoder(resp.Body)
+	// 		err = handleStatusCode(resp.StatusCode, decoder)
+	// 	}
+	// }
+	err = errors.New("Not implemented by this client")
 	return err
 }
 
 //UpdatePassword - updates password hash for a user in the server
 func (client *Client) UpdatePassword(userName,
 	currentPassword, newPassword string) (err error) {
-	apiURL := fmt.Sprintf("%s/%s/in/manageAuth", client.Address, client.VersionStr)
+	apiURL := fmt.Sprintf("%s/%s/manageAuth", client.Address, client.VersionStr)
 	form := url.Values{}
 	form.Add("username", userName)
 	form.Add("oldPassword", currentPassword)

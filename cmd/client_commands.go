@@ -1142,7 +1142,7 @@ func (ccp *ClientCommandProvider) getValuesForVariableCommand() (cmd cli.Command
 				values, err = ccp.Client.GetValuesForVariable(variableID)
 				if err == nil {
 					for _, val := range values {
-						olog.Print("Client", "%v", val)
+						olog.Print("Client", "%v", *val)
 					}
 				}
 			}
@@ -1225,7 +1225,7 @@ func (ccp *ClientCommandProvider) updatePasswordCommand() (cmd cli.Command) {
 		Action: func(ctx *cli.Context) (err error) {
 			argetr := ArgGetter{Ctx: ctx}
 			userName := argetr.GetRequiredString("user-name")
-			currentPassword := argetr.GetRequiredString("current-password")
+			currentPassword := argetr.GetRequiredSecret("current-password")
 			newPassword := argetr.GetRequiredSecret("new-password")
 			confirmPassword := argetr.GetRequiredSecret("confirm-password")
 			if err = argetr.Err; err == nil {
