@@ -80,10 +80,20 @@ func (sqlite *Store) UpdateUser(user *data.User) (err error) {
 	return err
 }
 
-//DeleteUser - deletes the user entry with given user name
-func (sqlite *Store) DeleteUser(userName string) (err error) {
+//DeleteUsers - deletes the user entry with given user name
+func (sqlite *Store) DeleteUsers(userNames ...string) (err error) {
 	queryStr := `DELETE FROM orek_user WHERE user_name = ?`
-	_, err = sqlite.Exec(queryStr, userName)
+	var tx *sqlx.Tx
+	tx, err = sqlite.Beginx()
+	for _, userName := range userNames {
+		_, err = tx.Exec(queryStr, userName)
+		if err != nil {
+			break
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	}
 	logIfError(err)
 	return err
 }
@@ -99,7 +109,8 @@ func (sqlite *Store) GetAllEndpoints() (endpoints []*data.Endpoint, err error) {
 
 //GetEndpoint - Gives data endpoint object correspoing to the database entry with
 // given name
-func (sqlite *Store) GetEndpoint(endpointID string) (endpoint *data.Endpoint, err error) {
+func (sqlite *Store) GetEndpoint(endpointID string) (endpoint *data.Endpoint,
+	err error) {
 	endpoint = &data.Endpoint{}
 	queryStr := `SELECT * FROM orek_endpoint WHERE endpoint_id = ?`
 	err = sqlite.Get(endpoint, queryStr, endpointID)
@@ -148,10 +159,20 @@ func (sqlite *Store) UpdateEndpoint(endpoint *data.Endpoint) (err error) {
 	return err
 }
 
-//DeleteEndpoint - deletes an endpoint
-func (sqlite *Store) DeleteEndpoint(endpointID string) (err error) {
+//DeleteEndpoints - deletes an endpoint
+func (sqlite *Store) DeleteEndpoints(endpointIDs ...string) (err error) {
 	queryStr := `DELETE FROM orek_endpoint WHERE endpoint_id = ?`
-	_, err = sqlite.Exec(queryStr, endpointID)
+	var tx *sqlx.Tx
+	tx, err = sqlite.Beginx()
+	for _, epID := range endpointIDs {
+		_, err = tx.Exec(queryStr, epID)
+		if err != nil {
+			break
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	}
 	logIfError(err)
 	return err
 }
@@ -177,7 +198,8 @@ func (sqlite *Store) GetVariablesForEndpoint(
 }
 
 //GetVariable - Gives the variable with the given ID
-func (sqlite *Store) GetVariable(variableID string) (variable *data.Variable, err error) {
+func (sqlite *Store) GetVariable(variableID string) (variable *data.Variable,
+	err error) {
 	queryStr := `SELECT * FROM orek_variable WHERE variable_id = ?`
 	variable = &data.Variable{}
 	err = sqlite.Get(variable, queryStr, variableID)
@@ -222,16 +244,27 @@ func (sqlite *Store) UpdateVariable(variable *data.Variable) (err error) {
 	return err
 }
 
-//DeleteVariable - delete a variable from the datasource
-func (sqlite *Store) DeleteVariable(variableID string) (err error) {
+//DeleteVariables - delete a variable from the datasource
+func (sqlite *Store) DeleteVariables(variableIDs ...string) (err error) {
 	queryStr := `DELETE FROM orek_variable WHERE variable_id = ?`
-	_, err = sqlite.Exec(queryStr, variableID)
+	var tx *sqlx.Tx
+	tx, err = sqlite.Beginx()
+	for _, varID := range variableIDs {
+		_, err = tx.Exec(queryStr, varID)
+		if err != nil {
+			break
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	}
 	logIfError(err)
 	return err
 }
 
 //GetAllParameters - Gives list of all parameters
-func (sqlite *Store) GetAllParameters() (parameters []*data.Parameter, err error) {
+func (sqlite *Store) GetAllParameters() (parameters []*data.Parameter,
+	err error) {
 	queryStr := `SELECT * FROM orek_parameter ORDER BY parameter_id`
 	parameters = make([]*data.Parameter, 0, 100)
 	err = sqlite.Select(&parameters, queryStr)
@@ -298,10 +331,20 @@ func (sqlite *Store) UpdateParameter(parameter *data.Parameter) (err error) {
 	return err
 }
 
-//DeleteParameter - delete a parameter from the datasource
-func (sqlite *Store) DeleteParameter(parameterID string) (err error) {
+//DeleteParameters - delete a parameter from the datasource
+func (sqlite *Store) DeleteParameters(parameterIDs ...string) (err error) {
 	queryStr := `DELETE FROM orek_parameter WHERE parameter_id = ?`
-	_, err = sqlite.Exec(queryStr, parameterID)
+	var tx *sqlx.Tx
+	tx, err = sqlite.Beginx()
+	for _, paramID := range parameterIDs {
+		_, err = tx.Exec(queryStr, paramID)
+		if err != nil {
+			break
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	}
 	logIfError(err)
 	return err
 }
@@ -356,10 +399,20 @@ func (sqlite *Store) UpdateUserGroup(userGroup *data.UserGroup) (err error) {
 	return err
 }
 
-//DeleteUserGroup - deletes an user group with the given group name
-func (sqlite *Store) DeleteUserGroup(userGroupName string) (err error) {
+//DeleteUserGroups - deletes an user group with the given group name
+func (sqlite *Store) DeleteUserGroups(userGroupIDs ...string) (err error) {
 	queryStr := `DELETE FROM orek_user_group WHERE group_id = ?`
-	_, err = sqlite.Exec(queryStr, userGroupName)
+	var tx *sqlx.Tx
+	tx, err = sqlite.Beginx()
+	for _, gpID := range userGroupIDs {
+		_, err = tx.Exec(queryStr, gpID)
+		if err != nil {
+			break
+		}
+	}
+	if err == nil {
+		err = tx.Commit()
+	}
 	logIfError(err)
 	return err
 }

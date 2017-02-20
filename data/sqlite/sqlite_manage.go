@@ -49,6 +49,7 @@ var queries = [...]CreateQuery{
     		description TEXT NOT NULL,
     		PRIMARY KEY( group_id ),
     		FOREIGN KEY( owner ) REFERENCES orek_user( user_name )
+				ON DELETE CASCADE
     	);`,
 	},
 	CreateQuery{
