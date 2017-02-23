@@ -82,26 +82,31 @@ func (ds LocalClient) SetPassword(userName, password string) (err error) {
 
 //DeleteUser - Deletes the user with given name
 func (ds LocalClient) DeleteUser(userName string) (err error) {
+	err = ds.DeleteUsers(userName)
 	return err
 }
 
 //DeleteEndpoint - Deletes the user with given name
 func (ds LocalClient) DeleteEndpoint(endpointID string) (err error) {
+	err = ds.DeleteEndpoints(endpointID)
 	return err
 }
 
 //DeleteVariable - Deletes the variable with given ID
 func (ds LocalClient) DeleteVariable(variableID string) (err error) {
+	err = ds.DeleteVariables(variableID)
 	return err
 }
 
 //DeleteParameter - deletes the parameter with given ID
 func (ds LocalClient) DeleteParameter(parameterID string) (err error) {
+	err = ds.DeleteParameters(parameterID)
 	return err
 }
 
 //DeleteUserGroup - deletes user group with given ID
 func (ds LocalClient) DeleteUserGroup(usergroupID string) (err error) {
+	err = ds.DeleteUserGroups(usergroupID)
 	return err
 }
 
